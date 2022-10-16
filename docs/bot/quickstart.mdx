@@ -1,0 +1,81 @@
+---
+sidebar_position: 1
+title: Quick start guide
+description: A quick start guide to get you up and running with the bot.
+---
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+```
+
+# Quick start guide
+
+This guide will help you to quickly start developing neW features for the bot.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/) (v17 or higher)
+- [TypeScript](https://www.typescriptlang.org/) (v4.4 or higher) Wich is included in the dev-dependencies of node
+- [Git](https://git-scm.com/)
+- [MongoDB](https://www.mongodb.com/) (v4.4 or higher)
+
+
+- Discord Bot **Token**, you can get one [here](https://discord.com/developers/applications)
+- Discord Bot **Client ID**, you can get one [here](https://discord.com/developers/applications)
+- Discord Bot **Client Secret**, you can get one [here](https://discord.com/developers/applications)
+
+## Setup
+
+First, clone the repository:
+
+```bash
+git clone https://github.com/fernandomema/zumito.git
+```
+
+Then, install the dependencies:
+
+```bash
+npm install
+```
+
+Copy the `.env.example` file to `.env` and fill the variables with your data.
+
+<Tabs groupId="shells" defaultValue="bash">
+  <TabItem value="bash" label="Bash">
+
+```bash
+cp .env.example .env
+```
+
+  </TabItem>
+  <TabItem value="powershell" label="Powershell">
+
+```powershell
+Copy-Item .env.example -Destination .env
+```
+
+  </TabItem>
+  <TabItem value="cmd" label="cmd">
+
+```cmd
+copy .env.example .env
+```
+
+  </TabItem>
+</Tabs>
+
+
+You can find more information about the `.env` file [here](/docs/bot/env).
+
+## Development
+
+Once the project is configured, you can add or modify the different modules of the bot following the documentation of the [framework](/docs/framework/quickstart).
+
+## Execute
+
+To execute the bot, run:
+
+```bash
+npm run start
+```
