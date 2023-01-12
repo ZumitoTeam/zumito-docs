@@ -71,7 +71,7 @@ Extending the Command class will give you access to the following methods that y
 - **selectMenu**: The method that will be executed when a select menu is used and their custom id starts with the command name. the method will receive `path` parameter that is an array od string extracted from spliting the custom id by `.`.
 
 
-# Command boilerplate
+## Command boilerplate
 
 ```ts
 import { Command, CommandParameters, ZumitoFramework, CommandType, SelectMenuParameters } from "zumito-framework";

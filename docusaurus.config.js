@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Zumito',
-  tagline: 'Multipurpose Discord Bot',
+  tagline: 'Speed focused discord.js framework',
   url: 'https://zumito-documentation.vercel.app/',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -62,7 +62,7 @@ const config = {
         items: [
           {
             type: 'doc',
-            docId: 'structure',
+            docId: 'quick-start',
             position: 'left',
             label: 'Docs',
           },
@@ -81,7 +81,7 @@ const config = {
             items: [
               {
                 label: 'Docs',
-                to: '/docs/structure',
+                to: '/docs/quick-start',
               },
             ],
           },

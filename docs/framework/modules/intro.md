@@ -33,7 +33,7 @@ The name of the folder will be the name of the module.
 
 The framework will automatically load the module when it starts.
 
-The module by default will load commands, events, database models and translations from thei respective folders.
+The module by default will load commands, events, database models and translations from their respective folders.
 
 you can modify this behavior by creating a `index.ts` file in the module folder extending the Module class.
 

@@ -1,0 +1,8 @@
+{
+  "label": "Custom bot",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "In this sections you can find all the information for creating your own bot."
+  }
+}
