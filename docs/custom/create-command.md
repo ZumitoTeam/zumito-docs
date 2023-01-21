@@ -1,0 +1,64 @@
+---
+sidebar_position: 2
+title: Create command
+description: A quick guide on how to create a command.
+---
+
+# Create command
+
+To start creating a command, you just need to run the following command:
+
+```bash
+npx zumito-cli create command
+```
+
+It will ask you for the name of the command, and the module where you want to create it.
+:information_source: Don't worry if you don't created the module yet, the CLI will create it for you.
+
+After that, it will create a file in the `src/modules/<module>/commands` folder with the name of the command.
+The file will contain the following code:
+
+```ts
+import { Command, CommandParameters, ZumitoFramework, CommandType, SelectMenuParameters } from "zumito-framework";
+
+export class CommandName extends Command {
+
+    execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): void {
+        // Command code
+    }
+
+    async selectMenu({ path, interaction, client, framework, guildSettings }: SelectMenuParameters): Promise<void> {
+        
+    }
+
+}
+```
+
+From here, you can start coding your command.
+- `execute` is the function that will be executed when the command is executed.
+- `selectMenu` is the function that will be executed when a select menu is executed.
+
+## Command parameters
+
+The `execute` function receives a `CommandParameters` object, which contains the following properties:
+- `message` - Discord.Message object. Undefined if the command is executed from an interaction (slash command).
+- `interaction` - Discord.Interaction object. Undefined if the command is executed from a message with the prefix.
+- `args` - Arguments of the command. Contains the arguments user passed to the command.
+
+    - You can get the arguments using the `get` method, which receives the name of the argument and the type of the argument.
+
+        ```ts
+        args.get("argumentName"); // Output: "Argument value"
+        ```
+    - Output comes in the type you specified, so if you specify a number, the output will be a number and if you specify a user it will be a Discord.User object.
+- `client` - Discord.Client object.
+- `framework` - ZumitoFramework object.
+- `guildSettings` - Guild settings object. Contains the settings of the guild where the command was executed. The data is loaded from the database on each command execution.
+- `trans` - A shorthand function to translate strings. It receives the key of the string and the variables to replace in the string.
+    - It does not require language to be specified, it will use the language of the guild where the command was executed.
+    - The key is relative to current command, so if you have a key named `command.yourCommandName.yourKey`, you can use it like this: `trans("yourKey")`. if you want to use a key from anywhere else, you can use `$` prefix, like this: `trans("$command.yourCommandName.yourKey")`.
+
+## More info
+
+You can find more information about the command, like his properties, methods and events in the [Framework Command](/docs/framework/modules/command) page.
+

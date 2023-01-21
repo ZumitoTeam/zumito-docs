@@ -8,7 +8,7 @@ sidebar_position: 1
 
 Zumito is divided into 4 main projects:
 
-### [zumito-framework](https://github.com/fernandomema/zumito-framework) - The core of Zumito
+### [zumito-framework](https://github.com/ZumitoTeam/zumito-framework) - The core of Zumito
 
 This is the core of Zumito, it contains the main classes and functions that Zumito uses to work.
 It contains the bot structure and can load modules of our project.

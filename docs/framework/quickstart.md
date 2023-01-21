@@ -18,7 +18,7 @@ This guide will help you to quickly start developing new features to the framewo
 First, clone the repository:
 
 ```bash
-git clone https://github.com/fernandomema/zumito-framework.git
+git clone https://github.com/ZumitoTeam/zumito-framework.git
 ```
 
 Then, install the dependencies:
