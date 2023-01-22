@@ -31,6 +31,23 @@ const config = {
     '@vegaprotocol/docusaurus-theme-github-codeblock'
   ],
 
+  plugins: [
+    [
+      'docusaurus-plugin-typedoc',
+
+      // Plugin / TypeDoc options
+      {
+        entryPoints: ['../zumito-framework/src/index.ts'],
+        tsconfig: '../zumito-framework/tsconfig.json',
+        out: 'framework/tsdocs/',
+        sidebar: {
+          categoryLabel: 'TypeDoc',
+          position: 100,
+        },
+      },
+    ],
+  ],
+
   presets: [
     [
       'classic',
