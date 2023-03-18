@@ -52,7 +52,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:119](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L119)
+[types/Command.ts:119](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L119)
 
 ___
 
@@ -82,7 +82,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:51](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L51)
+[types/Command.ts:51](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L51)
 
 ___
 
@@ -122,7 +122,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:179](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L179)
+[types/Command.ts:179](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L179)
 
 ___
 
@@ -156,7 +156,7 @@ export class BanCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:93](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L93)
+[types/Command.ts:93](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L93)
 
 ___
 
@@ -187,7 +187,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:38](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L38)
+[types/Command.ts:38](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L38)
 
 ___
 
@@ -217,7 +217,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:145](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L145)
+[types/Command.ts:145](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L145)
 
 ___
 
@@ -247,7 +247,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:159](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L159)
+[types/Command.ts:159](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L159)
 
 ___
 
@@ -278,7 +278,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:65](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L65)
+[types/Command.ts:65](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L65)
 
 ___
 
@@ -308,7 +308,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:106](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L106)
+[types/Command.ts:106](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L106)
 
 ___
 
@@ -338,7 +338,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:24](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L24)
+[types/Command.ts:24](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L24)
 
 ___
 
@@ -368,7 +368,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:132](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L132)
+[types/Command.ts:132](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L132)
 
 ___
 
@@ -378,7 +378,7 @@ ___
 
 #### Defined in
 
-[types/Command.ts:146](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L146)
+[types/Command.ts:146](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L146)
 
 ___
 
@@ -428,7 +428,7 @@ export class PingCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:205](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L205)
+[types/Command.ts:205](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L205)
 
 ___
 
@@ -462,7 +462,7 @@ export class ClearCommand extends Command {
 
 #### Defined in
 
-[types/Command.ts:79](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L79)
+[types/Command.ts:79](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L79)
 
 ## Methods
 
@@ -490,7 +490,7 @@ The function that is executed when the command is called.
 
 #### Defined in
 
-[types/Command.ts:218](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L218)
+[types/Command.ts:218](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L218)
 
 ___
 
@@ -510,7 +510,7 @@ ___
 
 #### Defined in
 
-[types/Command.ts:226](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L226)
+[types/Command.ts:226](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L226)
 
 ___
 
@@ -530,7 +530,7 @@ ___
 
 #### Defined in
 
-[types/Command.ts:237](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L237)
+[types/Command.ts:237](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L237)
 
 ___
 
@@ -550,4 +550,4 @@ ___
 
 #### Defined in
 
-[types/Command.ts:248](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Command.ts#L248)
+[types/Command.ts:248](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Command.ts#L248)

@@ -13,6 +13,7 @@ custom_edit_url: null
 - [Command](classes/Command.md)
 - [CommandArguments](classes/CommandArguments.md)
 - [DatabaseConfigLoader](classes/DatabaseConfigLoader.md)
+- [DatabaseModel](classes/DatabaseModel.md)
 - [EmojiFallback](classes/EmojiFallback.md)
 - [FrameworkEvent](classes/FrameworkEvent.md)
 - [Module](classes/Module.md)
@@ -47,4 +48,4 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/CommandType.ts:1](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandType.ts#L1)
+[types/CommandType.ts:1](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandType.ts#L1)

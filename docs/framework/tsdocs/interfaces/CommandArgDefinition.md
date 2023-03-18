@@ -14,7 +14,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/CommandArgDefinition.ts:7](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArgDefinition.ts#L7)
+[types/CommandArgDefinition.ts:7](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArgDefinition.ts#L7)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 #### Defined in
 
-[types/CommandArgDefinition.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArgDefinition.ts#L4)
+[types/CommandArgDefinition.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArgDefinition.ts#L4)
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 #### Defined in
 
-[types/CommandArgDefinition.ts:5](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArgDefinition.ts#L5)
+[types/CommandArgDefinition.ts:5](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArgDefinition.ts#L5)
 
 ___
 
@@ -44,4 +44,4 @@ ___
 
 #### Defined in
 
-[types/CommandArgDefinition.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArgDefinition.ts#L6)
+[types/CommandArgDefinition.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArgDefinition.ts#L6)

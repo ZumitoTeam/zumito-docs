@@ -14,7 +14,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/Translation.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L4)
+[types/Translation.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L4)
 
 ## Properties
 
@@ -24,7 +24,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/Translation.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L2)
+[types/Translation.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L2)
 
 ## Methods
 
@@ -45,7 +45,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/Translation.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L6)
+[types/Translation.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L6)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 #### Defined in
 
-[types/Translation.ts:29](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L29)
+[types/Translation.ts:29](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L29)
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 #### Defined in
 
-[types/Translation.ts:25](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L25)
+[types/Translation.ts:25](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L25)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 #### Defined in
 
-[types/Translation.ts:21](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L21)
+[types/Translation.ts:21](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L21)
 
 ___
 
@@ -120,4 +120,4 @@ ___
 
 #### Defined in
 
-[types/Translation.ts:33](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Translation.ts#L33)
+[types/Translation.ts:33](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Translation.ts#L33)

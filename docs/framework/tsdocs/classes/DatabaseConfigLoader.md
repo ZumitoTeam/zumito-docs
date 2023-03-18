@@ -24,4 +24,4 @@ custom_edit_url: null
 
 #### Defined in
 
-[utils/DatabaseConfigLoader.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/DatabaseConfigLoader.ts#L2)
+[utils/DatabaseConfigLoader.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/DatabaseConfigLoader.ts#L2)

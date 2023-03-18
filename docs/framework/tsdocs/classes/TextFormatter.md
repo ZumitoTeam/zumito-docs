@@ -30,7 +30,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[utils/TextFormatter.ts:75](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L75)
+[utils/TextFormatter.ts:75](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L75)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:51](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L51)
+[utils/TextFormatter.ts:51](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L51)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L6)
+[utils/TextFormatter.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L6)
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:41](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L41)
+[utils/TextFormatter.ts:41](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L41)
 
 ___
 
@@ -111,7 +111,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:14](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L14)
+[utils/TextFormatter.ts:14](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L14)
 
 ___
 
@@ -131,7 +131,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L18)
+[utils/TextFormatter.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L18)
 
 ___
 
@@ -152,7 +152,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:79](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L79)
+[utils/TextFormatter.ts:79](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L79)
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:100](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L100)
+[utils/TextFormatter.ts:100](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L100)
 
 ___
 
@@ -196,7 +196,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:83](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L83)
+[utils/TextFormatter.ts:83](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L83)
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:91](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L91)
+[utils/TextFormatter.ts:91](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L91)
 
 ___
 
@@ -239,7 +239,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:47](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L47)
+[utils/TextFormatter.ts:47](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L47)
 
 ___
 
@@ -259,7 +259,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:55](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L55)
+[utils/TextFormatter.ts:55](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L55)
 
 ___
 
@@ -279,7 +279,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:22](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L22)
+[utils/TextFormatter.ts:22](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L22)
 
 ___
 
@@ -303,7 +303,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:108](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L108)
+[utils/TextFormatter.ts:108](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L108)
 
 ___
 
@@ -328,7 +328,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:121](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L121)
+[utils/TextFormatter.ts:121](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L121)
 
 ___
 
@@ -348,7 +348,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:71](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L71)
+[utils/TextFormatter.ts:71](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L71)
 
 ___
 
@@ -368,7 +368,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L10)
+[utils/TextFormatter.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L10)
 
 ___
 
@@ -388,7 +388,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:67](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L67)
+[utils/TextFormatter.ts:67](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L67)
 
 ___
 
@@ -408,7 +408,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:63](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L63)
+[utils/TextFormatter.ts:63](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L63)
 
 ___
 
@@ -429,7 +429,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:27](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L27)
+[utils/TextFormatter.ts:27](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L27)
 
 ___
 
@@ -450,7 +450,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:32](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L32)
+[utils/TextFormatter.ts:32](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L32)
 
 ___
 
@@ -470,7 +470,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:37](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L37)
+[utils/TextFormatter.ts:37](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L37)
 
 ___
 
@@ -490,7 +490,7 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:59](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L59)
+[utils/TextFormatter.ts:59](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L59)
 
 ___
 
@@ -510,4 +510,4 @@ ___
 
 #### Defined in
 
-[utils/TextFormatter.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/TextFormatter.ts#L2)
+[utils/TextFormatter.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/TextFormatter.ts#L2)

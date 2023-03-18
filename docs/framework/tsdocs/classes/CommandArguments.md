@@ -20,7 +20,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/CommandArguments.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArguments.ts#L6)
+[types/CommandArguments.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArguments.ts#L6)
 
 ## Properties
 
@@ -30,7 +30,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/CommandArguments.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArguments.ts#L4)
+[types/CommandArguments.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArguments.ts#L4)
 
 ## Methods
 
@@ -51,7 +51,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/CommandArguments.ts:14](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArguments.ts#L14)
+[types/CommandArguments.ts:14](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArguments.ts#L14)
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 #### Defined in
 
-[types/CommandArguments.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArguments.ts#L10)
+[types/CommandArguments.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArguments.ts#L10)
 
 ___
 
@@ -91,4 +91,4 @@ ___
 
 #### Defined in
 
-[types/CommandArguments.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandArguments.ts#L18)
+[types/CommandArguments.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/CommandArguments.ts#L18)

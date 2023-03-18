@@ -21,7 +21,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/Module.ts:24](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L24)
+[types/Module.ts:24](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L24)
 
 ## Properties
 
@@ -31,7 +31,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/Module.ts:20](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L20)
+[types/Module.ts:20](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L20)
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:21](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L21)
+[types/Module.ts:21](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L21)
 
 ___
 
@@ -51,17 +51,17 @@ ___
 
 #### Defined in
 
-[types/Module.ts:19](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L19)
+[types/Module.ts:19](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L19)
 
 ___
 
 ### models
 
-• `Protected` **models**: `DatabaseModel`[] = `[]`
+• `Protected` **models**: [`DatabaseModel`](DatabaseModel.md)[] = `[]`
 
 #### Defined in
 
-[types/Module.ts:22](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L22)
+[types/Module.ts:22](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L22)
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L18)
+[types/Module.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L18)
 
 ## Methods
 
@@ -85,7 +85,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:155](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L155)
+[types/Module.ts:155](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L155)
 
 ___
 
@@ -99,21 +99,21 @@ ___
 
 #### Defined in
 
-[types/Module.ts:246](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L246)
+[types/Module.ts:246](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L246)
 
 ___
 
 ### getModels
 
-▸ **getModels**(): `DatabaseModel`[]
+▸ **getModels**(): [`DatabaseModel`](DatabaseModel.md)[]
 
 #### Returns
 
-`DatabaseModel`[]
+[`DatabaseModel`](DatabaseModel.md)[]
 
 #### Defined in
 
-[types/Module.ts:330](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L330)
+[types/Module.ts:330](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L330)
 
 ___
 
@@ -127,7 +127,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:29](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L29)
+[types/Module.ts:29](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L29)
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:276](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L276)
+[types/Module.ts:276](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L276)
 
 ___
 
@@ -168,7 +168,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:114](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L114)
+[types/Module.ts:114](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L114)
 
 ___
 
@@ -188,7 +188,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:82](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L82)
+[types/Module.ts:82](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L82)
 
 ___
 
@@ -208,7 +208,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:150](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L150)
+[types/Module.ts:150](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L150)
 
 ___
 
@@ -228,7 +228,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:226](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L226)
+[types/Module.ts:226](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L226)
 
 ___
 
@@ -250,7 +250,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:297](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L297)
+[types/Module.ts:297](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L297)
 
 ___
 
@@ -264,7 +264,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:36](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L36)
+[types/Module.ts:36](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L36)
 
 ___
 
@@ -284,7 +284,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:206](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L206)
+[types/Module.ts:206](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L206)
 
 ___
 
@@ -298,7 +298,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:159](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L159)
+[types/Module.ts:159](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L159)
 
 ___
 
@@ -312,7 +312,7 @@ ___
 
 #### Defined in
 
-[types/Module.ts:307](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L307)
+[types/Module.ts:307](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L307)
 
 ___
 
@@ -332,4 +332,4 @@ ___
 
 #### Defined in
 
-[types/Module.ts:250](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Module.ts#L250)
+[types/Module.ts:250](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/Module.ts#L250)

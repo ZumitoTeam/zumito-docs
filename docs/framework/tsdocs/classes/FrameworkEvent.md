@@ -20,7 +20,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/FrameworkEvent.ts:3](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkEvent.ts#L3)
+[types/FrameworkEvent.ts:3](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/FrameworkEvent.ts#L3)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 #### Defined in
 
-[types/FrameworkEvent.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkEvent.ts#L2)
+[types/FrameworkEvent.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/FrameworkEvent.ts#L2)
 
 ## Methods
 
@@ -50,4 +50,4 @@ ___
 
 #### Defined in
 
-[types/FrameworkEvent.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkEvent.ts#L4)
+[types/FrameworkEvent.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/types/FrameworkEvent.ts#L4)

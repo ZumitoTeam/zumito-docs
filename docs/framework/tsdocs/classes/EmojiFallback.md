@@ -32,7 +32,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[utils/EmojiFallback.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/EmojiFallback.ts#L4)
+[utils/EmojiFallback.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/EmojiFallback.ts#L4)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[utils/EmojiFallback.ts:24](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/EmojiFallback.ts#L24)
+[utils/EmojiFallback.ts:24](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/EmojiFallback.ts#L24)
 
 ___
 
@@ -76,4 +76,4 @@ ___
 
 #### Defined in
 
-[utils/EmojiFallback.ts:13](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/utils/EmojiFallback.ts#L13)
+[utils/EmojiFallback.ts:13](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/utils/EmojiFallback.ts#L13)

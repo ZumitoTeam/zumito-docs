@@ -14,7 +14,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[TranslationManager.ts:8](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L8)
+[TranslationManager.ts:8](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L8)
 
 ## Properties
 
@@ -24,7 +24,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[TranslationManager.ts:5](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L5)
+[TranslationManager.ts:5](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L5)
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L6)
+[TranslationManager.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L6)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L4)
+[TranslationManager.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L4)
 
 ## Methods
 
@@ -66,7 +66,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L10)
+[TranslationManager.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L10)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:30](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L30)
+[TranslationManager.ts:30](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L30)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:38](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L38)
+[TranslationManager.ts:38](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L38)
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:46](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L46)
+[TranslationManager.ts:46](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L46)
 
 ___
 
@@ -128,7 +128,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:26](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L26)
+[TranslationManager.ts:26](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L26)
 
 ___
 
@@ -150,7 +150,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L18)
+[TranslationManager.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L18)
 
 ___
 
@@ -170,7 +170,7 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:34](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L34)
+[TranslationManager.ts:34](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L34)
 
 ___
 
@@ -190,4 +190,4 @@ ___
 
 #### Defined in
 
-[TranslationManager.ts:42](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/TranslationManager.ts#L42)
+[TranslationManager.ts:42](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/TranslationManager.ts#L42)

@@ -31,7 +31,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[definitions/ApiResponse.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/definitions/ApiResponse.ts#L2)
+[definitions/ApiResponse.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/definitions/ApiResponse.ts#L2)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 #### Defined in
 
-[definitions/ApiResponse.ts:9](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/definitions/ApiResponse.ts#L9)
+[definitions/ApiResponse.ts:9](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/definitions/ApiResponse.ts#L9)

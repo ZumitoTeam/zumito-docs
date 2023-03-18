@@ -40,7 +40,7 @@ new ZumitoFramework({
 
 #### Defined in
 
-[ZumitoFramework.ts:117](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L117)
+[ZumitoFramework.ts:117](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L117)
 
 ## Properties
 
@@ -56,7 +56,7 @@ The ExpressJS app instance.
 
 #### Defined in
 
-[ZumitoFramework.ts:110](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L110)
+[ZumitoFramework.ts:110](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L110)
 
 ___
 
@@ -72,7 +72,7 @@ The discord client instance.
 
 #### Defined in
 
-[ZumitoFramework.ts:56](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L56)
+[ZumitoFramework.ts:56](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L56)
 
 ___
 
@@ -88,7 +88,7 @@ The commands loaded in the framework.
 
 #### Defined in
 
-[ZumitoFramework.ts:75](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L75)
+[ZumitoFramework.ts:75](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L75)
 
 ___
 
@@ -104,7 +104,7 @@ The canario database schema instance.
 
 #### Defined in
 
-[ZumitoFramework.ts:103](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L103)
+[ZumitoFramework.ts:103](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L103)
 
 ___
 
@@ -120,19 +120,19 @@ The events loaded in the framework.
 
 #### Defined in
 
-[ZumitoFramework.ts:82](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L82)
+[ZumitoFramework.ts:82](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L82)
 
 ___
 
 ### models
 
-• `Private` **models**: `DatabaseModel`[]
+• `Private` **models**: [`DatabaseModel`](DatabaseModel.md)[]
 
 The database models loaded in the framework.
 
 #### Defined in
 
-[ZumitoFramework.ts:96](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L96)
+[ZumitoFramework.ts:96](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L96)
 
 ___
 
@@ -144,7 +144,7 @@ The modules loaded in the framework.
 
 #### Defined in
 
-[ZumitoFramework.ts:68](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L68)
+[ZumitoFramework.ts:68](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L68)
 
 ___
 
@@ -154,7 +154,7 @@ ___
 
 #### Defined in
 
-[ZumitoFramework.ts:90](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L90)
+[ZumitoFramework.ts:90](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L90)
 
 ___
 
@@ -166,7 +166,7 @@ The settings for the framework.
 
 #### Defined in
 
-[ZumitoFramework.ts:62](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L62)
+[ZumitoFramework.ts:62](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L62)
 
 ___
 
@@ -182,7 +182,7 @@ The Translation Manager for the framework.
 
 #### Defined in
 
-[ZumitoFramework.ts:89](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L89)
+[ZumitoFramework.ts:89](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L89)
 
 ## Methods
 
@@ -242,7 +242,7 @@ getGuildSettings(interaction.guildId);
 
 #### Defined in
 
-[ZumitoFramework.ts:442](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L442)
+[ZumitoFramework.ts:442](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L442)
 
 ___
 
@@ -262,7 +262,7 @@ It also loads the modules from the project's modules folder.
 
 #### Defined in
 
-[ZumitoFramework.ts:146](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L146)
+[ZumitoFramework.ts:146](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L146)
 
 ___
 
@@ -276,7 +276,7 @@ ___
 
 #### Defined in
 
-[ZumitoFramework.ts:155](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L155)
+[ZumitoFramework.ts:155](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L155)
 
 ___
 
@@ -293,7 +293,7 @@ Logs in to the Discord API using the provided token and logs a message when the 
 
 #### Defined in
 
-[ZumitoFramework.ts:338](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L338)
+[ZumitoFramework.ts:338](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L338)
 
 ___
 
@@ -337,7 +337,7 @@ memberHasPermission(member, channel, Permissions.FLAGS.MANAGE_MESSAGES | Permiss
 
 #### Defined in
 
-[ZumitoFramework.ts:409](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L409)
+[ZumitoFramework.ts:409](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L409)
 
 ___
 
@@ -351,7 +351,7 @@ ___
 
 #### Defined in
 
-[ZumitoFramework.ts:462](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L462)
+[ZumitoFramework.ts:462](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L462)
 
 ___
 
@@ -373,7 +373,7 @@ ___
 
 #### Defined in
 
-[ZumitoFramework.ts:267](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L267)
+[ZumitoFramework.ts:267](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L267)
 
 ___
 
@@ -391,7 +391,7 @@ Scans the specified folder for module files and calls the `registerModule` metho
 
 #### Defined in
 
-[ZumitoFramework.ts:229](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L229)
+[ZumitoFramework.ts:229](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L229)
 
 ___
 
@@ -408,7 +408,7 @@ Sets up middleware, routes, and error handling for the server.
 
 #### Defined in
 
-[ZumitoFramework.ts:183](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L183)
+[ZumitoFramework.ts:183](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L183)
 
 ___
 
@@ -446,4 +446,4 @@ splitCommandLine('a "b c"');
 
 #### Defined in
 
-[ZumitoFramework.ts:362](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/ZumitoFramework.ts#L362)
+[ZumitoFramework.ts:362](https://github.com/ZumitoTeam/zumito-framework/blob/4711543/src/ZumitoFramework.ts#L362)
