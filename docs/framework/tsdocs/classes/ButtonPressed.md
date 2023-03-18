@@ -16,13 +16,13 @@ custom_edit_url: null
 
 ### buttonPressed
 
-▸ `Abstract` **buttonPressed**(`«destructured»`): `void`
+▸ `Abstract` **buttonPressed**(`buttonPressedParams`): `void`
 
 #### Parameters
 
 | Name | Type |
 | :------ | :------ |
-| `«destructured»` | [`ButtonPressedParams`](../interfaces/ButtonPressedParams.md) |
+| `buttonPressedParams` | [`ButtonPressedParams`](../interfaces/ButtonPressedParams.md) |
 
 #### Returns
 
@@ -30,4 +30,4 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/Commands/ButtonPressed.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/Commands/ButtonPressed.ts#L4)
+[types/Commands/ButtonPressed.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/Commands/ButtonPressed.ts#L4)

@@ -14,7 +14,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/CommandChoiceDefinition.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandChoiceDefinition.ts#L2)
+[types/CommandChoiceDefinition.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandChoiceDefinition.ts#L2)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 #### Defined in
 
-[types/CommandChoiceDefinition.ts:3](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandChoiceDefinition.ts#L3)
+[types/CommandChoiceDefinition.ts:3](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandChoiceDefinition.ts#L3)

@@ -34,7 +34,7 @@ The arguments passed to the command.
 
 #### Defined in
 
-[types/CommandParameters.ts:16](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L16)
+[types/CommandParameters.ts:16](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L16)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 #### Defined in
 
-[types/CommandParameters.ts:17](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L17)
+[types/CommandParameters.ts:17](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L17)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[types/CommandParameters.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L18)
+[types/CommandParameters.ts:18](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L18)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 #### Defined in
 
-[types/CommandParameters.ts:19](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L19)
+[types/CommandParameters.ts:19](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L19)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 #### Defined in
 
-[types/CommandParameters.ts:15](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L15)
+[types/CommandParameters.ts:15](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L15)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 #### Defined in
 
-[types/CommandParameters.ts:14](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L14)
+[types/CommandParameters.ts:14](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L14)
 
 ___
 
@@ -109,4 +109,4 @@ ___
 
 #### Defined in
 
-[types/CommandParameters.ts:20](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/CommandParameters.ts#L20)
+[types/CommandParameters.ts:20](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/CommandParameters.ts#L20)

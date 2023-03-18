@@ -8,13 +8,23 @@ custom_edit_url: null
 
 ## Properties
 
+### database
+
+• **database**: `any`
+
+#### Defined in
+
+[types/FrameworkSettings.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkSettings.ts#L2)
+
+___
+
 ### debug
 
 • `Optional` **debug**: `boolean`
 
 #### Defined in
 
-[types/FrameworkSettings.ts:3](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/FrameworkSettings.ts#L3)
+[types/FrameworkSettings.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkSettings.ts#L4)
 
 ___
 
@@ -24,7 +34,7 @@ ___
 
 #### Defined in
 
-[types/FrameworkSettings.ts:9](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/FrameworkSettings.ts#L9)
+[types/FrameworkSettings.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkSettings.ts#L10)
 
 ___
 
@@ -42,7 +52,7 @@ ___
 
 #### Defined in
 
-[types/FrameworkSettings.ts:4](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/FrameworkSettings.ts#L4)
+[types/FrameworkSettings.ts:5](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkSettings.ts#L5)
 
 ___
 
@@ -52,14 +62,4 @@ ___
 
 #### Defined in
 
-[types/FrameworkSettings.ts:2](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/FrameworkSettings.ts#L2)
-
-___
-
-### mongoQueryString
-
-• **mongoQueryString**: `string`
-
-#### Defined in
-
-[types/FrameworkSettings.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/FrameworkSettings.ts#L10)
+[types/FrameworkSettings.ts:3](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/FrameworkSettings.ts#L3)

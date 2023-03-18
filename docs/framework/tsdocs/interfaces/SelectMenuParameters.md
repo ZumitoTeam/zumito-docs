@@ -14,7 +14,7 @@ custom_edit_url: null
 
 #### Defined in
 
-[types/SelectMenuParameters.ts:8](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/SelectMenuParameters.ts#L8)
+[types/SelectMenuParameters.ts:8](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/SelectMenuParameters.ts#L8)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 #### Defined in
 
-[types/SelectMenuParameters.ts:9](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/SelectMenuParameters.ts#L9)
+[types/SelectMenuParameters.ts:9](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/SelectMenuParameters.ts#L9)
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 #### Defined in
 
-[types/SelectMenuParameters.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/SelectMenuParameters.ts#L10)
+[types/SelectMenuParameters.ts:10](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/SelectMenuParameters.ts#L10)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 #### Defined in
 
-[types/SelectMenuParameters.ts:7](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/SelectMenuParameters.ts#L7)
+[types/SelectMenuParameters.ts:7](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/SelectMenuParameters.ts#L7)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 #### Defined in
 
-[types/SelectMenuParameters.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/SelectMenuParameters.ts#L6)
+[types/SelectMenuParameters.ts:6](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/SelectMenuParameters.ts#L6)
 
 ___
 
@@ -79,4 +79,4 @@ ___
 
 #### Defined in
 
-[types/SelectMenuParameters.ts:11](https://github.com/ZumitoTeam/zumito-framework/blob/2c519e6/src/types/SelectMenuParameters.ts#L11)
+[types/SelectMenuParameters.ts:11](https://github.com/ZumitoTeam/zumito-framework/blob/3f6ac2b/src/types/SelectMenuParameters.ts#L11)
