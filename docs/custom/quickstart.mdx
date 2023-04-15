@@ -15,8 +15,8 @@ This guide will help you to quickly start developing a new bot using zumito-fram
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/) (v17 or higher)
-- [MongoDB](https://www.mongodb.com/) (v4.4 or higher)
+- [Node.js](https://nodejs.org/en/) (v18 or higher)
+- [Git](https://git-scm.com/)
 
 
 - Discord Bot **Token**, you can get one [here](https://discord.com/developers/applications)
@@ -25,52 +25,28 @@ This guide will help you to quickly start developing a new bot using zumito-fram
 
 ## Setup
 
-First, clone the template repository:
+First, create a new project using the [Zumito CLI](http://www.npmjs.com/package/zumito-cli):
 
 ```bash
-git clone https://github.com/ZumitoTeam/zumito-template.git
+npx zumito-cli create project
 ```
 
-Then, install the dependencies:
+It will clone the template project, install the dependencies and configure the `.env` file by asking you some questions.
+Database config will be saved to the `.env` file. You can change it later if you want.
+- **Tingodb** is recommended for **development** since it doesn't require any external database, it will save the data in a file.
+- **MongoDB** is recommended for **production** for better performance. 
 
-```bash
-npm install
-```
-
-Copy the `.env.example` file to `.env` and fill the variables with your data.
-
-<Tabs groupId="shells" defaultValue="bash">
-  <TabItem value="bash" label="Bash">
-
-```bash
-cp .env.example .env
-```
-
-  </TabItem>
-  <TabItem value="powershell" label="Powershell">
-
-```powershell
-Copy-Item .env.example -Destination .env
-```
-
-  </TabItem>
-  <TabItem value="cmd" label="cmd">
-
-```cmd
-copy .env.example .env
-```
-
-  </TabItem>
-</Tabs>
-
-
-You can find more information about the `.env` file [here](/docs/bot/env).
+:information_source: You can find more information about the `.env` file [here](/docs/bot/env).
 
 ## Development
 
-Once the project is configured, you can add or modify the different modules of the bot following the documentation of the [framework](/docs/framework/quickstart).
+Once the project is configured, you can start creating a module for your bot.
+Here is a list of things you may want to do:
+- [Create a command](/docs/custom/create-command)
+- [Listen to event](/docs/custom/create-event)
+- [Create a model](/docs/custom/create-model)
 
-## Execute
+## Run the bot
 
 To execute the bot, run:
 

@@ -1,6 +1,6 @@
 - [ ] Translation system
+    - [ ] Translate to spanish
 - [ ] Buttons
 - [ ] Modals
 - [ ] Select menus
 - [ ] discord Events
-- [ ] Translate to spanish
