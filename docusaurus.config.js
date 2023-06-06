@@ -5,7 +5,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
-const config = {
+let config = {
   title: 'Zumito',
   tagline: 'Speed focused discord.js framework',
   url: 'https://zumito-documentation.vercel.app/',
@@ -32,20 +32,7 @@ const config = {
   ],
 
   plugins: [
-    [
-      'docusaurus-plugin-typedoc',
-
-      // Plugin / TypeDoc options
-      {
-        entryPoints: ['../zumito-framework/src/index.ts'],
-        tsconfig: '../zumito-framework/tsconfig.json',
-        out: 'framework/tsdocs/',
-        sidebar: {
-          categoryLabel: 'TypeDoc',
-          position: 100,
-        },
-      },
-    ],
+    
   ],
 
   presets: [
@@ -120,5 +107,23 @@ const config = {
       },
     }),
 };
+
+// if folder ../zumito-framework exists, generate typedoc
+if (require('fs').existsSync('../zumito-framework') && config && config.plugins) {
+  config.plugins.push([
+    'docusaurus-plugin-typedoc',
+
+    // Plugin / TypeDoc options
+    {
+      entryPoints: ['../zumito-framework/src/index.ts'],
+      tsconfig: '../zumito-framework/tsconfig.json',
+      out: 'framework/tsdocs/',
+      sidebar: {
+        categoryLabel: 'TypeDoc',
+        position: 100,
+      },
+    },
+  ]);
+}
 
 module.exports = config;
