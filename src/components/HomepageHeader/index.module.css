@@ -1,0 +1,64 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+button {
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  all: unset;
+  position: relative;
+  font-family: sans-serif;
+  padding: 0.5em 2em;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 3px solid #e84d83;
+}
+
+.btncontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 40px;
+}
+
+.doc {
+  margin: 15px;
+  background-color: #e84d83;
+}
+
+.btn {
+  margin: 15px;
+  background: radial-gradient(
+    circle at center,
+    rgba(232, 77, 131, 0.4),
+    transparent
+  );
+}
+.copy {
+  font-size: larger;
+  font-family: "Courier New", monospace;
+  background: #f7a4bb;
+  border: 3px solid #e84d83;
+}
+.copycontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 25px;
+}
+
+.container {
+  padding: 100px 0px 150px 0px;
+}
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 0rem;
+  }
+}
