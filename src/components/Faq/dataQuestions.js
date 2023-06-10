@@ -1,6 +1,5 @@
 import React from 'react'
 
-
 const dataQuestions = {
   title: "FAQ (How it works)",
   rows: [

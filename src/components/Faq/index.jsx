@@ -1,29 +1,23 @@
 import React from 'react'
 import dataQuestions from './dataQuestions'
 import Faq from 'react-faq-component'
+import style from './styles.module.css'
+import clsx from 'clsx'
 
-const styles = {
-  // bgColor: 'white',
+const stylesBase = {
   titleTextColor: "black",
   rowTitleColor: "blue",
-  // rowContentColor: 'grey',
-  // arrowColor: "red",
-};
-
-const config = {
-  // animate: true,
-  // arrowIcon: "V",
-  // tabFocus: true
 };
 
 export default function FaqModule() {
   return (
-    <div>
-      <Faq
-        data={dataQuestions}
-        styles={styles}
-        config={config}
-      />
+    <div className={clsx('container container-xl container-md')}>
+      <div className={style.faq}>
+        <Faq
+          data={dataQuestions}
+          styles={stylesBase}
+        />
+      </div>
     </div>
   )
 }
