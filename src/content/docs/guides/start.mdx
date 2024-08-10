@@ -7,7 +7,7 @@ description: A quick start guide to get you up and running with the bot.
 import { Icon } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import { Aside } from '@astrojs/starlight/components';
-import Test from '../../../components/test.svelte';
+import CreateProject from '../../../components/wizard/createProject.svelte';
 import { Steps } from '@astrojs/starlight/components';
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
@@ -34,7 +34,7 @@ This guide will help you to quickly start developing a new bot using zumito-fram
       ```
         </TabItem>
         <TabItem label="Wizard" icon="wizard">
-          <Test/>
+          <CreateProject client:only="svelte"/>
         </TabItem>
       </Tabs>
 
