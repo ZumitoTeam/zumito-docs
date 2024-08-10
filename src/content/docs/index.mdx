@@ -1,0 +1,35 @@
+---
+title: Welcome to Zumito Docs
+description: Get started building your next discord bot.
+template: splash
+hero:
+  tagline: Congrats on setting up a new Starlight project!
+  image:
+    file: ../../../public/zumito-hi.jpg
+  actions:
+    - text: Quick start guide
+      link: /guides/start
+      icon: right-arrow
+      variant: primary
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<div class="hidden">
+	## Next steps
+
+	<CardGrid stagger>
+		<Card title="Create command" icon="pencil">
+			Edit `src/content/docs/index.mdx` to see this page change.
+		</Card>
+		<Card title="Listen to an event" icon="add-document">
+			Add Markdown or MDX files to `src/content/docs` to create new pages.
+		</Card>
+		<Card title="Print translated text" icon="setting">
+			Edit your `sidebar` and other config in `astro.config.mjs`.
+		</Card>
+		<Card title="Read the docs" icon="open-book">
+			Learn more in [the Starlight Docs](https://starlight.astro.build/).
+		</Card>
+	</CardGrid>
+</div>

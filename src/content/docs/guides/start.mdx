@@ -1,0 +1,61 @@
+---
+sidebar_position: 1
+title: Quick start guide
+description: A quick start guide to get you up and running with the bot.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import Test from '../../../components/test.svelte';
+
+This guide will help you to quickly start developing a new bot using zumito-framework.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/) (v18 or higher)
+- [Git](https://git-scm.com/)
+
+
+- Discord Bot **Token**, you can get one [here](https://discord.com/developers/applications)
+- Discord Bot **Client ID**, you can get one [here](https://discord.com/developers/applications)
+- Discord Bot **Client Secret**, you can get one [here](https://discord.com/developers/applications)
+
+## Setup
+
+First, create a new project using the [Zumito CLI](http://www.npmjs.com/package/zumito-cli) or by interactive web wizard
+
+<Tabs>
+  <TabItem label="Command Line" icon="cli">
+```bash
+npx zumito-cli create project
+```
+  </TabItem>
+  <TabItem label="Wizard" icon="wizard">
+    <Test/>
+  </TabItem>
+</Tabs>
+
+
+It will clone the template project, install the dependencies and configure the `.env` file by asking you some questions.
+Database config will be saved to the `.env` file. You can change it later if you want.
+- **Tingodb** is recommended for **development** since it doesn't require any external database, it will save the data in a file.
+- **MongoDB** is recommended for **production** for better performance. 
+
+<Aside>You can find more information about the `.env` file [here](/docs/bot/env).</Aside>
+
+## Development
+
+Once the project is configured, you can start creating a module for your bot.
+Here is a list of things you may want to do:
+- [Create a command](/docs/custom/create-command)
+- [Listen to event](/docs/custom/create-event)
+- [Create a model](/docs/custom/create-model)
+
+## Run the bot
+
+To execute the bot, run:
+
+```bash
+npm run start
+```
