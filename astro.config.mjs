@@ -1,8 +1,9 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from "@astrojs/tailwind";
-
+import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc'
 import svelte from "@astrojs/svelte";
+import fs from 'fs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,33 +13,45 @@ export default defineConfig({
     social: {
       github: 'https://github.com/zumitoTeam/zumito-framework'
     },
-    sidebar: [{
-      label: 'Guides',
-      items: [{
-        label: 'Quick Start',
-        slug: 'guides/start'
-      }, {
-        label: 'Create command',
-        slug: 'guides/command'
-      }, {
-        label: 'Listen to an event',
-        slug: 'guides/event'
-      }, {
-        label: 'Create database model',
-        slug: 'guides/model'
-      }, {
-        label: 'Services',
+    sidebar: [
+      {
+        label: 'Guides',
         items: [{
-          label: 'Translator',
-          slug: 'guides/services/translator'
+          label: 'Quick Start',
+          slug: 'guides/start'
+        }, {
+          label: 'Create command',
+          slug: 'guides/command'
+        }, {
+          label: 'Listen to an event',
+          slug: 'guides/event'
+        }, {
+          label: 'Create database model',
+          slug: 'guides/model'
+        }, {
+          label: 'Update bot status',
+          slug: 'guides/bot-status'
+        }, {
+          label: 'Services',
+          items: [{
+            label: 'Translator',
+            slug: 'guides/services/translator'
+          }]
         }]
-      }]
-    }, {
-      label: 'Reference',
-      autogenerate: {
-        directory: 'reference'
-      }
-    }],
+      },
+      typeDocSidebarGroup
+    ],
+    plugins: [
+      fs.existsSync('../zumito-framework/') && starlightTypeDoc({
+        entryPoints: ['../zumito-framework/src/index.ts'],
+        tsconfig: '../zumito-framework/tsconfig.json',
+        typeDoc: {
+          exclude: [
+            '**/node_modules/**'
+          ]
+        }
+      }),
+    ],
     customCss: ['./src/tailwind.css']
   }), tailwind({
     applyBaseStyles: false
