@@ -1,0 +1,37 @@
+---
+title: Update bot status
+description: A quick guide on how to update bot status
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Example status options
+
+```diff lang="js"
+// src/Bot.ts
+    new ZumitoFramework({
+        ...
++       statusOptions: {
++           statuses: [{
++               status: 'online',
++               activities: [{
++                   name: 'z-help',
++                   type: ActivityType.Playing
++               }]
++           }],
++           RuledStatuses: [],
++           updateInterval: 15000,
++           order: "sequential"
++       },
+    });
+```
+
+### statuses
+An array with a list of statuses the bot will be showing
+Each status has this properties:
+- status: Online, dnd, offline,
+- activities: 
+    - name: Name to show. it will be shown like: Playing z-help
+    - type: Type of activity
+- updateInterval: Each how many miliseconds the bot will change its status
+- order: In wich order the list of status will be changig? sequential or random
