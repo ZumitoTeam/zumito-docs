@@ -29,6 +29,7 @@ import { FrameworkEvent, EventParameters } from 'zumito-framework';
 export class EventName extends FrameworkEvent {
 
     once = false;
+    source = 'discord'
 
     async execute({ interaction, client, framework, }: EventParameters): Promise<void> {
         // Event code
@@ -44,6 +45,12 @@ First, we will define the `once` property to `false` cause we want to execute th
 
 ```ts
 once = false;
+```
+
+Next, we will define the `source` property to `discord` cause we want to listen to a discord event. for other use cases we can listen to other sources like `framework`:
+
+```ts
+source = 'discord';
 ```
 
 Now, we need to define the `execute` function. This function will be executed every time the event is emitted.
