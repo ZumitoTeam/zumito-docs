@@ -12,6 +12,7 @@ if (fs.existsSync('../zumito-framework/')) {
         starlightTypeDoc({
             entryPoints: ['../zumito-framework/src/index.ts'],
             tsconfig: '../zumito-framework/tsconfig.json',
+            output: 'en/api',
             typeDoc: {
                 exclude: [
                     '**/node_modules/**',
@@ -28,6 +29,16 @@ export default defineConfig({
         title: 'Zumito Docs',
         social: {
             github: 'https://github.com/zumitoTeam/zumito-framework',
+        },
+        defaultLocale: 'root',
+        locales: {
+            root: {
+                label: 'English',
+                lang: 'en',
+            },
+            es: {
+                label: 'Español',
+            },
         },
         sidebar: [
             {
@@ -55,7 +66,7 @@ export default defineConfig({
                     }],
                 }],
             },
-            typeDocSidebarGroup,
+            //typeDocSidebarGroup,
         ],
         plugins,
         customCss: ['./src/tailwind.css'],

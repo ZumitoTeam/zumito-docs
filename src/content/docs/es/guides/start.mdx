@@ -1,0 +1,76 @@
+---
+sidebar_position: 1
+title: Guía de inicio rápido
+description: Una guía de inicio rápido para ponerte en marcha con el bot.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import CreateProject from '../../../../components/wizard/createProject.svelte';
+import { Steps } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Esta guía le ayudará a comenzar rápidamente a desarrollar un nuevo bot utilizando zumito-framework.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/) (v18 o superior)
+- [Git](https://git-scm.com/)
+
+
+- Discord Bot **Token**, puedes conseguir uno [aquí](https://discord.com/developers/applications)
+- Discord Bot **Client ID**, puedes conseguir uno [aquí](https://discord.com/developers/applications)
+- Discord Bot **Client Secret**, puedes conseguir uno [aquí](https://discord.com/developers/applications)
+
+## Setup
+
+<Steps>
+  1. Crear un nuevo proyecto
+      <Tabs>
+        <TabItem label="Command Line" icon="cli">
+      ```bash
+      npx zumito-cli create project
+      ```
+        </TabItem>
+        <TabItem label="Wizard" icon="wizard">
+          <CreateProject client:only="svelte"/>
+        </TabItem>
+      </Tabs>
+
+  2. Start the bot
+      ```bash
+      npm run dev
+      ```
+</Steps>
+
+It will clone the template project, install the dependencies and configure the `.env` file by asking you some questions.
+
+Database config will be saved to the `.env` file. You can change it later if you want.
+- **Tingodb** is recommended for **development** since it doesn't require any external database, it will save the data in a file.
+- **MongoDB** is recommended for **production** for better performance. 
+
+<Aside>You can find more information about the `.env` file [here](/docs/bot/env).</Aside>
+
+## Next steps
+
+Once the project is configured, you can start creating a module for your bot.
+Here is a list of things you may want to do:
+<LinkCard
+  title="Create a command"
+  description="Start creating commands for your bot"
+  href="/guides/command"
+/>
+
+<CardGrid>
+  <LinkCard
+    title="Listen to an event"
+    description="Execute a piece of code when some event ocurs"
+    href="/guides/event"
+  />
+  <LinkCard 
+    title="Create database model" 
+    description="Write a database model to store and retrieve data"
+    href="/guides/model" 
+  />
+</CardGrid>
