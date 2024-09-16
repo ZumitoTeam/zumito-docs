@@ -1,0 +1,69 @@
+---
+title: Escuchar un evento
+description: Una guía rápida sobre cómo crear un evento.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Los eventos se utilizan para escuchar los eventos emitidos por múltiples fuentes, como el cliente de Discord o el marco de trabajo de Zumito. Esto te permite ejecutar código cuando se emite un evento específico.
+
+Para empezar a escuchar un evento, solo necesitas ejecutar el siguiente comando:
+
+```bash
+npx zumito-cli create event
+```
+
+Te pedirá el nombre del evento y el módulo en el que deseas crearlo.
+
+<Aside>
+    No te preocupes si aún no has creado el módulo; CLI lo creará por ti.
+</Aside>
+
+Después de eso, creará un archivo en la carpeta `src/modules/<module>/events` con el nombre del evento.
+
+El archivo contendrá el siguiente código:
+
+```ts
+import { FrameworkEvent, EventParameters } from 'zumito-framework';
+
+export class EventName extends FrameworkEvent {
+
+    once = false;
+    source = 'discord'
+
+    async execute({ interaction, client, framework, }: EventParameters): Promise<void> {
+        // Event code
+    }
+
+}
+```
+
+Para comenzar a definir el evento, necesitas definir la propiedad `once`. Esta propiedad define si el evento se ejecutará solo una vez o cada vez que se emita el evento.
+
+Ahora, definamos un evento de ejemplo para el evento `interactionCreate`.
+Primero, definiremos la propiedad `once` como `false` porque queremos que el evento se ejecute cada vez que se emita el evento:
+
+```ts
+once = false;
+```
+
+A continuación, definiremos la propiedad `source` como `discord` porque queremos escuchar un evento de Discord. Para otros casos de uso, podemos escuchar otras fuentes como `framework`:
+
+```ts
+source = 'discord';
+```
+
+Ahora, necesitamos definir la función `execute`. Esta función se ejecutará cada vez que se emita el evento.
+La función `execute` recibe un objeto `EventParameters`, que contiene las siguientes propiedades:
+- `message` - El mensaje que activó el evento. Solo disponible para el evento `messageCreate`.
+- `interaction` - La interacción que activó el evento. Solo disponible para el evento `interactionCreate`.
+- `client` - El cliente de Discord.js.
+- `framework` - La instancia de Zumito Framework.
+
+Ahora, definamos el código del evento:
+
+```ts
+async execute({ interaction, client, framework, }: EventParameters): Promise<void> {
+    interaction.reply('Hello world!');
+}
+```
