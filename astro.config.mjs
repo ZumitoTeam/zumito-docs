@@ -56,6 +56,9 @@ export default defineConfig({
                     label: 'Create database model',
                     slug: 'guides/model',
                 }, {
+                    label: 'Create route',
+                    slug: 'guides/route',
+                }, {
                     label: 'Update bot status',
                     slug: 'guides/bot-status',
                 }, {
