@@ -1,5 +1,4 @@
 <script>
-    import { Select, Label } from 'flowbite-svelte';
 
     const steps = 5;
     let step = 1;
@@ -74,11 +73,11 @@
 
     {:else if step == 4}
         <div class="flex min-h-[400px] w-full flex-col justify-center">
-            <Label>
-                Database server
-                <Select class="mt-2" items={[{ value: 'mongodb', name: 'Mongo - Ready for production use' }, { value: 'tingodb', name: 'Tingo - Easier for local development' }]} bind:value={config.database.type} />
-            </Label>
-
+            <label for="countries" class="block mt-2 mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an option</label>
+            <select id="countries" bind:value={config.database.type} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option selected value="tingodb">Tingo - Easier for local development</option>
+                <option value="mongodb">Mongo - Ready for production use</option>
+            </select>
             {#if config.database.type == 'mongodb'}
                 <label for="clientId" class="mb-2 mt-6 block text-sm font-medium text-gray-900 dark:text-white">MongoDB uri:</label>
                 <input type="text" id="clientId" bind:value={config.database.url} class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-pink-300 focus:ring-pink-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:shadow-sm-light dark:focus:border-blue-500 dark:focus:ring-blue-500"  required />

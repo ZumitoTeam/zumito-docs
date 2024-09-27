@@ -1,0 +1,63 @@
+---
+title: Crear comando
+description: Una guía rápida sobre cómo crear un comando.
+---
+
+
+import { Aside } from '@astrojs/starlight/components';
+
+Para comenzar a crear un comando, solo necesitas ejecutar el siguiente comando:
+
+```bash
+npx zumito-cli create command
+```
+
+Te pedirá el nombre del comando y el módulo en el que deseas crearlo.
+
+<Aside>
+    No te preocupes si aún no has creado el módulo; CLI lo creará por ti.
+</Aside>
+
+Después de eso, creará un archivo en la carpeta `src/modules/<module>/commands` con el nombre del comando.
+El archivo contendrá el siguiente código:
+
+```ts
+import { Command, CommandParameters, ZumitoFramework, CommandType, SelectMenuParameters } from "zumito-framework";
+
+export class CommandName extends Command {
+
+    execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): void {
+        // Command code
+    }
+
+    async selectMenu({ path, interaction, client, framework, guildSettings }: SelectMenuParameters): Promise<void> {
+        
+    }
+
+}
+```
+
+Desde aquí, puedes comenzar a codificar tu comando.
+- `execute` es la función que se ejecutará cuando se ejecute el comando.
+- `selectMenu` es la función que se ejecutará cuando se ejecute un menú desplegable.
+
+## Parámetros del comando
+
+La función `execute` recibe un objeto `CommandParameters`, que contiene las siguientes propiedades:
+- `message` - Objeto Discord.Message. No está definido si el comando se ejecuta desde una interacción (comando slash).
+- `interaction` - Objeto Discord.Interaction. No está definido si el comando se ejecuta desde un mensaje con el prefijo.
+- `args` - Argumentos del comando. Contiene los argumentos que el usuario pasó al comando.
+
+    - Puedes obtener los argumentos usando el método `get`, que recibe el nombre del argumento y el tipo del argumento.
+
+        ```ts
+        args.get("argumentName"); // Output: "Argument value"
+        ```
+    - La salida viene en el tipo que especificaste, por lo que si especificas un número, la salida será un número, y si especificas un usuario, será un objeto Discord.User.
+- `client` - Objeto `Discord.Client`.
+- `framework` - Objeto `ZumitoFramework`.
+- `guildSettings` - Objeto de configuración de la guild. Contiene las configuraciones de la guild donde se ejecutó el comando. Los datos se cargan desde la base de datos en cada ejecución del comando.
+- `trans` - Una función abreviada para traducir cadenas. Recibe la clave de la cadena y las variables a reemplazar en la cadena.
+    - No requiere especificar el idioma, usará el idioma de la guild donde se ejecutó el comando.
+    - La clave es relativa al comando actual, por lo que si tienes una clave llamada `command.tuComando.tuClave`, puedes usarla así: `trans("tuClave")`. Si deseas usar una clave de otro lugar, puedes usar el prefijo `$`, como en este ejemplo: `trans("$command.tuComando.tuClave")`.
+

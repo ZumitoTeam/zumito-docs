@@ -1,0 +1,91 @@
+---
+title: Servicio de traducción
+description: Guía rápida sobre cómo conseguir cadenas en distintos idiomas.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { FileTree } from '@astrojs/starlight/components';
+
+Zumito viene con un sistema de localización por defecto.
+
+## Definir traducciones
+The first step to start using the translations system is to register some texts. to do so, simply create a json file on the `translations` folder of your bundle with the name of the lang in <a href="https://en.wikipedia.org/wiki/ISO_639-1">ISO 639-1</a> format
+
+Ejemplos:
+<FileTree>
+- src
+  - modules
+    - example
+        - translations
+            - en.json
+            - es.json
+            - exampleSubkey2
+                - en.json
+                - es.json
+</FileTree>
+
+Then in the json just write your text with a key.
+
+en.json
+```json
+{
+    "examplePhrase1": "This is an example phrase",
+    "exampleSubkey1": {
+        "examplePhrase2: "This is an example phrase with a subkey"
+    }
+}
+```
+
+es.json
+```json
+{
+    "examplePhrase1": "Esta es una frase de ejemplo",
+    "exampleSubkey1": {
+        "examplePhrase2: "Esta es una frase de ejemplo con una subclave"
+    }
+}
+```
+
+exampleSubkey2/en.json
+```json
+{
+    "examplePhrase3": "This is an example phrase within a subfolder"
+}
+```
+
+## Obtain translations
+Now we have set some translations let's obtain the translated text.
+To do so, first we need to import the translator service. To do so, first we need to import the serviceContainer like here:
+```ts
+import { ServiceContainer } from 'zumito-framework';
+```
+
+then in our code import the translator service:
+```ts
+const translator = ServiceContainer.getService('TranslationManager');
+```
+
+And get your translated texts by the key and language:
+```ts
+translator.get('examplePhrase1', 'en'); // returns "This is an example phrase"
+translator.get('exampleSubkey1.examplePhrase1', 'es'); // returns "Esta es una frase de ejemplo con una subclave"
+translator.get('exampleSubkey2.examplePhrase3', 'en'); // returns "This is an example phrase within a subfolder"
+```
+
+## Translation variables
+Somethings translations need to have variable text, like user info or other data.
+You can define a text with one or multiple variables encapsulated with brakets:
+
+en.json
+```json
+{
+    "welcome": "hi {user}, have a nice day!",
+}
+```
+
+then you can get the translation like this:
+```ts
+translator.get('welcome', 'en', {
+    user: "Zumito"
+}); // returns "hi Zumito, have a nice day!"
+```
