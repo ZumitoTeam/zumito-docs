@@ -12,6 +12,7 @@ const plugins = [
             label: 'Guides',
             link: '/guides/',
             icon: 'open-book',
+            id: 'guides',
             items: [{
                 label: 'Quick Start',
                 slug: 'guides/start',
