@@ -36,8 +36,13 @@ const plugins = [
                     label: 'Translator',
                     slug: 'guides/services/translator',
                 }],
-            }
-            ],
+            }, {
+                label: 'Other',
+                items: [{
+                    label: 'Env',
+                    slug: 'guides/env'
+                }]
+            }],
         }, {
             label: 'Reference',
             link: 'https://tsdocs.dev/docs/zumito-framework/latest/modules.html',
