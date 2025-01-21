@@ -4,8 +4,47 @@ import tailwind from "@astrojs/tailwind";
 import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import svelte from "@astrojs/svelte";
 import fs from 'fs';
+import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 
-const plugins = [];
+const plugins = [
+    starlightSidebarTopicsDropdown([
+        {
+            label: 'Guides',
+            link: '/guides/',
+            icon: 'open-book',
+            items: [{
+                label: 'Quick Start',
+                slug: 'guides/start',
+            }, {
+                label: 'Create command',
+                slug: 'guides/command',
+            }, {
+                label: 'Listen to an event',
+                slug: 'guides/event',
+            }, {
+                label: 'Create database model',
+                slug: 'guides/model',
+            }, {
+                label: 'Create route',
+                slug: 'guides/route',
+            }, {
+                label: 'Update bot status',
+                slug: 'guides/bot-status',
+            }, {
+                label: 'Services',
+                items: [{
+                    label: 'Translator',
+                    slug: 'guides/services/translator',
+                }],
+            }
+            ],
+        }, {
+            label: 'Reference',
+            link: 'https://tsdocs.dev/docs/zumito-framework/latest/modules.html',
+            icon: 'information',
+        },
+    ]),
+];
 
 if (fs.existsSync('../zumito-framework/')) {
     plugins.push(
@@ -40,37 +79,6 @@ export default defineConfig({
                 label: 'Español',
             },
         },
-        sidebar: [
-            {
-                label: 'Guides',
-                items: [{
-                    label: 'Quick Start',
-                    slug: 'guides/start',
-                }, {
-                    label: 'Create command',
-                    slug: 'guides/command',
-                }, {
-                    label: 'Listen to an event',
-                    slug: 'guides/event',
-                }, {
-                    label: 'Create database model',
-                    slug: 'guides/model',
-                }, {
-                    label: 'Create route',
-                    slug: 'guides/route',
-                }, {
-                    label: 'Update bot status',
-                    slug: 'guides/bot-status',
-                }, {
-                    label: 'Services',
-                    items: [{
-                        label: 'Translator',
-                        slug: 'guides/services/translator',
-                    }],
-                }],
-            },
-            //typeDocSidebarGroup,
-        ],
         plugins,
         customCss: ['./src/tailwind.css'],
     }), tailwind({
