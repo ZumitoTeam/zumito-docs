@@ -48,7 +48,11 @@ const plugins = [
             label: 'Reference',
             link: 'https://tsdocs.dev/docs/zumito-framework/latest/modules.html',
             icon: 'information',
-        },
+        }, {
+            label: 'Concept (DeepWiki)',
+            link: "https://deepwiki.com/ZumitoTeam/zumito-framework",
+            icon: 'happenings'
+        }
     ]),
 ];
 
