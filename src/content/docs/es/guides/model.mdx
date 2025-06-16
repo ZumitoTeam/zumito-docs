@@ -1,0 +1,118 @@
+---
+title: Crear modelo de base de datos
+description: Guía rápida sobre cómo crear un modelo de base de datos.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Los modelos de base de datos se utilizan para definir la estructura de los datos que se almacenarán. Esto te permite definir qué datos guardará tu módulo en la base de datos.
+En cada modelo definimos todas las propiedades con sus tipos y las respectivas relaciones con otros modelos.
+
+Para comenzar a crear un modelo solo necesitas ejecutar el siguiente comando:
+
+```bash
+npx zumito-cli create model
+```
+
+Te preguntará el nombre del modelo y el módulo donde quieres crearlo.
+
+<Aside>
+    No te preocupes si todavía no has creado el módulo, la CLI lo hará por ti.
+</Aside>
+
+Tras esto se creará un archivo en `src/modules/<module>/models` con el nombre del modelo.
+El archivo contendrá el siguiente código:
+
+```ts
+import { DatabaseModel } from '../../types/DatabaseModel.js';
+
+export class Guild extends DatabaseModel {
+    getModel(schema: any) {
+        return {}
+    }
+
+    define(model: any, models: any): void {
+
+    }
+}
+```
+
+Para comenzar a definir el modelo necesitas establecer las propiedades en la función `getModel`.
+La función `getModel` recibe un objeto `schema` que contiene los tipos disponibles para definir las propiedades del modelo.
+- `schema.String` - Define una propiedad de tipo string.
+- `schema.Number` - Define una propiedad numérica.
+- `schema.Boolean` - Define una propiedad booleana.
+- `schema.Date` - Define una propiedad de fecha.
+- `schema.Blob` - Define una propiedad blob.
+- `schema.JSON` - Define una propiedad JSON.
+
+Ahora definamos un modelo de ejemplo para un usuario.
+Primero en la función `getModel` definiremos las propiedades del modelo:
+
+```ts
+getModel(schema: any) {
+    return {
+        username: {
+            type: schema.String,
+            required: true
+        },
+        age: {
+            type: schema.Number,
+            required: true
+        },
+        lang: {
+            type: schema.String,
+            default: 'en',
+        },
+        isPremium: {
+            type: schema.Boolean,
+            required: true,
+            default: false
+        },
+        createdAt: {
+            type: schema.Date,
+            required: true,
+        }
+    }
+}
+```
+
+Luego, en la función `define`, podemos definir validaciones y relaciones con otros modelos.
+
+```ts
+define(model: any, models: any): void {
+
+        // Definir validaciones
+        model.validatesUniquenessOf('username');
+        model.validatesInclusionOf('lang', { in: ['en', 'es'] });
+
+        // Definir relaciones
+        model.hasMany(models.Guild, { as: 'guilds', foreignKey: 'ownerId' });
+
+        // Definir cualquier método personalizado para la instancia
+        model.prototype.getNameAndAge = function () {
+            return this.name + ', ' + this.age;
+        };
+    }
+```
+
+## usage
+
+Para usar el modelo en un comando solo necesitas obtenerlo desde `framework.database.models` y utilizarlo.
+
+```ts
+import { Command, CommandParameters, ZumitoFramework, CommandType } from "zumito-framework";
+
+export class CommandName extends Command {
+
+    execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): void {
+        let user = framework.database.models.User.findOne({ where: { username: 'JhonDoe' } }).then((err, user) => {
+            user.username = 'JhonDoe2';
+            user.save();
+        });
+    }
+
+}
+```
+
+Puedes encontrar más información sobre el uso en la página del paquete [canario](https://www.npmjs.com/package/canario).

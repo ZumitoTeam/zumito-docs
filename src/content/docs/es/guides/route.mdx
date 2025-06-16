@@ -1,0 +1,79 @@
+---
+title: Crear ruta
+description: Guía rápida para crear rutas con zumito-framework.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import CreateProject from '../../../components/wizard/createProject.svelte';
+import { Steps } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Esta guía te ayudará a comenzar rápidamente a desarrollar un nuevo bot usando zumito-framework.
+
+## What's a route?
+
+Una ruta es un endpoint web que permite a usuarios u otros programas interactuar y obtener información de tu bot.
+
+## How can i create a route?
+
+<Steps>
+  1. Crear nueva ruta
+      <Tabs>
+        <TabItem label="Command Line" icon="cli">
+      ```bash
+      npx zumito-cli create route
+      ```
+        </TabItem>
+        <TabItem label="Wizard" icon="wizard">
+          Work in progress...
+        </TabItem>
+      </Tabs>
+
+  2. Edita tu archivo
+      :::note
+        Encontrarás el nuevo archivo de ruta en `/src/modules/<YourModule>/routes`
+      :::
+      Encontrarás un método como este:
+      ```ts
+      execute(req, res) {
+
+      }
+      ```
+      Aquí puedes ejecutar el código de tu ruta. Los parámetros req y res coinciden con los [parámetros de Express](https://expressjs.com/en/guide/routing.html)
+
+</Steps>
+
+## Quick tips
+
+:::tip[Redirects]
+    puedes enviar una redirección con:
+    ```ts
+    res.redirect(`https://framework.zumito.dev`);
+    ```
+:::
+
+
+## Next steps
+
+Una vez configurado el proyecto puedes comenzar a crear un módulo para tu bot.
+Aquí tienes una lista de cosas que podrías hacer:
+<LinkCard
+  title="Create a command"
+  description="Start creating commands for your bot"
+  href="/guides/command"
+/>
+
+<CardGrid>
+  <LinkCard
+    title="Listen to an event"
+    description="Execute a piece of code when some event ocurs"
+    href="/guides/event"
+  />
+  <LinkCard
+    title="Create database model"
+    description="Write a database model to store and retrieve data"
+    href="/guides/model"
+  />
+</CardGrid>

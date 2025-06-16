@@ -1,0 +1,217 @@
+---
+title: Crear comando
+description: Guía rápida sobre cómo crear un comando.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+
+Para empezar a crear un comando sigue estos pasos:
+<Steps>
+    1. Ejecuta el siguiente comando para crear el archivo y el código inicial:
+        ```bash
+        npx zumito-cli create command
+        ```
+
+    2. Te preguntará el nombre del comando y el módulo donde deseas crearlo.
+        <Aside>
+            No te preocupes si todavía no has creado el módulo, la CLI lo creará por ti.
+        </Aside>
+
+    3. Después de esto se creará un archivo en `src/modules/<module>/commands` con el nombre del comando.
+        El archivo contendrá el siguiente código:
+        ```ts
+        import { Command, CommandParameters, ZumitoFramework, CommandType, SelectMenuParameters } from "zumito-framework";
+
+        export class CommandName extends Command {
+
+            async execute({ message, interaction, args, guildSettings }: CommandParameters): Promise<void> {
+                // Código del comando
+            }
+
+            async selectMenu({ path, interaction, guildSettings }: SelectMenuParameters): Promise<void> {
+
+            }
+
+        }
+        ```
+        :::note
+            [aquí](#command-code) puedes encontrar información sobre cómo escribir el código del comando
+        :::
+
+</Steps>
+## Command code
+Aquí puedes escribir el código que ejecutará el bot cuando el usuario lance el comando
+<Tabs>
+    <TabItem label="Slash command" icon="cli">
+    ```ts
+        async executeSlashCommand({ interaction, args, guildSettings }: CommandParameters): Promise<void> {
+            // Este código se ejecutará cuando se use el comando por slash
+            interaction.reply({
+                content: "Test message",
+            })
+        }
+    ```
+    </TabItem>
+    <TabItem label="Prefix command" icon="wizard">
+    ```ts
+        async executePrefixCommand({ message, args, guildSettings }: CommandParameters): Promise<void> {
+            // Este código se ejecutará cuando se use el comando por prefijo
+            message.reply({
+                content: "Test message",
+            })
+        }
+    ```
+    </TabItem>
+    <TabItem label="Both commands" icon="wizard">
+    ```ts
+        async execute({ message, interaction, args, guildSettings }: CommandParameters): Promise<void> {
+            // Este código se ejecutará tanto para slash como para prefijo
+            (message||interaction).reply({
+                content: "Test message",
+            })
+        }
+    ```
+    </TabItem>
+</Tabs>
+
+:::note
+- Si ejecutas el comando por slash primero se intentará ejecutar la función `executeSlashCommand`. Si no existe se ejecutará la función `execute`.
+- Si ejecutas el comando por prefijo primero se intentará ejecutar `executePrefixCommand`. Si no existe se ejecutará `execute`.
+
+Así que, si deseas ejecutar código diferente en cada sistema puedes definir el código para cada uno, pero si el código es el mismo puedes escribirlo todo en `execute`.
+:::
+
+:::tip
+Puedes encontrar una mejor explicación de los parámetros que recibe la función execute en la sección [Execute parameters](#execute-parameters).
+:::
+
+## Execute parameters
+
+La función `execute` recibe un objeto `CommandParameters` que contiene las siguientes propiedades:
+- `message` - Objeto Discord.Message. Undefined si el comando se ejecuta desde una interacción (slash).
+- `interaction` - Objeto Discord.Interaction. Undefined si el comando se ejecuta desde un mensaje con el prefijo.
+- `args` - Argumentos del comando. Contiene los argumentos que el usuario pasó al comando.
+
+    - Puedes obtener los argumentos usando el método `get`, que recibe el nombre y el tipo del argumento.
+
+        ```ts
+        args.get("argumentName"); // Output: "Argument value"
+        ```
+    - La salida viene en el tipo que especifiques, así que si indicas un número obtendrás un número y si indicas un usuario obtendrás un objeto Discord.User.
+- `guildSettings` - Objeto de configuración de la guild. Contiene la configuración de la guild donde se ejecutó el comando. Los datos se cargan de la base de datos en cada ejecución.
+- `trans` - Función abreviada para traducir cadenas. Recibe la clave de la cadena y las variables a reemplazar.
+    - No requiere especificar el idioma, usará el idioma de la guild donde se ejecutó el comando.
+    - La clave es relativa al comando actual, por lo que si tienes una clave llamada `command.yourCommandName.yourKey`, puedes usarla así: `trans("yourKey")`. Si quieres usar una clave de otro lugar puedes usar el prefijo `$`, por ejemplo: `trans("$command.yourCommandName.yourKey")`.
+
+## Command atributes
+En la cabecera de tu clase de comando puedes definir algunos atributos. Aquí una breve descripción de cada uno.
+
+- `adminOnly`: true/false. Define si el comando solo puede ser usado por administradores de la guild o por cualquier usuario. Por defecto cualquier usuario (false)
+- `aliases`: array de strings. Define alias alternativos para el comando.
+- `args`: array de [CommandArgDefinition](https://tsdocs.dev/docs/zumito-framework/latest/interfaces/CommandArgDefinition.html). Define los parámetros que el usuario puede utilizar en el comando.
+- `binds`: [CommandBinds](https://tsdocs.dev/docs/zumito-framework/latest/types/CommandBinds.html) object. Define escuchas de eventos relacionados con el comando. Aquí puedes escuchar interacciones de select menu, envío de formularios, etc.
+- `botPermissions`: WIP
+- `categories`: array de strings. Define las categorías del comando. Úfil para el comando de ayuda.
+- `cooldown`: WIP
+- `dm`: true/false. Define si el comando puede ejecutarse en un canal privado. Por defecto false.
+    :::caution
+        Recuerda que en un DM no puedes acceder a las propiedades de la guild.
+    :::
+- `examples`: array de strings. Define ejemplos de uso del bot. Para un comando `clean` con un primer argumento numérico puedes escribir `['clean 100']`. No escribas ningún prefijo.
+- `hidden`: true/false. Define si el comando estará oculto en los comandos de ayuda. El comando seguirá siendo usable.
+- `name`: Define un nombre alternativo si no quieres usar el nombre de la clase.
+- `nsfw`: true/false. Define si el comando puede ejecutarse fuera de un canal nsfw. Por defecto false (el comando puede usarse en cualquier lugar)
+- `parent`: string. Comando padre. Úfil para subcomandos. WIP.
+- `type`: [CommandType](https://tsdocs.dev/docs/zumito-framework/latest/variables/CommandType.html) object. Define si el comando puede ejecutarse usando slash y/o prefijo.
+    CommandType.slash / CommandType.prefix / CommandType.any
+# Tips
+## Acces to discord client instance
+Para obtener la instancia de discord.js necesitas realizar unos pasos sencillos:
+<Steps>
+  1. Importa `ServiceContainer` de `zumito-framework` y `Client` de `zumito-framework/discord`
+        ```diff lang="js" ins="ServiceContainer, "
+            import { ServiceContainer, Command, CommandParameters, ZumitoFramework, CommandType, SelectMenuParameters } from "zumito-framework";
+        +   import { Client } from 'zumito-framework/discord';
+            export class CommandName extends Command {
+                ...
+            }
+        ```
+
+  2. Define la variable dentro de la clase
+        ```diff lang="ts"
+            export class CommandName extends Command {
+        +       private client: Client;
+            }
+        ```
+
+  3. Inicializa la variable obteniéndola del ServiceContainer:
+        ```diff lang="ts"
+            export class CommandName extends Command {
+                private client: Client;
+        +       constructor() {
+        +           super();
+        +           this.client = ServiceContainer.get(Client);
+        +       }
+            }
+        ```
+  4. Ahora puedes usar el cliente en cualquier parte del comando:
+        ```diff lang="ts"
+            export class CommandName extends Command {
+                private client: Client;
+                constructor() {
+                    super();
+                    this.client = ServiceContainer.get(Client);
+                }
+
+        +       async execute(params): Promise<void> {
+        +           console.log(this.client.status);
+        +       }
+            }
+        ```
+</Steps>
+
+:::tip[Did you know?]
+Puedes simplificar el código inicializando en los parámetros del constructor:
+```ts
+constructor(
+    private client: Client = ServiceContainer.get(Client)
+) {
+    super();
+}
+```
+:::
+
+## Read command args
+El parámetro `args` de la función `execute` contiene los argumentos que el usuario pasó al comando.
+Puedes obtenerlos con el método `get`, que recibe el nombre del argumento y su tipo.
+
+<Tabs>
+    <TabItem label="Text arg">
+        ```diff lang=ts
+        async execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): Promise<void> {
+        +   const textArg: string = args.get("argumentName"); // Output: "Argument value"
+        }
+        ```
+        Output: String
+    </TabItem>
+    <TabItem label="User arg">
+        ```diff lang=ts
+        async execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): Promise<void> {
+        +   const userArg: User =  args.get("argumentName");
+        }
+        ```
+        Output: [User](https://discord.js.org/docs/packages/discord.js/main/User:Class)
+    </TabItem>
+    <TabItem label="Channel arg">
+        ```diff lang=ts
+        async execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): Promise<void> {
+        +   const channelArg: GuildChannel =  args.get("argumentName");
+        }
+        ```
+        Output: [GuildChannel](https://discord.js.org/docs/packages/discord.js/main/GuildChannel:Class)
+    </TabItem>
+
+
+</Tabs>
