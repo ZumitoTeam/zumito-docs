@@ -113,6 +113,15 @@ In the header of your command class, you can define some atributes. You can find
 - `aliases`: array of strings. Defines alternative alias for the commnad. 
 - `args`: array of [CommandArgDefinition](https://tsdocs.dev/docs/zumito-framework/latest/interfaces/CommandArgDefinition.html).
     Defines the parameters that te user can use on the command.
+    ```ts
+    args = [
+        {
+            name: 'amount',
+            type: 'number',
+            description: 'How many items',
+        }
+    ]
+    ```
 - `binds`: [CommandBinds](https://tsdocs.dev/docs/zumito-framework/latest/types/CommandBinds.html) object. Defines event listeners related to command. Here you can listen for select menu interaction, modal form submit, etc.
 - `botPermissions`: WIP
 - `categories`: array of strings. Defines the categories of the command. Useful for help command.
@@ -126,7 +135,7 @@ In the header of your command class, you can define some atributes. You can find
 - `name`: Defines alternative name if you don't want to use class name.
 - `nsfw`: true/false. Defines if the command could be executed out of a nsfw channel. Defaults to false (The command can be runned anywhere)
 - `parent`: string. Parent command. Useful for subcommands. WIP.
-- `type`: [CommandType](https://tsdocs.dev/docs/zumito-framework/latest/variables/CommandType.html) object. Defines if the command can be runned using slash and/or prefix.
+- `type`: [CommandType](https://tsdocs.dev/docs/zumito-framework/latest/variables/CommandType.html) object. Defines if the command can be runned using slash and/or prefix. Defaults to `CommandType.any`.
     CommandType.slash / CommandType.prefix / CommandType.any
 # Tips
 ## Acces to discord client instance
@@ -213,6 +222,15 @@ You can get the arguments using the `get` method, which receives the name of the
         }
         ```
         Output: [GuildChannel](https://discord.js.org/docs/packages/discord.js/main/GuildChannel:Class)
+    </TabItem>
+
+    <TabItem label="Number arg">
+        ```diff lang=ts
+        async execute({ message, interaction, args, client, framework, guildSettings }: CommandParameters): Promise<void> {
+        +   const numberArg: number = args.get("argumentName");
+        }
+        ```
+        Output: Number
     </TabItem>
     
     
