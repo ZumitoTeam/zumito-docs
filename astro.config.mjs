@@ -36,6 +36,9 @@ const plugins = [
                 items: [{
                     label: 'Translator',
                     slug: 'guides/services/translator',
+                }, {
+                    label: 'Invite URL generator',
+                    slug: 'guides/services/invite-url-generator',
                 }],
             }, {
                 label: 'Other',

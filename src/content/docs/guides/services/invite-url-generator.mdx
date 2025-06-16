@@ -1,0 +1,22 @@
+---
+title: Invite URL generator
+description: Use the InviteUrlGenerator service to create links for inviting your bot.
+---
+
+The `InviteUrlGenerator` service provides a helper to easily create the Discord OAuth2 URL needed to invite your bot to a server.
+
+First obtain the service instance from the `ServiceContainer`:
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { InviteUrlGenerator } from 'zumito-framework';
+
+const inviteGenerator = ServiceContainer.getService(InviteUrlGenerator);
+```
+
+Once you have the service you can call `generateBotInviteUrl(clientId?, permissions?)`.
+Both parameters are optional; when `clientId` is omitted the value of `process.env.DISCORD_CLIENT_ID` will be used. If `permissions` is not provided it defaults to `0`.
+
+```ts
+const url = inviteGenerator.generateBotInviteUrl();
+// https://discord.com/api/oauth2/authorize?client_id=...&permissions=0&scope=bot
+```
