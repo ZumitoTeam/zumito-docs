@@ -4,10 +4,10 @@ import tailwind from "@astrojs/tailwind";
 import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import svelte from "@astrojs/svelte";
 import fs from 'fs';
-import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
+import starlightSidebarTopics from 'starlight-sidebar-topics'
 
 const plugins = [
-    starlightSidebarTopicsDropdown([
+    starlightSidebarTopics([
         {
             label: 'Guides',
             link: '/guides/',
@@ -92,9 +92,9 @@ export default defineConfig({
     site: 'https://docs.zumito.dev',
     integrations: [starlight({
         title: 'Zumito Docs',
-        social: {
-            github: 'https://github.com/zumitoTeam/zumito-framework',
-        },
+        social: [
+            { icon: 'github', label: 'GitHub', href: 'https://github.com/zumitoTeam/zumito-framework' },
+        ],
         defaultLocale: 'root',
         locales: {
             root: {
@@ -106,6 +106,9 @@ export default defineConfig({
             },
         },
         plugins,
+        components: {
+        Sidebar: './src/components/Sidebar.astro',
+      },
         customCss: ['./src/tailwind.css'],
     }), tailwind({
         applyBaseStyles: false,
