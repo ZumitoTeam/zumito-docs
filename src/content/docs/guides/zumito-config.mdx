@@ -1,0 +1,71 @@
+---
+sidebar_position: 2
+title: Zumito Config
+description: A guide to the zumito.config.ts file.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This guide will help you to understand the `zumito.config.ts` file.
+
+## The `LauncherConfig` interface
+
+The `zumito.config.ts` file must export a constant named `config` that implements the `LauncherConfig` interface.
+
+```ts
+import type { LauncherConfig } from 'zumito-framework';
+
+export const config: LauncherConfig = {
+    // Your configuration here
+};
+```
+
+The `LauncherConfig` interface has the following properties:
+
+- `bundles`: An array of `Bundle` objects. Bundles are a way to organize your bot's code. Each bundle is a directory that contains commands, events, and other modules.
+- `frameworkSettings`: An object that contains the framework settings. This is where you can configure the bot's token, prefix, and other options.
+
+## Bundles
+
+Bundles are a way to organize your bot's code. Each bundle is a directory that contains commands, events, and other modules.
+
+To add a bundle, you need to add a `Bundle` object to the `bundles` array in your `zumito.config.ts` file.
+
+```ts
+import path from 'path';
+import type { LauncherConfig } from 'zumito-framework';
+
+const __dirname = process.cwd();
+
+export const config: LauncherConfig = {
+    bundles: [{
+        path: path.join(__dirname, "node_modules", "@zumito-team", "admin-module"),
+    }, {
+        path: path.join(__dirname, "node_modules", "@zumito-team", "user-panel-module"),
+    }],
+};
+```
+
+## Framework Settings
+
+The `frameworkSettings` object contains the framework settings. This is where you can configure the bot's token, prefix, and other options.
+
+```ts
+import type { LauncherConfig } from 'zumito-framework';
+
+export const config: LauncherConfig = {
+    frameworkSettings: {
+        discordClientOptions: {
+            intents: 3276799,
+            token: process.env.DISCORD_TOKEN!,
+            clientId: process.env.DISCORD_CLIENT_ID!,
+        },
+        defaultPrefix: process.env.BOT_PREFIX || "z-",
+        logLevel: parseInt(process.env.LOG_LEVEL || "3"),
+    }
+};
+```

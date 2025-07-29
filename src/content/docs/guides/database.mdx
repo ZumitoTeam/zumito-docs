@@ -1,0 +1,34 @@
+---
+sidebar_position: 3
+title: Database
+description: A guide to the database.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This guide will help you to understand the database.
+
+## Direct MongoDB Integration
+
+Zumito Framework has moved from custom database models to a direct MongoDB integration. This means that you can now use the official MongoDB driver to interact with the database.
+
+## Accessing the Database
+
+To access the database, you need to get the `Db` object from the `ServiceContainer`.
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { Db } from 'mongodb';
+
+const db = ServiceContainer.get(Db);
+```
+
+Once you have the `Db` object, you can use it to interact with the database.
+
+```ts
+const users = await db.collection('users').find().toArray();
+```

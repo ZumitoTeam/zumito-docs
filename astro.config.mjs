@@ -16,36 +16,49 @@ const plugins = [
             items: [{
                 label: 'Quick Start',
                 slug: 'guides/start',
+            }, 
+            {
+                label: "Getting Started",
+                items: [{
+                    label: 'CLI',
+                    slug: 'guides/cli',
+                },{
+                    label: 'Configuration',
+                    slug: 'guides/zumito-config',
+                }, {
+                    label: 'Database',
+                    slug: 'guides/database',
+                }, {
+                    label: 'Env',
+                    slug: 'guides/env'
+                }]
             }, {
-                label: 'Create command',
-                slug: 'guides/command',
-            }, {
-                label: 'Listen to an event',
-                slug: 'guides/event',
-            }, {
-                label: 'Create database model',
-                slug: 'guides/model',
-            }, {
-                label: 'Create route',
-                slug: 'guides/route',
-            }, {
-                label: 'Update bot status',
-                slug: 'guides/bot-status',
+                label: "Guides",
+                items: [{
+                    label: 'Create command',
+                    slug: 'guides/command',
+                }, {
+                    label: 'Listen to an event',
+                    slug: 'guides/event',
+                }, {
+                    label: 'Create route',
+                    slug: 'guides/route',
+                }, {
+                    label: 'Update bot status',
+                    slug: 'guides/bot-status',
+                },]
             }, {
                 label: 'Services',
                 items: [{
+                    label: 'Prefix Resolver',
+                    slug: 'guides/prefix-resolver',
+                }, {
                     label: 'Translator',
                     slug: 'guides/services/translator',
                 }, {
                     label: 'Invite URL generator',
                     slug: 'guides/services/invite-url-generator',
                 }],
-            }, {
-                label: 'Other',
-                items: [{
-                    label: 'Env',
-                    slug: 'guides/env'
-                }]
             }],
         }, {
             label: 'Reference',

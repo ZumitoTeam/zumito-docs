@@ -1,0 +1,40 @@
+---
+sidebar_position: 4
+title: Prefix Resolver
+description: A guide to the prefix resolver.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This guide will help you to understand the prefix resolver.
+
+## The `PrefixResolver` Service
+
+The `PrefixResolver` service is used to manage the bot's prefixes. You can use it to add, remove, and get prefixes for a guild.
+
+## Accessing the `PrefixResolver` Service
+
+To access the `PrefixResolver` service, you need to get it from the `ServiceContainer`.
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { PrefixResolver } from 'zumito-framework';
+
+const prefixResolver = ServiceContainer.get(PrefixResolver);
+```
+
+## Usage
+
+Once you have the `PrefixResolver` service, you can use it to manage the bot's prefixes.
+
+### Get a prefix
+
+To get a prefix for a guild, you can use the `getPrefix` method.
+
+```ts
+const prefix = await prefixResolver.getPrefix(guildId);
+```

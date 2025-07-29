@@ -1,0 +1,77 @@
+---
+sidebar_position: 2
+title: CLI
+description: A comprehensive guide to the zumito-cli commands.
+---
+
+import { Icon } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This guide provides a detailed overview of the `zumito-cli` commands, helping you to streamline your development workflow.
+
+## `create project`
+
+This command initializes a new Zumito Framework project. It sets up the basic structure, dependencies, and configuration files to get you started quickly.
+
+```bash
+npx zumito-cli create project
+```
+
+This is the first command you should run when starting a new bot. For more information on setting up your project, see the [Quick Start Guide](/guides/start).
+
+---
+
+## `create command`
+
+This command generates a new command file with boilerplate code, allowing you to quickly implement new functionalities for your bot.
+
+```bash
+npx zumito-cli create command
+```
+
+The CLI will prompt you for the command name and the module it belongs to. For a detailed explanation of how to build commands, refer to the [Create Command Guide](/guides/command).
+
+<LinkCard
+  title="Create a command"
+  description="Learn how to create commands for your bot"
+  href="/guides/command"
+/>
+
+---
+
+## `create embedBuilder`
+
+This command creates a new service class designed to build and manage message embeds. This is useful for creating visually appealing and structured messages.
+
+```bash
+npx zumito-cli create embedBuilder
+```
+
+Using an embed builder helps to keep your code clean and organized, especially for commands that send complex embeds.
+
+---
+
+## `create actionRowBuilder`
+
+This command generates a service class for creating and managing action rows, which can contain buttons, select menus, and other interactive components.
+
+```bash
+npx zumito-cli create actionRowBuilder
+```
+
+Action rows are essential for creating interactive bots. You can learn more about handling interactions in the [Create Command Guide](/guides/command).
+
+---
+
+## `inject service`
+
+This command simplifies the process of injecting a service into a class using the `ServiceContainer`. It automatically adds the necessary import statements and constructor code.
+
+```bash
+npx zumito-cli inject service
+```
+
+This command helps you to follow the dependency injection pattern, making your code more modular and testable. You can see an example of service injection in the [Create Command Guide](/guides/command#acces-to-discord-client-instance).
