@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+starlight-lang-select select, starlight-theme-select select {
+    padding-left: 25px;
+    border: none;
+}
+
+starlight-lang-select select {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+starlight-theme-select select {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}

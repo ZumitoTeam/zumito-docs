@@ -1,78 +1,43 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwind from "@astrojs/tailwind";
-import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
+//import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import svelte from "@astrojs/svelte";
 import fs from 'fs';
-import starlightSidebarTopics from 'starlight-sidebar-topics'
 
-const plugins = [
-    starlightSidebarTopics([
-        {
-            label: 'Guides',
-            link: '/guides/',
-            icon: 'open-book',
-            id: 'guides',
-            items: [{
-                label: 'Quick Start',
-                slug: 'guides/start',
-            }, 
-            {
-                label: "Getting Started",
-                items: [{
-                    label: 'CLI',
-                    slug: 'guides/cli',
-                },{
-                    label: 'Configuration',
-                    slug: 'guides/zumito-config',
-                }, {
-                    label: 'Database',
-                    slug: 'guides/database',
-                }, {
-                    label: 'Env',
-                    slug: 'guides/env'
-                }]
-            }, {
-                label: "Guides",
-                items: [{
-                    label: 'Create command',
-                    slug: 'guides/command',
-                }, {
-                    label: 'Listen to an event',
-                    slug: 'guides/event',
-                }, {
-                    label: 'Create route',
-                    slug: 'guides/route',
-                }, {
-                    label: 'Update bot status',
-                    slug: 'guides/bot-status',
-                },]
-            }, {
-                label: 'Services',
-                items: [{
-                    label: 'Prefix Resolver',
-                    slug: 'guides/prefix-resolver',
-                }, {
-                    label: 'Translator',
-                    slug: 'guides/services/translator',
-                }, {
-                    label: 'Invite URL generator',
-                    slug: 'guides/services/invite-url-generator',
-                }],
-            }],
-        }, {
-            label: 'Reference',
-            link: 'https://tsdocs.dev/docs/zumito-framework/latest/modules.html',
-            icon: 'information',
-        }, {
-            label: 'Concept (DeepWiki)',
-            link: "https://deepwiki.com/ZumitoTeam/zumito-framework",
-            icon: 'happenings'
-        }
-    ]),
+const sidebar = [
+    { label: 'Quick Start', link: '/guides/start' },
+    {
+        label: 'Getting Started',
+        items: [
+            { label: 'CLI', link: '/guides/cli' },
+            { label: 'Configuration', link: '/guides/zumito-config' },
+            { label: 'Database', link: '/guides/database' },
+            { label: 'Env', link: '/guides/env' },
+        ]
+    },
+    {
+        label: 'Guides',
+        items: [
+            { label: 'Create command', link: '/guides/command' },
+            { label: 'Listen to an event', link: '/guides/event' },
+            { label: 'Create route', link: '/guides/route' },
+            { label: 'Update bot status', link: '/guides/bot-status' },
+        ]
+    },
+    {
+        label: 'Services',
+        items: [
+            { label: 'Prefix Resolver', link: '/guides/prefix-resolver' },
+            { label: 'Translator', link: '/guides/services/translator' },
+            { label: 'Invite URL generator', link: '/guides/services/invite-url-generator' },
+        ]
+    }
 ];
 
-if (fs.existsSync('../zumito-framework/')) {
+const plugins = [];
+
+if (fs.existsSync('../zumito-framework/') && false) { // Change false to true to enable TypeDoc generation
     plugins.push(
         starlightTypeDoc({
             entryPoints: ['../zumito-framework/src/index.ts'],
@@ -105,10 +70,9 @@ export default defineConfig({
                 label: 'Español',
             },
         },
+        sidebar,
         plugins,
-        components: {
-        Sidebar: './src/components/Sidebar.astro',
-      },
+        
         customCss: ['./src/tailwind.css'],
     }), tailwind({
         applyBaseStyles: false,
