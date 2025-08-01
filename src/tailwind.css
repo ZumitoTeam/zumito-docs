@@ -5,6 +5,48 @@
 starlight-lang-select select, starlight-theme-select select {
     padding-left: 25px;
     border: none;
+    color: var(--sl-color-text);
+    background-color: var(--sl-color-bg-nav);
+}
+
+starlight-theme-select select {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+starlight-lang-select select {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+/* Estilos específicos para modo oscuro */
+[data-theme="dark"] starlight-lang-select select,
+[data-theme="dark"] starlight-theme-select select {
+    color: var(--sl-color-white);
+    background-color: var(--sl-color-gray-6);
+}
+
+/* Estilos para las opciones del select en modo oscuro */
+[data-theme="dark"] starlight-lang-select option,
+[data-theme="dark"] starlight-theme-select option {
+    color: var(--sl-color-white);
+    background-color: var(--sl-color-gray-6);
+}
+
+/* Hover states */
+starlight-lang-select select:hover,
+starlight-theme-select select:hover {
+    background-color: var(--sl-color-gray-5);
+}
+
+[data-theme="dark"] starlight-lang-select select:hover,
+[data-theme="dark"] starlight-theme-select select:hover {
+    background-color: var(--sl-color-gray-5);
+}
+
+starlight-lang-select select, starlight-theme-select select {
+    padding-left: 25px;
+    border: none;
 }
 
 starlight-lang-select select {

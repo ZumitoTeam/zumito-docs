@@ -29,7 +29,7 @@
 <div class="not-content min-h-[400px]">
     {#if step == 1}
         <div class="flex min-h-[400px] flex-col items-center justify-center gap-6 md:flex-row">
-            <img src="/zumito-hi.jpg" alt="Zumito saing hi" class="max-w-[50%]">
+            <img src="/zumito-hi.png" alt="Zumito saing hi" class="max-w-[50%]">
             <div class="inline-flex items-center justify-start gap-3 rounded-3xl rounded-tl-none bg-pink-100 px-3.5 py-2">
                 <h5 class="text-sm font-normal leading-snug text-gray-900">Let's make a bot!</h5>
             </div>
@@ -87,7 +87,7 @@
     {:else if step == 5}
         <div class="flex min-h-[400px] w-full flex-col justify-center">
             <div class="flex min-h-[400px] flex-col items-center justify-center gap-6 md:flex-row">
-                <img src="/zumito-thumbs-up.jpg" alt="Zumito saing hi" class="max-w-[50%]">
+                <img src="/zumito-thumbs-up.png" alt="Zumito saing hi" class="max-w-[50%]">
                 <div class="inline-flex items-center justify-start gap-3 rounded-3xl rounded-tl-none bg-pink-100 px-3.5 py-2">
                     <h5 class="text-sm font-normal leading-snug text-gray-900">Congrats, you have everithing ready!</h5>
                 </div>
