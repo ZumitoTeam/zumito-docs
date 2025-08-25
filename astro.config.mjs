@@ -6,6 +6,7 @@ import svelte from "@astrojs/svelte";
 import fs from 'fs';
 
 const sidebar = [
+    { label: "What's New", link: '/whats-new' },
     { label: 'Quick Start', link: '/guides/start' },
     {
         label: 'Getting Started',

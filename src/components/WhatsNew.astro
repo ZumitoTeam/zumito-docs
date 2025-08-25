@@ -1,0 +1,48 @@
+---
+const headers = { 'User-Agent': 'zumito-docs' };
+let items = null;
+try {
+  const releaseResponse = await fetch(
+    'https://api.github.com/repos/ZumitoTeam/zumito-framework/releases?per_page=5',
+    { headers }
+  );
+  const releases = await releaseResponse.json();
+  items = await Promise.all(
+    releases.map(async (release, index) => {
+      const prevTag = releases[index + 1]?.tag_name;
+      let commits = [];
+      if (prevTag) {
+        const compareRes = await fetch(
+          `https://api.github.com/repos/ZumitoTeam/zumito-framework/compare/${prevTag}...${release.tag_name}`,
+          { headers }
+        );
+        const compareData = await compareRes.json();
+        commits = compareData.commits || [];
+      }
+      return { release, commits };
+    })
+  );
+} catch (error) {
+  console.error('Failed to load release information', error);
+}
+---
+{items ? (
+  items.map(({ release, commits }) => (
+    <section>
+      <h2>{release.tag_name}</h2>
+      {release.body && <p>{release.body.split('\n')[0]}</p>}
+      {commits.length > 0 && (
+        <ul>
+          {commits.map((commit) => (
+            <li>
+              <a href={commit.html_url}>{commit.commit.message.split('\n')[0]}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p><a href={release.html_url}>See full release notes</a></p>
+    </section>
+  ))
+) : (
+  <p>Unable to load release information at this time.</p>
+)}
