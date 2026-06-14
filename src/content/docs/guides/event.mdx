@@ -67,3 +67,24 @@ async execute({ interaction, client, framework, }: EventParameters): Promise<voi
     interaction.reply('Hello world!');
 }
 ```
+
+## Framework `ready` event
+
+The framework emits a `ready` event when the bot is fully initialized (database connected, Discord client ready, all modules loaded, slash commands refreshed, and API server started). You can listen to it with:
+
+```ts
+import { FrameworkEvent } from 'zumito-framework';
+
+export class OnFrameworkReady extends FrameworkEvent {
+
+    source = 'framework';
+    once = true;
+
+    async execute(): Promise<void> {
+        console.log('Bot is fully ready!');
+    }
+
+}
+```
+
+Place this file in `events/framework/` inside your module. See also the [`onAllReady()`](/guides/module-lifecycle#onallready) module hook.

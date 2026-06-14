@@ -1,0 +1,86 @@
+---
+title: Module lifecycle
+description: Understand the lifecycle hooks available in Zumito Framework modules.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Modules in Zumito Framework expose lifecycle hooks that allow you to execute code at specific moments during the bot's initialization.
+
+## `initialize()`
+
+This method is called automatically when the module is loaded. It handles:
+
+- Loading commands from the `commands/` folder
+- Registering events from the `events/` folder
+- Loading translations from the `translations/` folder
+- Registering routes from the `routes/` folder
+
+You can override it if you need custom initialization logic, but make sure to call `super.initialize()`:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+
+    async initialize() {
+        await super.initialize();
+        // Custom initialization code
+    }
+
+}
+```
+
+## `onAllReady()`
+
+This hook is called **after the entire framework is ready** — Discord client connected, all modules loaded, slash commands refreshed, and API server started. It is the ideal place for code that depends on the bot being fully operational.
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+
+    async onAllReady() {
+        // Bot is fully ready
+        console.log(`Logged in as ${this.framework.client.user?.tag}`);
+    }
+
+}
+```
+
+<Aside type="tip">
+    Use `onAllReady()` instead of overriding `initialize()` when your code needs the Discord client or other modules to be already available.
+</Aside>
+
+## Framework `ready` event
+
+As an alternative, you can listen to the `ready` event emitted by the framework emitter. This is useful when you want to react from an event class without touching the module class:
+
+```ts
+import { FrameworkEvent } from 'zumito-framework';
+
+export class OnFrameworkReady extends FrameworkEvent {
+
+    source = 'framework';
+    once = true;
+
+    async execute(): Promise<void> {
+        console.log('Framework is ready!');
+    }
+
+}
+```
+
+<Aside>
+    The event file must be placed inside `events/framework/` folder of your module to be automatically registered.
+</Aside>
+
+## Execution order
+
+1. Discord client connects and emits `ready`
+2. Each module's `initialize()` is called
+3. Slash commands are refreshed
+4. API server starts
+5. Framework `ready` event is emitted
+6. Each module's `onAllReady()` is called
+7. User callback (configured in `zumito.config.ts`) is executed
