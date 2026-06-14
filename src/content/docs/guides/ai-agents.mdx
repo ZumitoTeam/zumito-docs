@@ -1,0 +1,180 @@
+---
+title: AI Agents Reference
+description: Critical information for AI agents working with Zumito Framework. Hidden from sidebar.
+sidebar:
+  hidden: true
+---
+
+This page contains information specifically for AI coding agents. It clarifies patterns that are commonly misunderstood and are not explicitly covered in other docs.
+
+## Discord imports: always use `zumito-framework/discord`
+
+**Never** import from `discord.js` directly. The framework re-exports everything from `discord.js` via its own subpath to ensure version consistency.
+
+```ts
+// CORRECTO
+import { Client, GuildMember, TextChannel, EmbedBuilder, PermissionsBitField } from 'zumito-framework/discord';
+
+// INCORRECTO — no hagas esto
+import { Client } from 'discord.js';
+```
+
+All types, enums, and classes from discord.js are available through `zumito-framework/discord`. This includes but is not limited to: `Client`, `Guild`, `GuildMember`, `TextChannel`, `VoiceChannel`, `Message`, `EmbedBuilder`, `ActionRowBuilder`, `ButtonBuilder`, `StringSelectMenuBuilder`, `PermissionsBitField`, `ChannelType`, `ApplicationCommandOptionType`, `Interaction`, `CommandInteraction`, `ButtonInteraction`, `StringSelectMenuInteraction`, `ModalSubmitInteraction`, `User`, `roleMention`, `userMention`, `channelMention`, `inlineCode`, `bold`, `italic`, `hyperlink`, etc.
+
+## Database access
+
+The framework uses the **native MongoDB driver**, not Mongoose. There is no ORM.
+
+Mongoose appears in `package.json` dependencies for legacy reasons but is **not used**. Do not create Mongoose models or schemas.
+
+### How to get the database instance
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { Db } from 'mongodb';
+
+const db = ServiceContainer.get(Db);
+```
+
+The `Db` type and all MongoDB driver types (`Collection`, `ObjectId`, `Filter`, `FindOptions`, etc.) come from the `mongodb` package directly — **not** from `zumito-framework`.
+
+### Query patterns
+
+```ts
+// Find all documents in a collection
+const users = await db.collection('users').find().toArray();
+
+// Find one document
+const user = await db.collection('users').findOne({ userId: '123' });
+
+// Insert
+await db.collection('users').insertOne({ userId: '123', name: 'Test' });
+
+// Update
+await db.collection('users').updateOne(
+  { userId: '123' },
+  { $set: { name: 'Updated' } }
+);
+
+// Delete
+await db.collection('users').deleteOne({ userId: '123' });
+
+// Aggregation
+const result = await db.collection('users').aggregate([
+  { $match: { active: true } },
+  { $group: { _id: '$guildId', count: { $sum: 1 } } }
+]).toArray();
+```
+
+### Configuration collection convention
+
+Guild settings are stored in a `configs` collection. Each document typically has a `guildId` field. Use the `GuildDataGetter` service to fetch guild settings with defaults merged in:
+
+```ts
+import { GuildDataGetter, ServiceContainer } from 'zumito-framework';
+
+const guildDataGetter = ServiceContainer.get(GuildDataGetter) as GuildDataGetter;
+const settings = await guildDataGetter.getGuildSettings(guildId);
+```
+
+This merges the config from DB with defaults defined in each module's `config/default.ts`.
+
+## ServiceContainer
+
+The `ServiceContainer` is a global dependency injection container. Key services are pre-registered by the framework:
+
+| Service class | How to get | Notes |
+|---|---|---|
+| `ZumitoFramework` | `ServiceContainer.get(ZumitoFramework)` | The framework instance |
+| `Client` (discord) | `ServiceContainer.get(Client)` | Discord.js client |
+| `Db` (mongodb) | `ServiceContainer.get(Db)` | MongoDB database instance |
+| `TranslationManager` | `ServiceContainer.get(TranslationManager)` | Translation service |
+| `CommandManager` | `ServiceContainer.get(CommandManager)` | All loaded commands |
+| `EventManager` | `ServiceContainer.get(EventManager)` | Event handling |
+| `ErrorHandler` | `ServiceContainer.get(ErrorHandler)` | Centralized error handling |
+| `GuildDataGetter` | `ServiceContainer.get(GuildDataGetter)` | Guild settings from DB |
+| `MemberPermissionChecker` | `ServiceContainer.get(MemberPermissionChecker)` | Permission checks |
+| `TextFormatter` | `ServiceContainer.get(TextFormatter)` | Text formatting utilities |
+| `EmojiFallback` | `ServiceContainer.get(EmojiFallback)` | Emoji fallback resolution |
+| `InviteUrlGenerator` | `ServiceContainer.get(InviteUrlGenerator)` | Bot invite URL generation |
+| `PrefixResolver` | `ServiceContainer.get(PrefixResolver)` | Guild-specific prefix |
+
+When writing a command, the `client` and `framework` are available in `execute` parameters, so you don't need ServiceContainer for those. Use ServiceContainer for other services like `GuildDataGetter` or `ErrorHandler`.
+
+```ts
+import { Command, CommandParameters, ServiceContainer, GuildDataGetter } from 'zumito-framework';
+import { Client } from 'zumito-framework/discord';
+
+export class MyCommand extends Command {
+    private guildDataGetter: GuildDataGetter;
+
+    constructor() {
+        super();
+        this.guildDataGetter = ServiceContainer.get(GuildDataGetter);
+    }
+
+    async execute({ message, interaction, client, framework }: CommandParameters): Promise<void> {
+        const target = message || interaction;
+        // client and framework are already available in params
+    }
+}
+```
+
+## Module structure convention
+
+Each module lives in `src/modules/<ModuleName>/` and follows this structure:
+
+```
+src/modules/<ModuleName>/
+├── commands/          # Command classes
+├── events/            # Event classes (subfolder = source, e.g., events/discord/)
+│   └── discord/       # Discord.js events
+│   └── framework/     # Framework events (e.g., 'ready')
+├── routes/            # Express route handlers
+├── translations/      # Translation JSON files
+│   ├── en.json
+│   └── es.json
+├── config/
+│   └── default.ts     # Default guild config values
+└── index.ts           # Module entry (extends Module)
+```
+
+The module entry extends `Module` from `zumito-framework`:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    async initialize() {
+        await super.initialize();  // registers commands, events, translations, routes
+    }
+
+    async onAllReady() {
+        // Called after all modules initialized, DB ready, slash commands refreshed
+    }
+}
+```
+
+## Translation keys
+
+Translation keys are relative to the current context:
+- In commands: `trans("yourKey")` resolves to `command.<commandName>.yourKey`
+- Use `$` prefix for absolute keys: `trans("$category.otherCommand.someKey")`
+
+Translation files are flat JSON objects. The framework merges all module translations.
+
+## Slash vs Prefix commands
+
+- If only `execute()` is defined: works for both slash and prefix.
+- If `executeSlashCommand()` is defined: used for slash commands instead of `execute()`.
+- If `executePrefixCommand()` is defined: used for prefix commands instead of `execute()`.
+- Check which mode by seeing if `message` or `interaction` is defined in params.
+
+## Common pitfalls
+
+1. **Don't** instantiate the Discord `Client` yourself — the framework creates and manages it.
+2. **Don't** create Mongoose models. Use the native MongoDB driver via `ServiceContainer.get(Db)`.
+3. **Don't** import from `discord.js` directly. Use `zumito-framework/discord`.
+4. **Don't** call `client.login()` — the framework handles authentication via `FrameworkSettings.discordClientOptions.token`.
+5. In DM channels, `guild` and `guildSettings` will be undefined. Always guard against this.
+6. The framework uses ESM (`"type": "module"` in package.json). Always use `.js` extensions in relative imports even in TypeScript files.
