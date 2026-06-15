@@ -1,0 +1,154 @@
+---
+title: Command Execution Rules
+description: Add modular, extensible rules to control when commands can be executed.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The `CommandExecutionChecker` provides a two-level rule system:
+
+- **Global rules** — registered on the checker service, apply to **all** commands
+- **Per-command rules** — defined directly on a `Command` class, apply only to that command
+
+Both levels run in sequence: global rules first, then per-command rules. Execution stops at the first rule that blocks.
+
+This system works across **prefix commands**, **slash commands**, **buttons**, **select menus**, and **modals**.
+
+## Global rules
+
+Global rules are useful for checks that affect every command in your bot — ignoring bots, blocking users, rate limiting, etc.
+
+Register them in a module's `onAllReady()`:
+
+```ts
+import { Module, ServiceContainer, CommandExecutionChecker } from 'zumito-framework';
+
+export class CoreModule extends Module {
+
+    async onAllReady() {
+        const checker = ServiceContainer.getService(CommandExecutionChecker);
+
+        checker.addRule('ignore-bots', {
+            canRun: (ctx) => ctx.member?.user?.bot !== true,
+            errorMessage: 'Bots cannot use commands.',
+        });
+    }
+
+}
+```
+
+## Per-command rules
+
+Define rules directly on your command class via the `rules` property. These are checked **only** for that specific command:
+
+```ts
+import { Command, CommandParameters, CommandType } from 'zumito-framework';
+
+export class PremiumCommand extends Command {
+
+    rules = [
+        {
+            canRun: (ctx) => ctx.guildSettings?.premium === true,
+            errorMessage: 'This command requires a premium server.',
+        },
+    ];
+
+    name = 'premium-feature';
+
+    async execute({ interaction, args }: CommandParameters): Promise<void> {
+        interaction.reply('Welcome to the premium feature!');
+    }
+}
+```
+
+<Aside type="tip">
+    Global rules are ideal for cross-cutting concerns (bot detection, bans, maintenance mode).
+    Per-command rules are ideal for command-specific logic (premium checks, role requirements, cooldowns).
+</Aside>
+
+## Execution order
+
+1. **Global rules** are evaluated in registration order
+2. If any global rule blocks → execution is denied immediately, per-command rules are skipped
+3. If all global rules pass → **per-command rules** are evaluated (if defined)
+4. If all pass → the command executes
+
+## Combined example
+
+```ts
+// Global rule — blocks bots everywhere
+checker.addRule('no-bots', {
+    canRun: (ctx) => !ctx.member?.user?.bot,
+    errorMessage: 'Bots cannot run commands.',
+});
+
+// Per-command rule — only this specific command needs premium
+export class SecretCommand extends Command {
+    rules = [
+        {
+            canRun: (ctx) => ctx.guildSettings?.premium === true,
+            errorMessage: 'This command requires premium.',
+        },
+    ];
+
+    name = 'secret';
+    async execute(params: CommandParameters): Promise<void> { /* ... */ }
+}
+```
+
+## Dynamic error messages
+
+Both global and per-command rules support dynamic error messages via a function:
+
+```ts
+checker.addRule('cooldown', {
+    canRun: (ctx) => { /* check cooldown */ return true; },
+    errorMessage: (ctx) =>
+        `Command \`${ctx.command.name}\` is on cooldown. Please wait.`,
+});
+```
+
+## Conditional rules by execution type
+
+Use the `type` field in the context to differentiate prefix vs slash vs interactions:
+
+```ts
+checker.addRule('slash-only', {
+    canRun: (ctx) => ctx.type !== 'prefix',
+    errorMessage: 'This feature is only available via slash commands.',
+});
+```
+
+The `type` field can be: `'prefix'`, `'slash'`, `'button'`, `'selectMenu'`, or `'modal'`.
+
+## Available context properties
+
+| Property | Type | Description |
+|---|---|---|
+| `command` | `Command` | The command being executed |
+| `type` | `CommandExecutionType` | How the command was triggered |
+| `framework` | `ZumitoFramework` | The framework instance |
+| `client` | `Client` | The Discord.js client |
+| `guild` | `Guild \| undefined` | The guild where it was executed |
+| `member` | `GuildMember \| undefined` | The member who triggered it |
+| `guildSettings` | `any` | Guild settings from the database |
+| `message` | `Message \| undefined` | The message (prefix commands only) |
+| `interaction` | `Interaction \| undefined` | The interaction (slash/button/selectMenu/modal) |
+| `args` | `Map<string, any> \| undefined` | Parsed command arguments |
+
+## API Reference
+
+### `checker.addRule(name: string, rule: CommandExecutionRule): void`
+Registers a global rule. Replaces any existing rule with the same name.
+
+### `checker.getRule(name: string): CommandExecutionRule | undefined`
+Retrieves a global rule by name.
+
+### `checker.removeRule(name: string): boolean`
+Removes a global rule. Returns `true` if it existed.
+
+### `checker.getAllRules(): Map<string, CommandExecutionRule>`
+Returns all registered global rules.
+
+### `checker.check(context: CommandExecutionContext): Promise<CommandExecutionCheck>`
+Evaluates global rules first, then per-command rules. Returns `{ passed, ruleName?, message? }`.

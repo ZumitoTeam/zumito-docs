@@ -1,0 +1,154 @@
+---
+title: Reglas de ejecución de comandos
+description: Añade reglas modulares y extensibles para controlar cuándo se pueden ejecutar los comandos.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El `CommandExecutionChecker` proporciona un sistema de reglas de dos niveles:
+
+- **Reglas globales** — registradas en el servicio checker, aplican a **todos** los comandos
+- **Reglas por comando** — definidas directamente en la clase `Command`, aplican solo a ese comando
+
+Ambos niveles se ejecutan en secuencia: primero las reglas globales, luego las del comando. La ejecución se detiene en la primera regla que bloquee.
+
+Este sistema funciona con **comandos por prefijo**, **slash commands**, **botones**, **menús de selección** y **modales**.
+
+## Reglas globales
+
+Las reglas globales son útiles para verificaciones que afectan a todos los comandos — ignorar bots, bloquear usuarios, rate limiting, etc.
+
+Regístralas en `onAllReady()` de un módulo:
+
+```ts
+import { Module, ServiceContainer, CommandExecutionChecker } from 'zumito-framework';
+
+export class CoreModule extends Module {
+
+    async onAllReady() {
+        const checker = ServiceContainer.getService(CommandExecutionChecker);
+
+        checker.addRule('ignorar-bots', {
+            canRun: (ctx) => ctx.member?.user?.bot !== true,
+            errorMessage: 'Los bots no pueden usar comandos.',
+        });
+    }
+
+}
+```
+
+## Reglas por comando
+
+Define reglas directamente en tu clase de comando mediante la propiedad `rules`. Estas se verifican **solo** para ese comando específico:
+
+```ts
+import { Command, CommandParameters, CommandType } from 'zumito-framework';
+
+export class ComandoPremium extends Command {
+
+    rules = [
+        {
+            canRun: (ctx) => ctx.guildSettings?.premium === true,
+            errorMessage: 'Este comando requiere un servidor premium.',
+        },
+    ];
+
+    name = 'funcionalidad-premium';
+
+    async execute({ interaction, args }: CommandParameters): Promise<void> {
+        interaction.reply('¡Bienvenido a la funcionalidad premium!');
+    }
+}
+```
+
+<Aside type="tip">
+    Las reglas globales son ideales para preocupaciones transversales (detección de bots, bans, modo mantenimiento).
+    Las reglas por comando son ideales para lógica específica (verificaciones premium, requisitos de rol, cooldowns).
+</Aside>
+
+## Orden de ejecución
+
+1. Las **reglas globales** se evalúan en orden de registro
+2. Si alguna regla global bloquea → se deniega la ejecución inmediatamente, las reglas por comando se omiten
+3. Si todas las reglas globales pasan → se evalúan las **reglas por comando** (si están definidas)
+4. Si todas pasan → el comando se ejecuta
+
+## Ejemplo combinado
+
+```ts
+// Regla global — bloquea bots en todos lados
+checker.addRule('no-bots', {
+    canRun: (ctx) => !ctx.member?.user?.bot,
+    errorMessage: 'Los bots no pueden ejecutar comandos.',
+});
+
+// Regla por comando — solo este comando necesita premium
+export class ComandoSecreto extends Command {
+    rules = [
+        {
+            canRun: (ctx) => ctx.guildSettings?.premium === true,
+            errorMessage: 'Este comando requiere premium.',
+        },
+    ];
+
+    name = 'secreto';
+    async execute(params: CommandParameters): Promise<void> { /* ... */ }
+}
+```
+
+## Mensajes de error dinámicos
+
+Tanto las reglas globales como las por comando soportan mensajes de error dinámicos mediante funciones:
+
+```ts
+checker.addRule('cooldown', {
+    canRun: (ctx) => { /* verificar cooldown */ return true; },
+    errorMessage: (ctx) =>
+        `El comando \`${ctx.command.name}\` está en cooldown. Espera.`,
+});
+```
+
+## Reglas condicionales por tipo de ejecución
+
+Usa el campo `type` del contexto para diferenciar prefijo vs slash vs interacciones:
+
+```ts
+checker.addRule('solo-slash', {
+    canRun: (ctx) => ctx.type !== 'prefix',
+    errorMessage: 'Esta funcionalidad solo está disponible mediante slash commands.',
+});
+```
+
+El campo `type` puede ser: `'prefix'`, `'slash'`, `'button'`, `'selectMenu'` o `'modal'`.
+
+## Propiedades del contexto disponibles
+
+| Propiedad | Tipo | Descripción |
+|---|---|---|
+| `command` | `Command` | El comando que se está ejecutando |
+| `type` | `CommandExecutionType` | Cómo se activó el comando |
+| `framework` | `ZumitoFramework` | La instancia del framework |
+| `client` | `Client` | El cliente de Discord.js |
+| `guild` | `Guild \| undefined` | El servidor donde se ejecutó |
+| `member` | `GuildMember \| undefined` | El miembro que lo activó |
+| `guildSettings` | `any` | Configuración del servidor desde la base de datos |
+| `message` | `Message \| undefined` | El mensaje (solo comandos por prefijo) |
+| `interaction` | `Interaction \| undefined` | La interacción (slash/button/selectMenu/modal) |
+| `args` | `Map<string, any> \| undefined` | Argumentos parseados del comando |
+
+## Referencia de la API
+
+### `checker.addRule(name: string, rule: CommandExecutionRule): void`
+Registra una regla global. Reemplaza cualquier regla existente con el mismo nombre.
+
+### `checker.getRule(name: string): CommandExecutionRule | undefined`
+Obtiene una regla global por nombre.
+
+### `checker.removeRule(name: string): boolean`
+Elimina una regla global. Retorna `true` si existía.
+
+### `checker.getAllRules(): Map<string, CommandExecutionRule>`
+Retorna todas las reglas globales registradas.
+
+### `checker.check(context: CommandExecutionContext): Promise<CommandExecutionCheck>`
+Evalúa primero las reglas globales, luego las del comando. Retorna `{ passed, ruleName?, message? }`.

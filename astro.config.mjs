@@ -23,9 +23,15 @@ const sidebar = [
         items: [
             { label: 'Create command', link: '/guides/command' },
             { label: 'Listen to an event', link: '/guides/event' },
-            { label: 'Module lifecycle', link: '/guides/module-lifecycle' },
             { label: 'Create route', link: '/guides/route' },
-            { label: 'Update bot status', link: '/guides/bot-status' },
+            {
+                label: 'Bot & Lifecycle',
+                items: [
+                    { label: 'Update bot status', link: '/guides/bot-status' },
+                    { label: 'Execution rules', link: '/guides/command-execution-rules' },
+                    { label: 'Module lifecycle', link: '/guides/module-lifecycle' },
+                ]
+            },
         ]
     },
     {
