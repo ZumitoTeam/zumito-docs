@@ -4,6 +4,7 @@ import tailwind from "@astrojs/tailwind";
 //import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import svelte from "@astrojs/svelte";
 import fs from 'fs';
+import starlightSkills from 'starlight-skills';
 
 const sidebar = [
     { label: "What's New", link: '/whats-new' },
@@ -37,7 +38,7 @@ const sidebar = [
     }
 ];
 
-const plugins = [];
+const plugins = [starlightSkills()];
 
 if (fs.existsSync('../zumito-framework/') && false) { // Change false to true to enable TypeDoc generation
     plugins.push(

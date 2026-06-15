@@ -1,9 +1,6 @@
 ---
-title: AI Agents Reference
-description: Critical information for AI agents working with Zumito Framework. Hidden from sidebar.
-skill: true
-sidebar:
-  hidden: true
+name: ai-agents-reference
+description: "Critical information for AI agents working with Zumito Framework. Hidden from sidebar."
 ---
 
 This page contains information specifically for AI coding agents. It clarifies patterns that are commonly misunderstood and are not explicitly covered in other docs.

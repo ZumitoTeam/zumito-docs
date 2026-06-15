@@ -1,0 +1,13 @@
+diff --git a/node_modules/starlight-skills/src/components/catalog.astro b/node_modules/starlight-skills/src/components/catalog.astro
+index c63282c..a9e47a9 100644
+--- a/node_modules/starlight-skills/src/components/catalog.astro
++++ b/node_modules/starlight-skills/src/components/catalog.astro
+@@ -132,7 +132,7 @@ const { rows, uncategorised } = buildRows();
+   ) : (
+     <>
+       <p>Install skills from this repository with:</p>
+-      <pre><code>npx skills add &lt;repository&gt;</code></pre>
++      <pre><code>npx skills add https://github.com/ZumitoTeam/zumito-docs</code></pre>
+ 
+       {rows.map((row) => (
+         <>
