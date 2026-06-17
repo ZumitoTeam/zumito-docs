@@ -1,0 +1,176 @@
+---
+title: Módulo Reactions
+description: Comandos interactivos de reacciones GIF con categorías personalizables, plantillas multi-idioma y panel admin completo para gestión.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Módulo Reactions** (`@zumito-team/reactions-module`) proporciona un comando `/reaction` que envía reacciones GIF animadas con categorías personalizables (beso, enojo, felicidad, etc.) y plantillas de mensajes multi-idioma. Incluye un panel admin completo para gestionar categorías e imágenes.
+
+## Instalación
+
+```bash
+npm install @zumito-team/reactions-module
+```
+
+Agrega a tu `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/reactions-module']
+```
+
+<Aside type="caution">
+  Este módulo requiere `@zumito-team/admin-module` como dependencia. Instálalo primero.
+</Aside>
+
+## Qué proporciona
+
+### Comando Reaction
+
+El comando `/reaction` con argumentos:
+
+| Argumento | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `category` | `string` | Sí | Categoría de reacción (kiss, angry, happy, etc.). |
+| `member` | `user` | No | Usuario objetivo. Si se omite, la reacción es hacia uno mismo. |
+
+Al ejecutarse:
+1. Busca la categoría (fusionando defaults con sobrescrituras de base de datos).
+2. Resuelve el locale desde la configuración de la guild.
+3. Selecciona una imagen aleatoria de la categoría.
+4. Renderiza la plantilla con placeholders `%user%` y `%user2%`.
+5. Envía un embed de Discord con la imagen, info del autor y mensaje formateado.
+
+### Categorías por defecto
+
+Tres categorías vienen pre-configuradas:
+
+| Categoría | Orden | Plantillas (ES) |
+|---|---|---|
+| `kiss` | 1 | `%user% besó a %user2%` / `%user% quiere un beso` |
+| `angry` | 2 | `%user% se enojó con %user2%` / `%user% está enojado` |
+| `happy` | 3 | `%user% se puso feliz con %user2%` / `%user% está feliz` |
+
+Cada categoría tiene una imagen GIF por defecto de `cdn.nekotina.com`.
+
+### ReactionService
+
+Accesible a través del contenedor de servicios:
+
+```ts
+const reactions = ServiceContainer.getService('ReactionService');
+```
+
+| Método | Descripción |
+|---|---|
+| `listCategories()` | Lista todas las categorías con defaults y sobrescrituras fusionados. |
+| `getCategory(key)` | Obtiene una categoría por clave. |
+| `upsertCategory(input)` | Crea o actualiza una categoría. |
+| `deleteCategory(key)` | Elimina una categoría de la base de datos. |
+| `addImage(categoryKey, imageInput)` | Agrega una imagen a una categoría. |
+| `updateImage(categoryKey, imageUrl, updates)` | Actualiza la fuente o descripción de una imagen. |
+| `removeImage(categoryKey, imageUrl)` | Elimina una imagen por URL. |
+| `getImagesForCategory(key)` | Obtiene todas las imágenes de una categoría. |
+| `getRandomImage(key)` | Obtiene una imagen aleatoria de una categoría. |
+
+### Rutas del panel admin
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/admin/reactions` | Lista de categorías con formularios CRUD. |
+| `POST` | `/admin/reactions/category` | Crear/actualizar categoría. |
+| `POST` | `/admin/reactions/category/:key/delete` | Eliminar categoría. |
+| `GET` | `/admin/reactions/images` | Página de gestión de imágenes. |
+| `POST` | `/admin/reactions/category/:key/images` | Agregar imagen a categoría. |
+| `POST` | `/admin/reactions/category/:key/images/update` | Actualizar fuente/descripción de imagen. |
+| `POST` | `/admin/reactions/category/:key/images/delete` | Eliminar imagen. |
+
+## Configuración
+
+Todos los datos de categorías se almacenan en la colección `reaction_categories` de la base de datos. Las categorías se pueden gestionar completamente a través del panel admin.
+
+### Esquema de categoría
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `key` | `string` | Identificador único de categoría (minúsculas, sin espacios). |
+| `order` | `number` | Orden de visualización. |
+| `images` | `ReactionImage[]` | Array de objetos `{ source: string, description?: string }`. |
+| `translations` | `TranslationMap` | `Record<string, { mentionTemplate: string, simpleTemplate: string }>` para cada locale. |
+
+### Plantillas
+
+Las plantillas son multi-idioma y soportan dos variantes:
+- **`mentionTemplate`** — Usada cuando se especifica un usuario objetivo (`%user%` = autor, `%user2%` = objetivo).
+- **`simpleTemplate`** — Usada para auto-reacciones (`%user%` = autor).
+
+## Extensión
+
+### Agregar categorías personalizadas programáticamente
+
+```ts
+const reactions = ServiceContainer.getService('ReactionService');
+
+await reactions.upsertCategory({
+    key: 'highfive',
+    order: 4,
+    translations: {
+        en: {
+            mentionTemplate: '%user% high-fived %user2%!',
+            simpleTemplate: '%user% wants a high-five!'
+        },
+        es: {
+            mentionTemplate: '%user% chocó los cinco con %user2%!',
+            simpleTemplate: '%user% quiere chocar los cinco!'
+        }
+    },
+    images: [
+        { source: 'https://example.com/highfive1.gif', description: 'Choca esos cinco épico' },
+        { source: 'https://example.com/highfive2.gif', description: 'Choca esos cinco en cámara lenta' }
+    ]
+});
+```
+
+### Consumir ReactionService en otros módulos
+
+```ts
+class MiModulo extends Module {
+    requirements = { services: ['ReactionService'] };
+
+    async obtenerGifBesoAleatorio(): Promise<string> {
+        const reactions = ServiceContainer.getService('ReactionService');
+        const image = await reactions.getRandomImage('kiss');
+        return image?.source;
+    }
+}
+```
+
+### Agregar más locales
+
+El sistema de traducción soporta cualquier clave de locale. Simplemente agrega traducciones para un nuevo locale:
+
+```ts
+await reactions.upsertCategory({
+    key: 'kiss',
+    translations: {
+        fr: {
+            mentionTemplate: '%user% a embrassé %user2%!',
+            simpleTemplate: '%user% veut un bisou!'
+        }
+    }
+});
+```
+
+<Aside type="tip">
+  Las nuevas traducciones de locale se fusionan con las existentes — no necesitas re-especificar todos los locales al agregar uno nuevo.
+</Aside>
+
+## Dependencias
+
+- `@zumito-team/admin-module` — Para `NavigationService`, `AdminAuthService` y `AdminViewService`.
+- `ejs` — Renderizado de plantillas.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**Módulo Admin**](/es/guides/modules/admin) — Proporciona el panel admin donde se gestionan las reacciones.

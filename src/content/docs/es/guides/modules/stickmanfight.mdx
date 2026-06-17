@@ -1,0 +1,140 @@
+---
+title: Módulo Stickman Fight
+description: Batallas animadas de stick figures usando avatares de Discord con generación de GIFs multi-frame y ganadores aleatorios.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Módulo Stickman Fight** (`@zumito-team/stickmanfight-module`) proporciona un único comando que enfrenta a dos usuarios de Discord (o miembros aleatorios) en una batalla animada de stick figures. El resultado es un GIF multi-frame con poses de pelea, efectos de partículas y un dramático final K.O.
+
+## Instalación
+
+```bash
+npm install @zumito-team/stickmanfight-module
+```
+
+Agrega a tu `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/stickmanfight-module']
+```
+
+<Aside type="caution">
+  Este módulo requiere `@zumito-team/canvas-module` como dependencia. Instálalo primero.
+</Aside>
+
+## Qué proporciona
+
+### Comando Stickmanfight
+
+El comando `/stickmanfight` con argumentos:
+
+| Argumento | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `user1` | `user` | No | Primer luchador. Miembro aleatorio si se omite. |
+| `user2` | `user` | No | Segundo luchador. Miembro aleatorio si se omite. |
+
+**Comportamiento:**
+1. Valida que la guild tenga al menos 2 miembros no-bot.
+2. Resuelve los luchadores: usuarios especificados o elige dos miembros aleatorios.
+3. Determina aleatoriamente un ganador.
+4. Crea una instancia `CanvasUtils` (500×300, modo GIF, 100ms de retraso).
+5. Carga los avatares de ambos usuarios (64×64px).
+6. Renderiza una secuencia de animación de ~17 frames:
+   - **Intro (3 frames)** — Aparece el texto "FIGHT!".
+   - **Aproximación (4 frames)** — Ambos stickmen caminan hacia el centro.
+   - **Flash (2 frames)** — Efecto de destello de combate.
+   - **Combate (8 frames)** — Poses de ataque, defensa y golpe alternando entre luchadores.
+   - **Pre-KO (3 frames)** — El perdedor se tambalea.
+   - **K.O. (5 frames)** — Knockout dramático con partículas doradas y texto "K.O.!".
+7. Devuelve el GIF como attachment de Discord con un embed anunciando al ganador.
+
+### Detalles de animación
+
+Las figuras usan poses distintas para cada fase:
+
+| Pose | Descripción |
+|---|---|
+| `normal` | Postura de pie con brazos a los lados. |
+| `attack` | Un brazo extendido hacia adelante (golpeando). |
+| `defend` | Brazos cruzados al frente (bloqueando). |
+| `hit` | Inclinado hacia atrás (recibiendo daño). |
+| `ko` | Caído (derrotado). |
+
+Efectos visuales:
+- **Fondo** — Gradiente vertical (azul cielo a marrón tierra).
+- **Partículas** — Efectos de chispas doradas alrededor del texto K.O.
+
+## Configuración
+
+El módulo acepta un objeto de configuración opcional:
+
+```ts
+import { StickmanfightModule } from '@zumito-team/stickmanfight-module';
+
+new StickmanfightModule({
+    embedColor: 0x5865f2  // Color del embed de Discord (hex)
+});
+```
+
+| Opción | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `embedColor` | `number` | `0x5865f2` | Color hexadecimal para el embed de resultado. |
+
+## Traducciones
+
+El comando soporta inglés y español:
+
+| Clave | EN | ES |
+|---|---|---|
+| `description` | "Make two members fight in an epic stickman battle!" | "Haz que dos miembros peleen en una batalla épica!" |
+| `result` | `"The winner is **{winner}**!"` | `"El ganador es **{winner}**!"` |
+
+Archivos de traducción:
+- `translations/command/stickmanfight/en.json`
+- `translations/command/stickmanfight/es.json`
+
+## Extensión
+
+### Secuencias de animación personalizadas
+
+La animación está definida en la clase `Stickmanfight`. Puedes extenderla para crear peleas personalizadas:
+
+```ts
+class StickmanfightPersonalizado extends Stickmanfight {
+    async execute(params: CommandParameters) {
+        const canvas = new CanvasUtils({ width: 600, height: 400, isGif: true, delay: 80 });
+        // ... frames de animación personalizados ...
+    }
+}
+```
+
+### Helpers de dibujo personalizados
+
+Las funciones helper privadas (`drawStickman`, `drawBackground`, `drawParticles`) están definidas dentro del comando. Puedes extraerlas para reutilizarlas:
+
+```ts
+import { CanvasUtils } from '@zumito-team/canvas-module';
+
+function dibujarStickman(canvas: CanvasUtils, x: number, y: number, avatar: Image, pose: string) {
+    const ctx = canvas.getContext();
+    // Lógica personalizada de dibujo de stickman
+}
+```
+
+### Agregar más poses o efectos
+
+Extiende el código fuente del módulo para agregar nuevas poses de combate, animaciones de victoria o efectos especiales:
+
+- Nuevas poses → agrega ramas de dibujo en la lógica de renderizado del stickman.
+- Nuevos efectos → usa `canvas.drawParticles()` para efectos de chispas o agrega `drawExplosion()`, `drawSmoke()`, etc.
+- Arenas de fondo → reemplaza el gradiente con una imagen de fondo cargada.
+
+## Dependencias
+
+- `@zumito-team/canvas-module` — Para `CanvasUtils` y carga de imágenes.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**Módulo Canvas**](/es/guides/modules/canvas-module) — Proporciona las utilidades de canvas usadas para la animación.

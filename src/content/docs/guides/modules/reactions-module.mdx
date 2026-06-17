@@ -1,0 +1,176 @@
+---
+title: Reactions Module
+description: Interactive GIF reaction commands with customizable categories, multi-language templates, and a full admin panel for management.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Reactions Module** (`@zumito-team/reactions-module`) provides a `/reaction` command that sends animated GIF reactions with customizable categories (kiss, angry, happy, etc.) and multi-language message templates. It includes a complete admin panel for managing categories and images.
+
+## Installation
+
+```bash
+npm install @zumito-team/reactions-module
+```
+
+Add to your `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/reactions-module']
+```
+
+<Aside type="caution">
+  This module requires `@zumito-team/admin-module` as a dependency. Install it first.
+</Aside>
+
+## What it provides
+
+### Reaction command
+
+The `/reaction` slash command with arguments:
+
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `category` | `string` | Yes | Reaction category (kiss, angry, happy, etc.). |
+| `member` | `user` | No | Target user. If omitted, the reaction is self-directed. |
+
+When executed:
+1. Looks up the category (merging defaults with database overrides).
+2. Resolves the locale from guild settings.
+3. Selects a random image from the category.
+4. Renders the template with `%user%` and `%user2%` placeholders.
+5. Sends a Discord embed with the image, author info, and formatted message.
+
+### Default categories
+
+Three categories come pre-configured:
+
+| Category | Order | Templates (EN) |
+|---|---|---|
+| `kiss` | 1 | `%user% kissed %user2%` / `%user% wants to kiss themselves` |
+| `angry` | 2 | `%user% got angry with %user2%` / `%user% is angry` |
+| `happy` | 3 | `%user% got happy with %user2%` / `%user% is happy` |
+
+Each category has a default GIF image from `cdn.nekotina.com`.
+
+### ReactionService
+
+Accessible via the service container:
+
+```ts
+const reactions = ServiceContainer.getService('ReactionService');
+```
+
+| Method | Description |
+|---|---|
+| `listCategories()` | List all categories with merged defaults and overrides. |
+| `getCategory(key)` | Get a single category by key. |
+| `upsertCategory(input)` | Create or update a category. |
+| `deleteCategory(key)` | Delete a category from the database. |
+| `addImage(categoryKey, imageInput)` | Add an image to a category. |
+| `updateImage(categoryKey, imageUrl, updates)` | Update an image's source or description. |
+| `removeImage(categoryKey, imageUrl)` | Remove an image by URL. |
+| `getImagesForCategory(key)` | Get all images for a category. |
+| `getRandomImage(key)` | Get a random image from a category. |
+
+### Admin panel routes
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/admin/reactions` | Category list with CRUD forms. |
+| `POST` | `/admin/reactions/category` | Create/update a category. |
+| `POST` | `/admin/reactions/category/:key/delete` | Delete a category. |
+| `GET` | `/admin/reactions/images` | Images management page. |
+| `POST` | `/admin/reactions/category/:key/images` | Add image to category. |
+| `POST` | `/admin/reactions/category/:key/images/update` | Update image source/description. |
+| `POST` | `/admin/reactions/category/:key/images/delete` | Delete an image. |
+
+## Configuration
+
+All category data is stored in the `reaction_categories` database collection. Categories can be managed entirely through the admin panel.
+
+### Category schema
+
+| Field | Type | Description |
+|---|---|---|
+| `key` | `string` | Unique category identifier (lowercase, trimmed). |
+| `order` | `number` | Display order. |
+| `images` | `ReactionImage[]` | Array of `{ source: string, description?: string }` objects. |
+| `translations` | `TranslationMap` | `Record<string, { mentionTemplate: string, simpleTemplate: string }>` for each locale. |
+
+### Templates
+
+Templates are locale-aware and support two variants:
+- **`mentionTemplate`** — Used when a target user is specified (`%user%` = author, `%user2%` = target).
+- **`simpleTemplate`** — Used for self-reactions (`%user%` = author).
+
+## Extending
+
+### Adding custom categories programmatically
+
+```ts
+const reactions = ServiceContainer.getService('ReactionService');
+
+await reactions.upsertCategory({
+    key: 'highfive',
+    order: 4,
+    translations: {
+        en: {
+            mentionTemplate: '%user% high-fived %user2%!',
+            simpleTemplate: '%user% wants a high-five!'
+        },
+        es: {
+            mentionTemplate: '%user% chocó los cinco con %user2%!',
+            simpleTemplate: '%user% quiere chocar los cinco!'
+        }
+    },
+    images: [
+        { source: 'https://example.com/highfive1.gif', description: 'Epic high five' },
+        { source: 'https://example.com/highfive2.gif', description: 'Slow motion high five' }
+    ]
+});
+```
+
+### Consuming ReactionService in other modules
+
+```ts
+class MyModule extends Module {
+    requirements = { services: ['ReactionService'] };
+
+    async getRandomKissGif(): Promise<string> {
+        const reactions = ServiceContainer.getService('ReactionService');
+        const image = await reactions.getRandomImage('kiss');
+        return image?.source;
+    }
+}
+```
+
+### Adding more locales
+
+The translation system supports any locale key. Simply add translations for a new locale:
+
+```ts
+await reactions.upsertCategory({
+    key: 'kiss',
+    translations: {
+        fr: {
+            mentionTemplate: '%user% a embrassé %user2%!',
+            simpleTemplate: '%user% veut un bisou!'
+        }
+    }
+});
+```
+
+<Aside type="tip">
+  New locale translations are merged with existing ones — you don't need to re-specify all locales when adding a new one.
+</Aside>
+
+## Dependencies
+
+- `@zumito-team/admin-module` — For `NavigationService`, `AdminAuthService`, and `AdminViewService`.
+- `ejs` — Template rendering.
+- `zumito-framework`
+
+## Related modules
+
+- [**Admin Module**](/guides/modules/admin) — Provides the admin panel where reactions are managed.

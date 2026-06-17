@@ -1,0 +1,153 @@
+---
+title: Módulo DisTube (Música)
+description: Integración de reproducción musical usando DisTube con 22 comandos, panel de cola para usuarios y soporte multi-plataforma.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Módulo DisTube** (`@zumito-team/distube-module`) incorpora capacidades completas de reproducción musical a tu bot mediante la librería [DisTube](https://distube.js.org/). Soporta YouTube, Spotify, SoundCloud, BandLab y VK, y se integra con el User Panel para una interfaz de gestión de cola.
+
+## Instalación
+
+```bash
+npm install @zumito-team/distube-module
+```
+
+Agrega a tu `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/distube-module']
+```
+
+<Aside type="caution">
+  Este módulo requiere `@zumito-team/user-panel-module` y `@zumito-team/canvas-module` como dependencias. Instálalos primero.
+</Aside>
+
+## Qué proporciona
+
+### MusicService
+
+El servicio principal que envuelve una instancia de DisTube con plugins para múltiples plataformas:
+
+| Plataforma | Plugin |
+|---|---|
+| YouTube | `@distube/youtube` |
+| Spotify | `@distube/spotify` |
+| SoundCloud | `@distube/soundcloud` |
+| BandLab | `@distube/bandlab` |
+| VK Music | `distube-vk-music-plugin` |
+
+Accede a la instancia de DisTube directamente:
+
+```ts
+const music = ServiceContainer.getService('MusicService');
+music.distube.play(voiceChannel, query);
+```
+
+### Comandos (22 en total)
+
+Todos los comandos están en la categoría `music`:
+
+| Comando | Descripción |
+|---|---|
+| `play` | Reproduce una canción/playlist en tu canal de voz. Genera tarjeta "now playing". |
+| `skip` | Salta la canción actual. |
+| `queue` | Muestra la cola de canciones. |
+| `stop` | Detiene la reproducción y limpia la cola. |
+| `pause` | Pausa la reproducción. |
+| `resume` | Reanuda la reproducción pausada. |
+| `nowplaying` | Muestra información de la canción actual. |
+| `volume` | Ajusta el volumen de la música. |
+| `shuffle` | Mezcla la cola. |
+| `loop` | Activa/desactiva el modo bucle. |
+| `seek` | Salta a una posición específica de la canción. |
+| `remove` | Elimina una canción específica de la cola. |
+| `leave` | El bot abandona el canal de voz. |
+| `join` | El bot se une a tu canal de voz. |
+| `autoplay` | Activa/desactiva reproducción automática. |
+| `forward` | Avanza en la canción actual. |
+| `rewind` | Retrocede la canción actual. |
+| `move` | Mueve una canción en la cola. |
+| `playskip` | Reproduce una canción y salta a ella inmediatamente. |
+| `playtop` | Agrega una canción al inicio de la cola. |
+| `filters` | Aplica filtros de audio (nightcore, bassboost, etc.). |
+| `bassboost` | Activa/desactiva refuerzo de graves. |
+
+### Integración con User Panel
+
+El módulo registra una página de **Música** en la barra lateral del User Panel en `/panel/:guildId/music`. Esta página muestra:
+- Canción actual con progreso
+- Lista completa de la cola
+- Controles de reproducción
+
+### Eventos
+
+El `MusicService` maneja estos eventos de DisTube:
+
+| Evento | Comportamiento |
+|---|---|
+| `PLAY_SONG` | Envía un mensaje al canal de texto. |
+| `ADD_SONG` | Confirma que la canción se agregó a la cola. |
+| `FFMPEG_DEBUG` | Registra salida de depuración de ffmpeg. |
+| `ERROR` | Registra información detallada de errores de DisTube. |
+
+## Configuración
+
+El módulo usa estas variables de entorno implícitamente:
+
+- `FFMPEG_PATH` — Se establece automáticamente mediante `ffmpeg-static`. No se necesita configuración manual.
+
+Las traducciones se definen en:
+- `translations/en.json`
+- `translations/es.json`
+
+## Extensión
+
+### Agregar plugins personalizados de DisTube
+
+Puedes acceder a la instancia de DisTube y agregar tus propios plugins o extractores personalizados:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+
+const music = ServiceContainer.getService('MusicService');
+const distube = music.distube;
+
+// Agregar un plugin extractor personalizado
+distube.extractors.push(miExtractorPersonalizado);
+```
+
+### Tarjetas "now playing" personalizadas
+
+El comando `play` usa `CanvasUtils` para generar tarjetas de imagen. Puedes reemplazar la generación extendiendo o modificando el comando:
+
+```ts
+class ComandoPlayPersonalizado extends Command {
+    async execute(params: CommandParameters) {
+        const music = ServiceContainer.getService('MusicService');
+        // ... lógica personalizada ...
+    }
+}
+```
+
+### Extensión de navegación
+
+El módulo declara `requeriments.services: ['UserPanelNavigationService']` y registra su página de música bajo la sección dashboard del User Panel. Cualquier módulo puede seguir este patrón para agregar páginas al panel de usuario.
+
+## Dependencias
+
+- `distube` — Librería principal de música.
+- `@distube/youtube`, `@distube/spotify`, `@distube/soundcloud`, `@distube/bandlab`, `distube-vk-music-plugin` — Plugins de plataformas.
+- `@zumito-team/canvas-module` — Para tarjetas "now playing".
+- `@zumito-team/user-panel-module` — Para página de cola en panel de usuario.
+- `@snazzah/davey` — Soporte de letras.
+- `ejs` — Renderizado de plantillas.
+- `ffmpeg-static` — Binario FFmpeg.
+- `opusscript` — Codec de audio Opus.
+- `discord.js` (peer) — Cliente Discord.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**Módulo Canvas**](/es/guides/modules/canvas-module) — Dependencia para generación de imágenes.
+- [**User Panel**](/es/guides/modules/user-panel) — Proporciona la interfaz para la cola de música.

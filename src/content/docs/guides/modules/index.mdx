@@ -1,0 +1,93 @@
+---
+title: Modules
+description: Official Zumito modules — pre-built functionality for your Discord bot.
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Zumito provides a set of **official modules** that extend your bot with ready-to-use features. Each module is an npm package under the `@zumito-team` scope and integrates directly with the Zumito framework via the `bundles` configuration.
+
+## Available modules
+
+<CardGrid>
+  <LinkCard
+    title="Admin"
+    description="Centralized web dashboard for bot management with Discord OAuth2 authentication."
+    href="/guides/modules/admin"
+  />
+  <LinkCard
+    title="BuiltByBit License"
+    description="License verification against the BuiltByBit API with periodic checks and custom callbacks."
+    href="/guides/modules/builtbybit-license"
+  />
+  <LinkCard
+    title="Canvas"
+    description="Utility library for canvas rendering, image processing, and GIF generation."
+    href="/guides/modules/canvas-module"
+  />
+  <LinkCard
+    title="DisTube (Music)"
+    description="Music playback with YouTube, Spotify, SoundCloud support and a user-facing queue panel."
+    href="/guides/modules/distube-module"
+  />
+  <LinkCard
+    title="Logger"
+    description="Logging service with Discord channel output and database persistence."
+    href="/guides/modules/logger"
+  />
+  <LinkCard
+    title="Reactions"
+    description="Interactive GIF reaction commands with customizable categories and multi-language templates."
+    href="/guides/modules/reactions-module"
+  />
+  <LinkCard
+    title="Stickman Fight"
+    description="Animated stick figure battles using Discord user avatars and generated GIFs."
+    href="/guides/modules/stickmanfight"
+  />
+  <LinkCard
+    title="User Panel"
+    description="User-facing dashboard for server management, account settings, and extensible navigation."
+    href="/guides/modules/user-panel"
+  />
+</CardGrid>
+
+## Architecture
+
+All modules extend `Module` from `zumito-framework` and register themselves in the `ServiceContainer`. They can provide:
+
+- **Services** — Injectable classes consumed by other modules.
+- **Commands** — Discord slash/prefix commands.
+- **Routes** — HTTP endpoints (admin pages, API, etc.).
+- **Navigation items** — Sidebar entries in Admin or User Panel.
+
+## Dependency graph
+
+```
+zumito-framework (core)
+├── admin-module
+│   └── reactions-module
+├── builtbybit-license
+├── canvas-module
+│   ├── stickmanfight
+│   └── distube-module
+├── logger-module
+├── user-panel-module
+│   └── distube-module
+└── stickmanfight
+```
+
+## Installation
+
+Install any module via npm and add it to your `zumito.config.ts` bundles:
+
+```ts
+// zumito.config.ts
+export default {
+    bundles: [
+        '@zumito-team/admin-module',
+        '@zumito-team/logger-module',
+        // ...
+    ]
+}
+```

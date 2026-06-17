@@ -1,0 +1,150 @@
+---
+title: Módulo Canvas
+description: Librería de utilidades para renderizado canvas, procesamiento de imágenes y generación de GIFs usada por módulos visuales.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Módulo Canvas** (`@zumito-team/canvas-module`) es una utilidad de bajo nivel que envuelve `node-canvas`, `gifencoder` y `sharp` para proporcionar renderizado canvas, carga de imágenes y generación de GIFs animados de forma sencilla. Es una **dependencia** para otros módulos visuales (como Stickman Fight y DisTube).
+
+## Instalación
+
+```bash
+npm install @zumito-team/canvas-module
+```
+
+Agrega a tu `zumito.config.ts` si se usa directamente:
+
+```ts
+bundles: ['@zumito-team/canvas-module']
+```
+
+## Qué proporciona
+
+La exportación principal es la clase `CanvasUtils` — un wrapper de alto nivel para operaciones canvas.
+
+### CanvasUtils
+
+```ts
+import { CanvasUtils } from '@zumito-team/canvas-module';
+```
+
+#### Constructor
+
+```ts
+const canvas = new CanvasUtils({
+    width: 500,
+    height: 300,
+    isGif: false,
+    delay: 100,
+    quality: 10,
+    repeat: 0,
+    format: 'image/png'
+});
+```
+
+#### Métodos
+
+| Método | Firma | Descripción |
+|---|---|---|
+| `getContext()` | `(): CanvasRenderingContext2D` | Devuelve el contexto de renderizado 2D. |
+| `getCanvas()` | `(): Canvas` | Devuelve el objeto Canvas subyacente. |
+| `startEncoder()` | `(): void` | Inicia el codificador GIF (solo en modo GIF). |
+| `addFrame()` | `(): void` | Agrega el estado actual del canvas como frame GIF. |
+| `toAttachment(filename?)` | `(): Promise<AttachmentBuilder>` | Finaliza la codificación y devuelve un attachment de Discord. |
+| `drawBackground(color1, color2)` | `(c1: string, c2: string): void` | Dibuja un fondo con gradiente lineal vertical. |
+| `drawRect(x, y, w, h, color)` | `(x,y,w,h,color): void` | Dibuja un rectángulo relleno. |
+| `drawText(x, y, font, color, align?)` | `(text,x,y,font,color,align?): void` | Dibuja texto en el canvas. |
+| `drawParticles(x, y, color?)` | `(x,y,color?): void` | Dibuja 8 partículas doradas alrededor de (x,y). |
+| `loadImage(src)` (static) | `(src: string): Promise<Image>` | Obtiene una URL de imagen, la procesa con `sharp` a PNG y devuelve un `Image` de canvas. |
+
+### Configuración
+
+| Opción | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `width` | `number` | **requerido** | Ancho del canvas en píxeles. |
+| `height` | `number` | **requerido** | Alto del canvas en píxeles. |
+| `isGif` | `boolean` | `false` | Producir un GIF animado en lugar de imagen estática. |
+| `delay` | `number` | `100` | Retraso entre frames en ms (para GIF). |
+| `quality` | `number` | `10` | Calidad de codificación GIF (1-30, menor = archivo más pequeño). |
+| `repeat` | `number` | `0` | Repeticiones del GIF. `0` = bucle infinito. |
+| `format` | `'image/png' \| 'image/jpeg'` | `'image/png'` | Formato de salida para canvases no GIF. |
+
+## Ejemplos de uso
+
+### Imagen estática
+
+```ts
+const canvas = new CanvasUtils({ width: 400, height: 200 });
+
+canvas.drawBackground('#1a1a2e', '#16213e');
+canvas.drawText('Hola Mundo', 200, 100, 'bold 24px Arial', '#ffffff', 'center');
+
+const attachment = await canvas.toAttachment('hola.png');
+await channel.send({ files: [attachment] });
+```
+
+### GIF animado
+
+```ts
+const canvas = new CanvasUtils({
+    width: 400,
+    height: 200,
+    isGif: true,
+    delay: 50,
+    quality: 10,
+    repeat: 0  // bucle infinito
+});
+
+canvas.startEncoder();
+
+for (let i = 0; i < 20; i++) {
+    canvas.drawBackground('#1a1a2e', '#16213e');
+    canvas.drawText(`Frame ${i + 1}`, 200, 100 + i * 2, 'bold 24px Arial', '#ffffff', 'center');
+    canvas.addFrame();
+}
+
+const attachment = await canvas.toAttachment('animacion.gif');
+await channel.send({ files: [attachment] });
+```
+
+### Cargar imágenes externas
+
+```ts
+const avatar = await CanvasUtils.loadImage('https://cdn.discordapp.com/avatars/.../avatar.png');
+const ctx = canvas.getContext();
+ctx.drawImage(avatar, 150, 50, 100, 100);
+```
+
+## Extensión
+
+`CanvasUtils` está diseñado como una clase de utilidad. No hay registro en el contenedor de servicios — se instancia directamente en tu propio código. Cualquier módulo puede usarlo para renderizado personalizado:
+
+```ts
+import { CanvasUtils } from '@zumito-team/canvas-module';
+
+class MiModuloVisual extends Module {
+    async generarTarjeta(user: User): Promise<AttachmentBuilder> {
+        const canvas = new CanvasUtils({ width: 600, height: 400 });
+        const avatar = await CanvasUtils.loadImage(user.displayAvatarURL());
+
+        canvas.drawBackground('#2c2f33', '#23272a');
+        canvas.getContext().drawImage(avatar, 50, 50, 100, 100);
+        canvas.drawText(user.username, 180, 100, 'bold 20px Arial', '#ffffff', 'left');
+
+        return canvas.toAttachment('tarjeta.png');
+    }
+}
+```
+
+## Dependencias
+
+- `canvas` — Implementación de Canvas para Node.js.
+- `gifencoder` — Librería de codificación GIF.
+- `sharp` — Procesamiento de imágenes de alto rendimiento.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**Stickman Fight**](/es/guides/modules/stickmanfight) — Usa `CanvasUtils` para GIFs animados de peleas.
+- [**DisTube**](/es/guides/modules/distube-module) — Usa `CanvasUtils` para tarjetas de "now playing".

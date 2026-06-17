@@ -1,0 +1,185 @@
+---
+title: Logger Module
+description: Logging services for tracking bot activities, errors, and guild events with Discord channel output and database persistence.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Logger Module** (`@zumito-team/logger-module`) provides a centralized logging system. It can output logs to configured Discord channels (as embeds) and persist them to the database for later querying.
+
+## Installation
+
+```bash
+npm install @zumito-team/logger-module
+```
+
+Add to your `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/logger-module']
+```
+
+## What it provides
+
+### LogManager Service
+
+The main service accessible via the service container:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+
+const logger = ServiceContainer.getService('LogManager');
+```
+
+#### Methods
+
+| Method | Signature | Description |
+|---|---|---|
+| `log(data)` | `(data: LogData): Promise<void>` | Log an event. Outputs to Discord channel (if configured) and persists to database. |
+| `logToChannel(channel, log)` | `(channel, log: LogData): Promise<void>` | Sends a Discord embed to a specific channel with the log's title and description. |
+
+### LogData types
+
+The `log()` method accepts a discriminated union of context-aware log data:
+
+```ts
+// Bot-level log
+await logger.log({
+    context: 'bot',
+    title: 'Bot started',
+    description: 'The bot has successfully connected to Discord.'
+});
+
+// Guild-level log
+await logger.log({
+    context: 'guild',
+    guildId: '123456789',
+    channelId: '987654321',
+    title: 'Member joined',
+    description: 'User @example joined the server.'
+});
+
+// DM log
+await logger.log({
+    context: 'dm',
+    channelId: '987654321',
+    title: 'DM received',
+    description: 'Received a DM from user @example.'
+});
+
+// Generic log
+await logger.log({
+    context: 'other',
+    title: 'Custom event',
+    description: 'Something happened that does not fit other contexts.'
+});
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `context` | `'bot' \| 'guild' \| 'dm' \| 'other'` | Context category. |
+| `title` | `string` | Short log title. |
+| `description` | `string` | Detailed log description (supports markdown in embeds). |
+| `guildId` | `string` | Discord guild ID (required for `guild` context). |
+| `channelId` | `string` | Discord channel ID. |
+
+## Database models
+
+### Logs
+
+Each log entry is persisted to the `Logs` collection:
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | `string` | Log title. |
+| `description` | `string` | Log description. |
+| `createdAt` | `Date` | Timestamp of the log entry. |
+
+### Guild settings
+
+The module extends the `Guild` model with:
+
+| Field | Type | Description |
+|---|---|---|
+| `logChannel` | `string` (optional) | Channel ID where guild logs should be sent. This is where `context: 'guild'` logs are output. |
+
+## Configuration
+
+### Setting a guild log channel
+
+Use the `GuildDataGetter` service to configure which channel receives guild logs:
+
+```ts
+const guildData = ServiceContainer.getService('GuildDataGetter');
+await guildData.set('guildId', 'logChannel', 'channelId');
+```
+
+### How logging works
+
+1. You call `logger.log(data)`.
+2. If `context` is `'guild'`:
+   - The guild's `logChannel` setting is checked.
+   - If a channel is configured, an embed is sent to that channel.
+3. The log entry is always persisted to the database.
+
+## Extending
+
+### Logging from your own module
+
+Any module can consume the `LogManager` service:
+
+```ts
+import { Module, ServiceContainer } from 'zumito-framework';
+
+class MyModule extends Module {
+    async onReady() {
+        const logger = ServiceContainer.getService('LogManager');
+        await logger.log({
+            context: 'bot',
+            title: 'MyModule ready',
+            description: 'MyModule has been initialized successfully.'
+        });
+    }
+}
+```
+
+### Custom log processing
+
+The `LogManager` is a standard service. You can extend or wrap it:
+
+```ts
+class EnhancedLogManager extends LogManager {
+    async log(data: LogData) {
+        // Add custom logic before logging
+        if (data.context === 'guild') {
+            // Send to a webhook too
+            await fetch(webhookUrl, { method: 'POST', body: JSON.stringify(data) });
+        }
+        return super.log(data);
+    }
+}
+```
+
+### Querying logs
+
+Since logs are stored in the database, you can query them for dashboards or analytics:
+
+```ts
+import { DatabaseModel } from 'zumito-framework';
+
+const LogsModel = new DatabaseModel('Logs');
+const recentErrors = await LogsModel.findMany({
+    filter: { title: { $regex: /error/i } },
+    sort: { createdAt: -1 },
+    limit: 10
+});
+```
+
+## Dependencies
+
+- `ejs` — Template rendering.
+- `zumito-framework`
+
+## Related modules
+
+- [**Admin Module**](/guides/modules/admin) — Can display logs in the admin dashboard.

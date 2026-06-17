@@ -41,6 +41,20 @@ const sidebar = [
             { label: 'Translator', link: '/guides/services/translator' },
             { label: 'Invite URL generator', link: '/guides/services/invite-url-generator' },
         ]
+    },
+    {
+        label: 'Modules',
+        items: [
+            { label: 'Overview', link: '/guides/modules/' },
+            { label: 'Admin', link: '/guides/modules/admin' },
+            { label: 'BuiltByBit License', link: '/guides/modules/builtbybit-license' },
+            { label: 'Canvas', link: '/guides/modules/canvas-module' },
+            { label: 'DisTube (Music)', link: '/guides/modules/distube-module' },
+            { label: 'Logger', link: '/guides/modules/logger' },
+            { label: 'Reactions', link: '/guides/modules/reactions-module' },
+            { label: 'Stickman Fight', link: '/guides/modules/stickmanfight' },
+            { label: 'User Panel', link: '/guides/modules/user-panel' },
+        ]
     }
 ];
 

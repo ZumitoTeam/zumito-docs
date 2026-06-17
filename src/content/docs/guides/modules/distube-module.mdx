@@ -1,0 +1,154 @@
+---
+title: DisTube Module (Music)
+description: Music playback integration using DisTube with 22 commands, a user panel queue page, and multi-platform support.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **DisTube Module** (`@zumito-team/distube-module`) brings full music playback capabilities to your bot via the [DisTube](https://distube.js.org/) library. It supports YouTube, Spotify, SoundCloud, BandLab, and VK, and integrates with the User Panel for a queue management interface.
+
+## Installation
+
+```bash
+npm install @zumito-team/distube-module
+```
+
+Add to your `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/distube-module']
+```
+
+<Aside type="caution">
+  This module requires `@zumito-team/user-panel-module` and `@zumito-team/canvas-module` as dependencies. Install them first.
+</Aside>
+
+## What it provides
+
+### MusicService
+
+The core service that wraps a DisTube instance with plugins for multiple platforms:
+
+| Platform | Plugin |
+|---|---|
+| YouTube | `@distube/youtube` |
+| Spotify | `@distube/spotify` |
+| SoundCloud | `@distube/soundcloud` |
+| BandLab | `@distube/bandlab` |
+| VK Music | `distube-vk-music-plugin` |
+
+Access the DisTube instance directly:
+
+```ts
+const music = ServiceContainer.getService('MusicService');
+music.distube.play(voiceChannel, query);
+```
+
+### Commands (22 total)
+
+All commands are in the `music` category:
+
+| Command | Description |
+|---|---|
+| `play` | Play a song/playlist in your voice channel. Generates a "now playing" image card. |
+| `skip` | Skip the current song. |
+| `queue` | Show the current song queue. |
+| `stop` | Stop playback and clear the queue. |
+| `pause` | Pause playback. |
+| `resume` | Resume paused playback. |
+| `nowplaying` | Show currently playing song info. |
+| `volume` | Adjust music volume. |
+| `shuffle` | Shuffle the queue. |
+| `loop` | Toggle loop mode. |
+| `seek` | Jump to a specific position in the song. |
+| `remove` | Remove a specific song from the queue. |
+| `leave` | Bot leaves the voice channel. |
+| `join` | Bot joins your voice channel. |
+| `autoplay` | Toggle autoplay. |
+| `forward` | Forward in the current song. |
+| `rewind` | Rewind the current song. |
+| `move` | Move a song in the queue. |
+| `playskip` | Play a song and skip to it immediately. |
+| `playtop` | Add a song to the top of the queue. |
+| `filters` | Apply audio filters (nightcore, bassboost, etc.). |
+| `bassboost` | Toggle bass boost effect. |
+
+### User Panel integration
+
+The module registers a **Music** page in the User Panel sidebar at `/panel/:guildId/music`. This page shows:
+- Current song with progress
+- Full queue list
+- Playback controls
+
+### Events
+
+The `MusicService` handles these DisTube events:
+
+| Event | Behavior |
+|---|---|
+| `PLAY_SONG` | Sends a message to the text channel. |
+| `ADD_SONG` | Confirms the song was added to queue. |
+| `FFMPEG_DEBUG` | Logs ffmpeg debug output. |
+| `ERROR` | Logs detailed DisTube error information. |
+
+## Configuration
+
+The module uses these environment variables implicitly:
+
+- `FFMPEG_PATH` — Set automatically via `ffmpeg-static`. No manual config needed.
+
+Translations are defined in:
+- `translations/en.json`
+- `translations/es.json`
+
+## Extending
+
+### Adding custom DisTube plugins
+
+You can access the DisTube instance and add your own plugins or custom extractors:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+
+const music = ServiceContainer.getService('MusicService');
+const distube = music.distube;
+
+// Add a custom extractor plugin
+distube.extractors.push(myCustomExtractor);
+```
+
+### Custom now-playing cards
+
+The `play` command uses `CanvasUtils` to generate image cards. You can replace the card generation by extending or modifying the command:
+
+```ts
+class CustomPlayCommand extends Command {
+    // Override the execute method to use your own card design
+    async execute(params: CommandParameters) {
+        const music = ServiceContainer.getService('MusicService');
+        // ... custom logic ...
+    }
+}
+```
+
+### Navigation extension
+
+The module declares `requeriments.services: ['UserPanelNavigationService']` and registers its music page under the User Panel's dashboard section. Any module can follow this pattern to add pages to the user panel.
+
+## Dependencies
+
+- `distube` — Core music library.
+- `@distube/youtube`, `@distube/spotify`, `@distube/soundcloud`, `@distube/bandlab`, `distube-vk-music-plugin` — Platform plugins.
+- `@zumito-team/canvas-module` — For "now playing" cards.
+- `@zumito-team/user-panel-module` — For queue page in user panel.
+- `@snazzah/davey` — Lyrics support.
+- `ejs` — Template rendering.
+- `ffmpeg-static` — FFmpeg binary.
+- `opusscript` — Opus audio codec.
+- `discord.js` (peer) — Discord client.
+- `zumito-framework`
+
+## Related modules
+
+- [**Canvas Module**](/guides/modules/canvas-module) — Dependency for image generation.
+- [**User Panel**](/guides/modules/user-panel) — Provides the UI for the music queue.

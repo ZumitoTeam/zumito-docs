@@ -1,0 +1,220 @@
+---
+title: Módulo User Panel
+description: Panel de usuario para gestión de servidores de Discord, autenticación OAuth2 y navegación lateral extensible.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Módulo User Panel** (`@zumito-team/user-panel-module`) proporciona un dashboard web donde los usuarios de Discord pueden gestionar sus servidores, ver información de cuenta y acceder a páginas específicas de módulos (como colas de música). Incluye autenticación OAuth2 de Discord, soporte multi-idioma y una barra lateral dinámica que otros módulos pueden extender.
+
+## Instalación
+
+```bash
+npm install @zumito-team/user-panel-module
+```
+
+Agrega a tu `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/user-panel-module']
+```
+
+## Qué proporciona
+
+### Dashboard
+
+Una interfaz web completa en `/panel` que muestra:
+- Lista de servidores — todas las guilds donde el usuario tiene permisos de Administrador, ManageGuild o es propietario.
+- Dashboard específico por guild en `/panel/:guildId` con secciones de barra lateral extensibles.
+- Soporte multi-idioma con detección automática mediante cookies o cabeceras `Accept-Language`.
+
+### Autenticación
+
+Flujo de login basado en OAuth2 de Discord:
+1. El usuario visita `/panel/login` → redirigido a autorización de Discord (scope `identify`).
+2. Discord redirige de vuelta a `/panel/login/callback`.
+3. Se emite un JWT (`panel_token`) con el perfil completo de Discord, almacenado en cookie httpOnly con 30 días de expiración.
+4. Todas las rutas del panel validan este token mediante `UserPanelAuthService`.
+
+### Servicios
+
+| Servicio | Propósito |
+|---|---|
+| `UserPanelNavigationService` | Registrar elementos en la barra lateral del panel de usuario. |
+| `UserPanelViewService` | Renderizar páginas dentro del layout del panel (plantillas EJS). |
+| `UserPanelAuthService` | Validar tokens JWT y extraer datos del usuario de Discord. |
+| `UserPanelLanguageManager` | Resolver idioma desde cookies o cabeceras, proporcionar funciones de traducción. |
+| `UserPanelColorsService` | Gestionar la paleta de colores del panel. |
+
+### Rutas
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/panel` | Dashboard principal con lista de servidores. |
+| `GET` | `/panel/:guildId` | Dashboard específico de guild. |
+| `GET` | `/panel/login` | Redirige a OAuth2 de Discord. |
+| `GET` | `/panel/login/callback` | Manejador del callback OAuth2. |
+
+### Elementos de navegación por defecto
+
+El módulo registra estas entradas iniciales:
+- **Volver** — Enlace a `/panel`.
+- **Dashboard** — Resumen de guild en `/panel/:guildId` con una sección `general`.
+
+## Configuración
+
+### Variables de entorno
+
+| Variable | Requerida | Descripción |
+|---|---|---|
+| `DISCORD_CLIENT_ID` | Sí | Client ID de la aplicación Discord. |
+| `DISCORD_CLIENT_SECRET` | Sí | Client Secret de la aplicación Discord. |
+| `SECRET_KEY` | Sí | Clave secreta para firma JWT. |
+| `HOST` | Sí | URL del host del bot. |
+| `FRONTEND_URL` | Sí | URL del frontend para redirecciones. |
+| `USER_PANEL_COLORS_FILE` | No | Ruta a archivo JSON con colores personalizados. |
+| `USER_PANEL_COLORS` | No | String JSON con colores personalizados. |
+
+### Paleta de colores
+
+Misma estructura que el módulo admin. Configurable mediante `USER_PANEL_COLORS` o archivo JSON:
+
+```json
+{
+  "primary": "#5865f2",
+  "accent": "#5865f2",
+  "success": "#57f287",
+  "warning": "#fee75c",
+  "danger": "#ed4245",
+  "foreground": "#ffffff",
+  "dark": {
+    "100": "#36393f",
+    "200": "#2f3136",
+    "300": "#292b2f",
+    "400": "#202225"
+  }
+}
+```
+
+## Extender el panel de usuario
+
+### Agregar elementos de navegación
+
+Otros módulos pueden registrar elementos en la barra lateral consumiendo `UserPanelNavigationService`:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+
+const nav = ServiceContainer.getService('UserPanelNavigationService');
+
+// Registrar un elemento de navegación principal
+nav.registerItem({
+    id: 'mi-funcionalidad',
+    label: 'Mi Funcionalidad',
+    icon: 'star',
+    link: '/panel/mi-funcionalidad'
+});
+
+// Registrar sub-elementos bajo una sección de un padre existente
+nav.registerSubItems('dashboard', 'general', [
+    {
+        id: 'mi-sub-pagina',
+        label: 'Mi Sub Página',
+        icon: 'settings',
+        link: '/panel/:guildId/mi-pagina'
+    }
+]);
+```
+
+<Aside type="tip">
+  Usa `:guildId` en las URLs para páginas específicas de guild — `getItemsWithGuildId()` reemplaza el token con el ID real de la guild.
+</Aside>
+
+### Agregar rutas
+
+Crea tus propias clases de ruta que usen `UserPanelViewService.render()`:
+
+```ts
+import { Route, RouteMethod, ServiceContainer } from 'zumito-framework';
+
+class MiRutaPanel extends Route {
+    method = RouteMethod.get;
+    path = '/panel/:guildId/mi-pagina';
+
+    async execute(req, res) {
+        const auth = ServiceContainer.getService('UserPanelAuthService');
+        const { isValid, data } = await auth.isLoginValid(req);
+
+        if (!isValid) return res.redirect('/panel/login');
+
+        const view = ServiceContainer.getService('UserPanelViewService');
+        const html = await view.render({
+            content: '<h1>Mi Página Personalizada</h1>',
+            reqPath: req.path,
+            req,
+            res
+        });
+
+        res.send(html);
+    }
+}
+```
+
+### Declaración de requisitos del módulo
+
+Tu módulo debe declarar la dependencia al extender el panel:
+
+```ts
+class MiModulo extends Module {
+    requirements = {
+        services: ['UserPanelNavigationService']
+    };
+
+    async initialize() {
+        const nav = ServiceContainer.getService('UserPanelNavigationService');
+        nav.registerSubItems('dashboard', 'general', [
+            { id: 'mi-pagina', label: 'Mi Página', link: '/panel/:guildId/mi-pagina' }
+        ]);
+    }
+}
+```
+
+### Soporte de idiomas
+
+El panel detecta automáticamente el idioma del usuario. Usa `UserPanelLanguageManager` para acceder a traducciones:
+
+```ts
+const langManager = ServiceContainer.getService('UserPanelLanguageManager');
+const { t, lang } = langManager.getLanguageVariables(req, res);
+
+const greeting = t('mensaje_bienvenida'); // Devuelve string traducido
+const idiomasDisponibles = langManager.getAvailableLanguages(); // ['en', 'es', ...]
+```
+
+## Comparación de arquitectura con Admin
+
+El User Panel refleja la arquitectura del módulo Admin:
+
+| Funcionalidad | Admin | User Panel |
+|---|---|---|
+| Servicio de autenticación | `AdminAuthService` | `UserPanelAuthService` |
+| Servicio de vistas | `AdminViewService` | `UserPanelViewService` |
+| Servicio de navegación | `NavigationService` | `UserPanelNavigationService` |
+| Servicio de colores | `AdminColorsService` | `UserPanelColorsService` |
+| Nombre de cookie | `admin_token` | `panel_token` |
+| Clave de sub-elemento | `sectionLabel` | `sectionId` |
+
+<Aside type="note">
+  El User Panel usa `sectionId` para registro de sub-elementos, mientras que Admin usa `sectionLabel`. Ten esto en cuenta al extender cualquiera de los módulos.
+</Aside>
+
+## Dependencias
+
+- `ejs` — Renderizado de plantillas para páginas del panel.
+- `jose` — Verificación y firma de JWT.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**Módulo DisTube**](/es/guides/modules/distube-module) — Registra una página de cola de música en la barra lateral del panel de usuario.
+- [**Módulo Admin**](/es/guides/modules/admin) — Arquitectura similar para dashboards de nivel administrador.

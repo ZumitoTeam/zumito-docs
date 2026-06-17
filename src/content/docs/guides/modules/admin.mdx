@@ -1,0 +1,150 @@
+---
+title: Admin Module
+description: Centralized web administration panel for bot management with Discord OAuth2 authentication.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Admin Module** (`@zumito-team/admin-module`) provides a web-based dashboard for managing your Zumito bot. It includes superadmin management, server browsing, and a dynamic sidebar navigation system that other modules can extend.
+
+## Installation
+
+```bash
+npm install @zumito-team/admin-module
+```
+
+Add to your `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/admin-module']
+```
+
+## What it provides
+
+### Dashboard
+
+A full web interface at `/admin` showing:
+- Bot uptime, user count, channel count, server count
+- Node.js and discord.js versions
+- Server list with guild names and icons
+- Superadmin user management (add/remove)
+
+### Authentication
+
+Discord OAuth2-based login flow:
+1. User clicks "Login" → redirected to Discord authorization.
+2. Discord redirects back to `/admin/login/callback`.
+3. A JWT (`admin_token`) is issued with 2-hour expiry.
+4. All admin routes validate this token via `AdminAuthService`.
+
+### Services
+
+| Service | Purpose |
+|---|---|
+| `NavigationService` | Register sidebar items in the admin panel. |
+| `AdminAuthService` | Validate JWT admin tokens and check superadmin status. |
+| `AdminViewService` | Render pages within the admin layout (EJS templates). |
+| `AdminColorsService` | Manage the dashboard color palette. |
+
+### Routes
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/admin` | Dashboard with bot stats. |
+| `GET` | `/admin/login` | Redirect to Discord OAuth2. |
+| `GET` | `/admin/login/callback` | OAuth2 callback handler. |
+| `GET` | `/admin/servers` | List all guilds. |
+| `GET` | `/admin/superadmins` | List superadmin users. |
+| `POST` | `/admin/superadmins/add` | Add a superadmin by Discord user ID. |
+| `POST` | `/admin/superadmins/remove` | Remove a superadmin. |
+
+## Configuration
+
+### Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `DISCORD_CLIENT_ID` | Yes | Discord application client ID. |
+| `DISCORD_CLIENT_SECRET` | Yes | Discord application client secret. |
+| `SECRET_KEY` | Yes | Secret key for JWT signing. |
+| `HOST` | Yes | Bot host URL (for OAuth2 redirects). |
+| `FRONTEND_URL` | Yes | Frontend URL (for redirects after login). |
+| `ADMIN_COLORS_FILE` | No | Path to a JSON file with color overrides. |
+| `ADMIN_COLORS` | No | JSON string with color overrides. |
+
+### Color palette
+
+The dashboard colors can be customized via `ADMIN_COLORS` env var or a JSON file. Defaults match Discord's brand palette:
+
+```json
+{
+  "primary": "#5865f2",
+  "accent": "#5865f2",
+  "success": "#57f287",
+  "warning": "#fee75c",
+  "danger": "#ed4245",
+  "foreground": "#ffffff",
+  "dark": {
+    "100": "#36393f",
+    "200": "#2f3136",
+    "300": "#292b2f",
+    "400": "#202225"
+  }
+}
+```
+
+<Aside type="tip">
+  You can set colors inline via `ADMIN_COLORS='{"primary":"#ff0000"}'` or point to a file with `ADMIN_COLORS_FILE=/path/to/colors.json`.
+</Aside>
+
+## Extending the admin panel
+
+Other modules can register navigation items in the admin sidebar by consuming `NavigationService`:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+
+const nav = ServiceContainer.getService('NavigationService');
+nav.registerItem({
+    id: 'my-page',
+    label: 'My Page',
+    icon: 'settings',
+    link: '/admin/my-page',
+    order: 50
+});
+```
+
+The `AdminViewService.render()` method can be used to wrap custom content in the admin layout:
+
+```ts
+const view = ServiceContainer.getService('AdminViewService');
+const html = await view.render({
+    title: 'My Page',
+    content: '<h1>Hello World</h1>',
+    reqPath: '/admin/my-page',
+    user: req.user
+});
+```
+
+### Module dependencies
+
+Your module must declare the requirement in its class:
+
+```ts
+class MyModule extends Module {
+    requirements = {
+        services: ['NavigationService']
+    };
+}
+```
+
+## Dependencies
+
+- `ejs` — Template rendering for admin pages.
+- `jose` — JWT verification and signing.
+- `zumito-framework`
+
+## Related modules
+
+- [**Reactions Module**](/guides/modules/reactions-module) — Uses `NavigationService` to register its admin pages.
+- [**User Panel**](/guides/modules/user-panel) — Similar pattern for user-facing dashboards.

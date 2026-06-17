@@ -1,0 +1,157 @@
+---
+title: BuiltByBit License Module
+description: License verification for BuiltByBit products with periodic re-verification and custom callbacks.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **BuiltByBit License Module** (`@zumito-team/builtbybit-license`) validates license keys against the [BuiltByBit API](https://builtbybit.com/). It can periodically re-verify the license and optionally terminate the bot process if the license becomes invalid.
+
+## Installation
+
+```bash
+npm install @zumito-team/builtbybit-license
+```
+
+Add to your `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/builtbybit-license']
+```
+
+## How it works
+
+1. On module initialization, a `LicenseVerifier` is created with your configuration.
+2. When the framework is ready (`onAllReady`), the verifier performs an HTTP request to the BuiltByBit API.
+3. If the license is valid:
+   - `onValid` callback fires.
+   - If `checkInterval` is set, periodic re-verification starts.
+4. If the license is invalid:
+   - `onInvalid` callback fires.
+   - If `exitOnInvalid` is `true` (default), the process exits with the configured exit code.
+5. If an error occurs:
+   - The request is retried up to `retryAttempts` times with `retryDelay` ms between attempts.
+   - If all retries fail, `onError` callback fires.
+
+## Usage
+
+### Basic (license key only)
+
+```ts
+import { BuiltByBitLicenseModule } from '@zumito-team/builtbybit-license';
+
+// In your zumito.config.ts or module setup:
+new BuiltByBitLicenseModule(__dirname, {
+    licenseKey: 'your-license-key-here'
+});
+```
+
+### Full configuration
+
+```ts
+new BuiltByBitLicenseModule(__dirname, {
+    licenseKey: 'xxxx-xxxx-xxxx',
+    apiUrl: 'https://api.builtbybit.com/v1/licenses',
+    productId: '12345',
+    requestHeaders: {
+        'X-Custom-Header': 'value'
+    },
+    retryAttempts: 3,
+    retryDelay: 5000,
+    exitOnInvalid: true,
+    exitCode: 1,
+    checkInterval: 3600000, // Re-verify every hour
+    validateResponse: async (body, status) => {
+        // Custom validation logic
+        return body.status === 'active' && body.product_id === '12345';
+    },
+    onValid: async () => {
+        console.log('License valid! Bot starting...');
+    },
+    onInvalid: async (reason) => {
+        console.error(`Invalid license: ${reason}`);
+    },
+    onError: async (error) => {
+        console.error('License check failed:', error.message);
+    }
+});
+```
+
+## Configuration reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `licenseKey` | `string` | **required** | BuiltByBit license key. |
+| `apiUrl` | `string` | `https://api.builtbybit.com/v1/licenses` | API endpoint. |
+| `productId` | `string` | — | Resource/product ID on BuiltByBit. |
+| `requestHeaders` | `Record<string,string>` | — | Custom HTTP headers. |
+| `retryAttempts` | `number` | `0` | Retry count on failure. |
+| `retryDelay` | `number` | `5000` | Delay between retries (ms). |
+| `exitOnInvalid` | `boolean` | `true` | Whether to `process.exit()` on invalid license. |
+| `exitCode` | `number` | `1` | Exit code for process termination. |
+| `validateResponse` | `(body, status) => boolean \| Promise<boolean>` | built-in | Custom response validator. |
+| `onValid` | `() => void \| Promise<void>` | — | Callback on successful verification. |
+| `onInvalid` | `(reason?) => void \| Promise<void>` | — | Callback on invalid license. |
+| `onError` | `(error: Error) => void \| Promise<void>` | — | Callback on network/request error. |
+| `checkInterval` | `number` | — | Re-verify periodically (ms). Set to `0` to disable. |
+
+## Default validation
+
+By default, the validator checks the response in this order:
+1. HTTP status `200` → license is valid.
+2. `body.valid === true` → license is valid.
+3. `body.success === true` → license is valid.
+4. `body.status === "active"` → license is valid.
+
+Override with `validateResponse` for custom logic.
+
+<Aside type="caution">
+  If `exitOnInvalid` is `true` (default) and the license fails, the bot process will terminate immediately. Make sure this is the desired behavior for your use case.
+</Aside>
+
+## Extending
+
+### Custom validation
+
+Provide your own `validateResponse` function to check additional fields, validate against a different API, or implement caching:
+
+```ts
+validateResponse: async (body, status) => {
+    if (status !== 200) return false;
+    // Check custom fields
+    return body.data?.license?.active === true
+        && body.data?.license?.product_id === myProductId;
+}
+```
+
+### Custom callbacks
+
+Use `onValid`, `onInvalid`, and `onError` to integrate with your own logging, notifications, or analytics:
+
+```ts
+onInvalid: async (reason) => {
+    // Send a Discord webhook notification
+    await fetch(webhookUrl, {
+        method: 'POST',
+        body: JSON.stringify({ content: `License invalid: ${reason}` })
+    });
+}
+```
+
+### Periodic checking
+
+Set `checkInterval` to a value greater than `0` to continuously enforce the license. The interval starts after the first successful verification.
+
+## Dependencies
+
+- `zumito-framework`
+
+## Additional options
+
+The module also accepts standard Zumito module options:
+
+| Option | Type | Description |
+|---|---|---|
+| `commandWhitelist` | `string[]` | Only allow these commands. |
+| `commandBlacklist` | `string[]` | Block these commands. |
+| `commandRenames` | `Record<string, string>` | Rename commands. |

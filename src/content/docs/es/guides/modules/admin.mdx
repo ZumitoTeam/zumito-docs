@@ -1,0 +1,150 @@
+---
+title: Módulo Admin
+description: Panel de administración web centralizado para gestión del bot con autenticación OAuth2 de Discord.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Módulo Admin** (`@zumito-team/admin-module`) proporciona un panel web para administrar tu bot Zumito. Incluye gestión de superadmins, exploración de servidores y un sistema dinámico de navegación lateral que otros módulos pueden extender.
+
+## Instalación
+
+```bash
+npm install @zumito-team/admin-module
+```
+
+Agrega a tu `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/admin-module']
+```
+
+## Qué proporciona
+
+### Dashboard
+
+Una interfaz web completa en `/admin` que muestra:
+- Tiempo de actividad del bot, conteo de usuarios, canales y servidores
+- Versiones de Node.js y discord.js
+- Lista de servidores con nombres e iconos
+- Gestión de superadmins (agregar/eliminar)
+
+### Autenticación
+
+Flujo de login basado en OAuth2 de Discord:
+1. El usuario hace clic en "Login" → redirigido a autorización de Discord.
+2. Discord redirige de vuelta a `/admin/login/callback`.
+3. Se emite un JWT (`admin_token`) con 2 horas de expiración.
+4. Todas las rutas admin validan este token mediante `AdminAuthService`.
+
+### Servicios
+
+| Servicio | Propósito |
+|---|---|
+| `NavigationService` | Registrar elementos en la barra lateral del panel admin. |
+| `AdminAuthService` | Validar tokens JWT admin y verificar estado de superadmin. |
+| `AdminViewService` | Renderizar páginas dentro del layout admin (plantillas EJS). |
+| `AdminColorsService` | Gestionar la paleta de colores del dashboard. |
+
+### Rutas
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/admin` | Dashboard con estadísticas del bot. |
+| `GET` | `/admin/login` | Redirige a OAuth2 de Discord. |
+| `GET` | `/admin/login/callback` | Manejador del callback OAuth2. |
+| `GET` | `/admin/servers` | Lista todas las guilds. |
+| `GET` | `/admin/superadmins` | Lista usuarios superadmin. |
+| `POST` | `/admin/superadmins/add` | Agrega un superadmin por ID de Discord. |
+| `POST` | `/admin/superadmins/remove` | Elimina un superadmin. |
+
+## Configuración
+
+### Variables de entorno
+
+| Variable | Requerida | Descripción |
+|---|---|---|
+| `DISCORD_CLIENT_ID` | Sí | Client ID de la aplicación Discord. |
+| `DISCORD_CLIENT_SECRET` | Sí | Client Secret de la aplicación Discord. |
+| `SECRET_KEY` | Sí | Clave secreta para firma JWT. |
+| `HOST` | Sí | URL del host del bot (para redirecciones OAuth2). |
+| `FRONTEND_URL` | Sí | URL del frontend (para redirecciones post-login). |
+| `ADMIN_COLORS_FILE` | No | Ruta a un archivo JSON con colores personalizados. |
+| `ADMIN_COLORS` | No | String JSON con colores personalizados. |
+
+### Paleta de colores
+
+Los colores del dashboard se pueden personalizar mediante `ADMIN_COLORS` o un archivo JSON. Los valores por defecto coinciden con la paleta de Discord:
+
+```json
+{
+  "primary": "#5865f2",
+  "accent": "#5865f2",
+  "success": "#57f287",
+  "warning": "#fee75c",
+  "danger": "#ed4245",
+  "foreground": "#ffffff",
+  "dark": {
+    "100": "#36393f",
+    "200": "#2f3136",
+    "300": "#292b2f",
+    "400": "#202225"
+  }
+}
+```
+
+<Aside type="tip">
+  Puedes establecer colores inline con `ADMIN_COLORS='{"primary":"#ff0000"}'` o apuntar a un archivo con `ADMIN_COLORS_FILE=/ruta/a/colores.json`.
+</Aside>
+
+## Extender el panel admin
+
+Otros módulos pueden registrar elementos de navegación en la barra lateral consumiendo `NavigationService`:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+
+const nav = ServiceContainer.getService('NavigationService');
+nav.registerItem({
+    id: 'mi-pagina',
+    label: 'Mi Página',
+    icon: 'settings',
+    link: '/admin/mi-pagina',
+    order: 50
+});
+```
+
+El método `AdminViewService.render()` puede usarse para envolver contenido personalizado en el layout admin:
+
+```ts
+const view = ServiceContainer.getService('AdminViewService');
+const html = await view.render({
+    title: 'Mi Página',
+    content: '<h1>Hola Mundo</h1>',
+    reqPath: '/admin/mi-pagina',
+    user: req.user
+});
+```
+
+### Declaración de dependencias
+
+Tu módulo debe declarar el requerimiento en su clase:
+
+```ts
+class MiModulo extends Module {
+    requirements = {
+        services: ['NavigationService']
+    };
+}
+```
+
+## Dependencias
+
+- `ejs` — Renderizado de plantillas para páginas admin.
+- `jose` — Verificación y firma de JWT.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**Módulo Reactions**](/es/guides/modules/reactions-module) — Usa `NavigationService` para registrar sus páginas admin.
+- [**User Panel**](/es/guides/modules/user-panel) — Patrón similar para paneles orientados al usuario.
