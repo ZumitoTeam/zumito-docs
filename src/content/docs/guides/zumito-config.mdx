@@ -24,10 +24,12 @@ export const config: LauncherConfig = {
 };
 ```
 
-The `LauncherConfig` interface has the following properties:
+The `LauncherConfig` extends `Partial<FrameworkSettings>`, so all settings are defined at the **top level** of the exported `config` object. The main properties are:
 
-- `bundles`: An array of `Bundle` objects. Bundles are a way to organize your bot's code. Each bundle is a directory that contains commands, events, and other modules.
-- `frameworkSettings`: An object that contains the framework settings. This is where you can configure the bot's token, prefix, and other options.
+- `discordClientOptions`: Discord client configuration (token, intents, clientId).
+- `defaultPrefix`: Default bot prefix for text commands.
+- `database`: zumito-db multi-driver configuration.
+- `bundles`: An array of `Bundle` objects to load external modules.
 
 ## Bundles
 
@@ -52,20 +54,47 @@ export const config: LauncherConfig = {
 
 ## Framework Settings
 
-The `frameworkSettings` object contains the framework settings. This is where you can configure the bot's token, prefix, and other options.
+The `zumito.config.ts` file exports a `LauncherConfig` object. Framework settings are defined at the **top level** of the config (not nested):
 
 ```ts
 import type { LauncherConfig } from 'zumito-framework';
 
 export const config: LauncherConfig = {
-    frameworkSettings: {
-        discordClientOptions: {
-            intents: 3276799,
-            token: process.env.DISCORD_TOKEN!,
-            clientId: process.env.DISCORD_CLIENT_ID!,
-        },
-        defaultPrefix: process.env.BOT_PREFIX || "z-",
-        logLevel: parseInt(process.env.LOG_LEVEL || "3"),
-    }
+    discordClientOptions: {
+        intents: 3276799,
+        token: process.env.DISCORD_TOKEN!,
+        clientId: process.env.DISCORD_CLIENT_ID!,
+    },
+    defaultPrefix: process.env.BOT_PREFIX || "z-",
+    logLevel: parseInt(process.env.LOG_LEVEL || "3"),
 };
 ```
+
+### Database configuration
+
+The `database` property configures zumito-db:
+
+```ts
+export const config: LauncherConfig = {
+    mongoQueryString: process.env.MONGO_URI!,
+    database: {
+        default: 'mongo',
+        drivers: {
+            mongo: { uri: process.env.MONGO_URI! },
+        },
+        migrations: [],  // optional: array of Migration instances
+    },
+    models: [Guild, Member],  // auto-register models on startup
+};
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `database.default` | `string` | Default driver name (`'mongo'`, `'sqlite'`, `'tingo'`, `'memory'`) |
+| `database.drivers` | `Record<string, object>` | Per-driver connection config |
+| `database.migrations` | `Migration[]` | Optional migration classes |
+| `models` | `any[]` | Model classes to auto-register |
+
+<Aside type="caution">
+`mongoQueryString` is still required for backward compatibility. It will become optional in a future major version when `database.drivers.mongo.uri` fully replaces it.
+</Aside>

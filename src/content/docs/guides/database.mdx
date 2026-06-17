@@ -1,7 +1,7 @@
 ---
 sidebar_position: 3
 title: Database
-description: A guide to the database.
+description: A guide to the zumito-db ORM.
 ---
 
 import { Icon } from '@astrojs/starlight/components';
@@ -10,25 +10,441 @@ import { Aside } from '@astrojs/starlight/components';
 import { Steps } from '@astrojs/starlight/components';
 import { LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-This guide will help you to understand the database.
+This guide covers the **zumito-db** ORM — a multi-driver, decorator-based database abstraction layer for Zumito Framework.
 
-## Direct MongoDB Integration
+## Overview
 
-Zumito Framework has moved from custom database models to a direct MongoDB integration. This means that you can now use the official MongoDB driver to interact with the database.
+zumito-db provides a unified API for MongoDB, SQLite, PostgreSQL, MySQL, and TingoDB. Define your models with decorators and access them through a **Repository** pattern or a fluent **QueryBuilder**.
 
-## Accessing the Database
+## Defining models
 
-To access the database, you need to get the `Db` object from the `ServiceContainer`.
+Use `@Collection` and `@Field` decorators to define models.
+
+### Placing models inside a module
+
+The recommended way is to place model files inside your module's `models/` folder — they are **auto-loaded and auto-registered** by the framework on startup:
+
+```
+src/modules/guild-settings/
+├── commands/
+├── events/
+├── models/                  ← Models live here
+│   ├── Guild.ts
+│   └── Member.ts
+├── translations/
+└── index.ts
+```
+
+Each model file exports one or more classes decorated with `@Collection`:
 
 ```ts
-import { ServiceContainer } from 'zumito-framework';
-import { Db } from 'mongodb';
+// src/modules/guild-settings/models/Guild.ts
+import { Collection, Field } from 'zumito-framework';
 
+@Collection({ name: 'guilds' })
+export class Guild {
+    @Field({ type: 'string', primary: true, unique: true })
+    guild_id: string;
+
+    @Field({ type: 'string', default: 'en' })
+    lang: string;
+}
+```
+
+The framework automatically:
+1. Scans `models/` in each module during `module.initialize()`
+2. Registers every class with `@Collection` metadata into the `DatabaseManager`
+3. Creates/ensures the collection/table schema on startup via `db.ensureSchemas()`
+
+No manual registration needed — just drop the file in `models/` and export the class.
+
+### Manual registration (alternative)
+
+If you prefer to keep models outside the `models/` folder, register them manually in `zumito.config.ts`:
+
+```ts
+import { Guild } from './src/modules/guild-settings/models/Guild';
+
+export const config: LauncherConfig = {
+    models: [Guild],
+};
+```
+
+### Model definition reference
+
+```ts
+import { Collection, Field, HasMany } from 'zumito-framework';
+
+@Collection({ name: 'guilds' })
+export class Guild {
+    @Field({ type: 'string', primary: true, unique: true })
+    guild_id: string;
+
+    @Field({ type: 'string', default: 'en' })
+    lang: string;
+
+    @Field({ type: 'string', default: 'z-' })
+
+// ... rest of existing content    prefix: string;
+
+    @Field({ type: 'boolean', default: false })
+    public: boolean;
+}
+
+@Collection({ name: 'members' })
+export class Member {
+    @Field({ type: 'string', primary: true })
+    id: string;
+
+    @Field({ type: 'string' })
+    name: string;
+}
+```
+
+### Field options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `type` | `'string' \| 'number' \| 'boolean' \| 'date' \| 'object' \| 'array'` | inferred from TS type | Field data type |
+| `primary` | `boolean` | `false` | Marks the field as primary key |
+| `unique` | `boolean` | `false` | Creates a unique index |
+| `nullable` | `boolean` | `true` | Allows null values |
+| `default` | `any` | `undefined` | Default value for new documents |
+
+<Aside type="note">
+When using TypeScript with `emitDecoratorMetadata: true` (enabled by default in the framework), 
+the `type` option can be omitted — it will be inferred from the TypeScript property type. 
+Use explicit `type` when `emitDecoratorMetadata` is not available (e.g., test environments with esbuild/vitest).
+</Aside>
+
+## Relations
+
+Define relationships between models:
+
+```ts
+import { Collection, Field, HasMany, BelongsTo, HasOne } from 'zumito-framework';
+
+@Collection({ name: 'users' })
+export class User {
+    @Field({ type: 'string', primary: true })
+    id: string;
+
+    @HasMany(() => Post, { foreignKey: 'userId' })
+    posts: Post[];
+
+    @HasOne(() => Profile, { foreignKey: 'userId' })
+    profile: Profile;
+}
+
+@Collection({ name: 'posts' })
+export class Post {
+    @Field({ type: 'string', primary: true })
+    id: string;
+
+    @Field({ type: 'string' })
+    userId: string;
+
+    @BelongsTo(() => User, { foreignKey: 'userId' })
+    author: User;
+}
+```
+
+## Accessing the database
+
+### Via ServiceContainer
+
+```ts
+import { DatabaseManager, ServiceContainer } from 'zumito-framework';
+
+const db = ServiceContainer.get(DatabaseManager) as DatabaseManager;
+```
+
+### Via framework instance
+
+```ts
+// In commands: parameters.framework.db
+const guilds = framework.db.getRepository(Guild);
+```
+
+## Repository pattern
+
+Get a type-safe repository for any model:
+
+```ts
+const guilds = db.getRepository(Guild);
+
+// Find all
+const all = await guilds.find();
+
+// Find with conditions
+const guild = await guilds.findOne({ guild_id: '123456' });
+
+// Insert
+await guilds.insert({ guild_id: '789', lang: 'es' });
+
+// Update
+await guilds.update({ guild_id: '789' }, { lang: 'fr' });
+
+// Delete
+await guilds.delete({ guild_id: '789' });
+
+// Count
+const total = await guilds.count({ lang: 'en' });
+```
+
+## QueryBuilder
+
+For complex queries, use the fluent QueryBuilder:
+
+```ts
+const results = await guilds
+    .query()
+    .where('lang', 'eq', 'es')
+    .orWhere('lang', 'eq', 'en')
+    .sort('guild_id', 'asc')
+    .limit(10)
+    .select(['guild_id', 'prefix'])
+    .exec();
+```
+
+### Available query methods
+
+| Method | Description |
+|--------|-------------|
+| `.where(field, operator, value)` | Adds AND condition |
+| `.andWhere(field, operator, value)` | Same as `.where()` |
+| `.orWhere(field, operator, value)` | Adds OR condition |
+| `.select([...fields])` | Projects specific fields |
+| `.sort(field, 'asc' \| 'desc')` | Orders results |
+| `.limit(n)` | Limits results |
+| `.offset(n)` | Skips first n results |
+| `.exec()` | Executes and returns array |
+| `.first()` | Returns first match or null |
+| `.count()` | Returns count |
+| `.populate('relation')` | Loads related data |
+
+### Operators
+
+| Operator | Description | SQL | MongoDB |
+|----------|-------------|-----|---------|
+| `eq` | Equals | `= ?` | `{ $eq }` |
+| `neq` | Not equals | `!= ?` | `{ $ne }` |
+| `gt` | Greater than | `> ?` | `{ $gt }` |
+| `gte` | Greater or equal | `>= ?` | `{ $gte }` |
+| `lt` | Less than | `< ?` | `{ $lt }` |
+| `lte` | Less or equal | `<= ?` | `{ $lte }` |
+| `in` | In array | `IN (...)` | `{ $in }` |
+| `nin` | Not in array | `NOT IN (...)` | `{ $nin }` |
+| `like` | String contains | `LIKE ?` | `{ $regex }` |
+| `between` | Between range | `BETWEEN` | `{ $gte, $lte }` |
+
+## Configuration
+
+Configure the database in `zumito.config.ts`. The framework selects the driver based on `database.default`. If omitted, it falls back to `MONGO_URI` / `mongoQueryString` for backward compatibility.
+
+### Development (memory — no setup)
+
+```ts
+import type { LauncherConfig } from 'zumito-framework';
+
+export const config: LauncherConfig = {
+    database: {
+        default: 'memory',
+        drivers: { memory: {} },
+    },
+};
+```
+
+Zero dependencies, data lives in memory, resets on restart. Ideal for quick iteration.
+
+### Development (tingo — file-based)
+
+```ts
+database: {
+    default: 'tingo',
+    drivers: { tingo: { path: './db/tingodb' } },
+},
+```
+
+MongoDB-compatible API, stores data as files locally. No server needed.
+
+### Development (sqlite — file-based SQL)
+
+```ts
+database: {
+    default: 'sqlite',
+    drivers: { sqlite: { filename: './dev.db' } },
+},
+```
+
+Requires `npm install better-sqlite3`. Single-file SQL database.
+
+### Production (MongoDB)
+
+```ts
+import type { LauncherConfig } from 'zumito-framework';
+
+export const config: LauncherConfig = {
+    database: {
+        default: 'mongo',
+        drivers: {
+            mongo: { uri: process.env.MONGO_URI! },
+        },
+    },
+};
+```
+
+### Switching by environment
+
+```ts
+database: {
+    default: process.env.DATABASE_TYPE || 'memory',
+    drivers: {
+        memory: {},
+        mongo: { uri: process.env.MONGO_URI! },
+        tingo: { path: './db/tingodb' },
+    },
+},
+```
+
+Then set `DATABASE_TYPE=memory` in `.env` for dev, `DATABASE_TYPE=mongo` for prod.
+
+### Registering models
+
+Models placed in a module's `models/` folder are auto-loaded. To also register models globally, list them in `models`:
+
+```ts
+export const config: LauncherConfig = {
+    models: [Guild, Member],
+};
+```
+
+Auto-registered models have their schemas ensured on startup (collections/tables created, indexes applied).
+
+## Migrations (optional)
+
+Define migration classes for versioned schema changes:
+
+```ts
+import { Migration, DatabaseManager } from 'zumito-framework';
+
+export class CreateProductsTable extends Migration {
+    name = '20240601_create_products';
+
+    async up(db: DatabaseManager) {
+        const driver = db.getDriver();
+        await driver.ensureSchema({
+            name: 'Product',
+            collection: 'products',
+            fields: [
+                { name: 'id', type: 'string', primary: true, unique: false, nullable: false, propertyKey: 'id' },
+                { name: 'name', type: 'string', primary: false, unique: false, nullable: false, propertyKey: 'name' },
+            ],
+            relations: [],
+            target: null,
+        });
+    }
+
+    async down(db: DatabaseManager) {
+        await db.dropCollection('products');
+    }
+}
+```
+
+Register migrations in your config:
+
+```ts
+export const config: LauncherConfig = {
+    database: {
+        migrations: [new CreateProductsTable()],
+    },
+};
+```
+
+Migrations run automatically on startup via `db.migrator.latest()`.
+
+### Migration API
+
+```ts
+// Run pending migrations
+await db.migrator.latest(migrations);
+
+// Rollback last migration
+await db.migrator.rollback(migrations);
+
+// Check status
+const status = await db.migrator.status(migrations);
+```
+
+## Drivers
+
+zumito-db loads drivers on demand — only the driver you use is imported at runtime.
+
+| Driver | Config key | Dependency | Use case |
+|--------|-----------|------------|----------|
+| MongoDB | `mongo` | `mongodb` (included) | Production, Discord bot data |
+| SQLite | `sqlite` | `better-sqlite3` (optional) | Local dev, embedded SQL |
+| TingoDB | `tingo` | `tingodb` (optional) | Local dev, MongoDB-compatible files |
+| Memory | `memory` | (built-in) | Testing, ephemeral |
+
+## Testing with MemoryDriver
+
+The MemoryDriver provides an in-memory database for tests:
+
+```ts
+import { createTestFramework } from 'zumito-framework/testing';
+import { Collection, Field, DatabaseManager } from 'zumito-framework';
+
+const { db } = createTestFramework();
+
+@Collection({ name: 'users' })
+class User {
+    @Field({ type: 'string', primary: true })
+    id: string;
+}
+
+// db is a fully mocked DatabaseManager
+// Override specific methods:
+db.getRepository = vi.fn().mockReturnValue({
+    findOne: vi.fn().mockResolvedValue({ id: '1', name: 'Test' }),
+});
+```
+
+## Direct driver access
+
+For operations not covered by the Repository or QueryBuilder:
+
+```ts
+const driver = db.getDriver();
+
+// MongoDB raw access
+await driver.raw.collection('guilds').aggregate([...]).toArray();
+
+// SQLite raw access
+driver.raw.exec('SELECT * FROM guilds WHERE lang = ?', 'es');
+```
+
+## Migrating from legacy MongoDB
+
+If your project used the old `framework.database` or `MongoService`:
+
+```ts
+// Old (deprecated - still works but shows warnings)
 const db = ServiceContainer.get(Db);
+await db.collection('guilds').findOne({ guild_id: '123' });
+
+// New — define a model first, then use Repository
+import { Collection, Field, DatabaseManager } from 'zumito-framework';
+
+@Collection({ name: 'guilds' })
+class Guild {
+    @Field({ type: 'string', primary: true })
+    guild_id: string;
+}
+
+const db = ServiceContainer.get(DatabaseManager) as DatabaseManager;
+const guilds = db.getRepository(Guild);
+await guilds.findOne({ guild_id: '123' });
 ```
 
-Once you have the `Db` object, you can use it to interact with the database.
-
-```ts
-const users = await db.collection('users').find().toArray();
-```
+The old `framework.database` and `framework.mongoService` are **@deprecated** and will be removed in a future major version.

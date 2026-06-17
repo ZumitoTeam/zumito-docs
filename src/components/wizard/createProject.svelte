@@ -76,12 +76,16 @@
         <div class="flex min-h-[400px] w-full flex-col justify-center">
             <Label>
                 Database server
-                <Select class="mt-2" items={[{ value: 'mongodb', name: 'Mongo - Ready for production use' }, { value: 'tingodb', name: 'Tingo - Easier for local development' }]} bind:value={config.database.type} />
+                <Select class="mt-2" items={[
+                    { value: 'memory', name: 'Memory - Local development, no setup needed' },
+                    { value: 'tingodb', name: 'Tingo - Local development, file-based' },
+                    { value: 'mongodb', name: 'MongoDB - Production ready' }
+                ]} bind:value={config.database.type} />
             </Label>
 
             {#if config.database.type == 'mongodb'}
-                <label for="clientId" class="mb-2 mt-6 block text-sm font-medium text-gray-900 dark:text-white">MongoDB uri:</label>
-                <input type="text" id="clientId" bind:value={config.database.url} class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-pink-300 focus:ring-pink-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:shadow-sm-light dark:focus:border-blue-500 dark:focus:ring-blue-500"  required />
+                <label for="mongoUri" class="mb-2 mt-6 block text-sm font-medium text-gray-900 dark:text-white">MongoDB URI:</label>
+                <input type="text" id="mongoUri" bind:value={config.database.url} class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 shadow-sm focus:border-pink-300 focus:ring-pink-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:shadow-sm-light dark:focus:border-blue-500 dark:focus:ring-blue-500"  required />
             {/if}
         </div>
     {:else if step == 5}
@@ -108,12 +112,20 @@
                     {#if config.prefix.enabled}
                     --botPrefix {config.prefix.prefix}
                     {/if}
-                    --databaseType {config.database.type || 'tingodb'}
                     {#if config.database.type == 'mongodb'}
-                    --databaseuri {config.database.url}
+                    --mongoQueryString {config.database.url}
                     {/if}
                 </span>
             </div>
+            {#if config.database.type != 'mongodb'}
+            <div class="mt-2 inline-flex items-center justify-start gap-3 rounded-3xl rounded-tl-none bg-pink-100 px-3.5 py-2">
+                <span class="text-sm font-normal leading-snug text-gray-900">
+                    The {config.database.type} driver needs no extra setup.
+                    Set DATABASE_TYPE={config.database.type} in your .env
+                    or configure database.default in zumito.config.ts
+                </span>
+            </div>
+            {/if}
         </div>
     {/if}
 </div>

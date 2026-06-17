@@ -21,52 +21,103 @@ All types, enums, and classes from discord.js are available through `zumito-fram
 
 ## Database access
 
-The framework uses the **native MongoDB driver**, not Mongoose. There is no ORM.
+The framework uses **zumito-db**, a decorator-based multi-driver ORM. Define models with `@Collection` and `@Field`, access them via `DatabaseManager`/`Repository`.
 
-Mongoose appears in `package.json` dependencies for legacy reasons but is **not used**. Do not create Mongoose models or schemas.
+Mongoose appears in `package.json` dependencies for legacy reasons but is **not used** and will be removed. Do not create Mongoose models or schemas.
 
 ### How to get the database instance
 
 ```ts
-import { ServiceContainer } from 'zumito-framework';
-import { Db } from 'mongodb';
+import { DatabaseManager, ServiceContainer } from 'zumito-framework';
 
-const db = ServiceContainer.get(Db);
+const db = ServiceContainer.get(DatabaseManager) as DatabaseManager;
 ```
 
-The `Db` type and all MongoDB driver types (`Collection`, `ObjectId`, `Filter`, `FindOptions`, etc.) come from the `mongodb` package directly — **not** from `zumito-framework`.
+### Auto-loading models from modules
 
-### Query patterns
+Models placed in a module's `models/` folder are **automatically imported and registered** during `module.initialize()`. The framework scans for exported classes with `@Collection` metadata and registers them with `DatabaseManager`. Schemas are created/ensured immediately after all modules are loaded. No manual registration needed.
+
+Example:
+```ts
+// src/modules/my-module/models/Guild.ts
+import { Collection, Field } from 'zumito-framework';
+
+@Collection({ name: 'guilds' })
+export class Guild {
+    @Field({ type: 'string', primary: true, unique: true })
+    guild_id: string;
+}
+```
+
+The `Guild` model is now available via `db.getRepository(Guild)` anywhere in the app.
+
+### Defining models
 
 ```ts
-// Find all documents in a collection
-const users = await db.collection('users').find().toArray();
+import { Collection, Field, HasMany } from 'zumito-framework';
 
-// Find one document
-const user = await db.collection('users').findOne({ userId: '123' });
+@Collection({ name: 'guilds' })
+export class Guild {
+    @Field({ type: 'string', primary: true, unique: true })
+    guild_id: string;
+
+    @Field({ type: 'string', default: 'en' })
+    lang: string;
+}
+```
+
+Always use explicit `type` in `@Field()` options when writing code that might be tested with vitest/esbuild (which does not support `emitDecoratorMetadata`).
+
+### Repository pattern (preferred)
+
+```ts
+const guilds = db.getRepository(Guild);
+
+// Find
+const all = await guilds.find();
+const guild = await guilds.findOne({ guild_id: '123' });
 
 // Insert
-await db.collection('users').insertOne({ userId: '123', name: 'Test' });
+await guilds.insert({ guild_id: '789', lang: 'es' });
 
 // Update
-await db.collection('users').updateOne(
-  { userId: '123' },
-  { $set: { name: 'Updated' } }
-);
+await guilds.update({ guild_id: '123' }, { lang: 'fr' });
 
 // Delete
-await db.collection('users').deleteOne({ userId: '123' });
+await guilds.delete({ guild_id: '789' });
 
-// Aggregation
-const result = await db.collection('users').aggregate([
-  { $match: { active: true } },
-  { $group: { _id: '$guildId', count: { $sum: 1 } } }
-]).toArray();
+// Count
+const total = await guilds.count({ lang: 'en' });
 ```
+
+### QueryBuilder
+
+```ts
+const results = await guilds
+    .query()
+    .where('lang', 'eq', 'es')
+    .sort('guild_id', 'asc')
+    .limit(10)
+    .select(['guild_id', 'prefix'])
+    .exec();
+```
+
+Available operators: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `in`, `nin`, `like`, `between`.
+
+### Legacy MongoDB access (deprecated)
+
+```ts
+// @deprecated — use DatabaseManager instead. Only works with mongo driver.
+import { Db } from 'mongodb';
+const db = ServiceContainer.get(Db);
+await db.collection('guilds').findOne({ guild_id: '123' });
+```
+
+The above still works but emits deprecation warnings. Use `DatabaseManager` + `Repository` for new code.
 
 ### Configuration collection convention
 
-Guild settings are stored in a `configs` collection. Each document typically has a `guildId` field. Use the `GuildDataGetter` service to fetch guild settings with defaults merged in:
+Guild settings are stored in a `guilds` collection. Each document has a `guild_id` field. Use the `GuildDataGetter` service to fetch guild settings with defaults merged in:
 
 ```ts
 import { GuildDataGetter, ServiceContainer } from 'zumito-framework';
@@ -74,8 +125,6 @@ import { GuildDataGetter, ServiceContainer } from 'zumito-framework';
 const guildDataGetter = ServiceContainer.get(GuildDataGetter) as GuildDataGetter;
 const settings = await guildDataGetter.getGuildSettings(guildId);
 ```
-
-This merges the config from DB with defaults defined in each module's `config/default.ts`.
 
 ## ServiceContainer
 
@@ -85,7 +134,7 @@ The `ServiceContainer` is a global dependency injection container. Key services 
 |---|---|---|
 | `ZumitoFramework` | `ServiceContainer.get(ZumitoFramework)` | The framework instance |
 | `Client` (discord) | `ServiceContainer.get(Client)` | Discord.js client |
-| `Db` (mongodb) | `ServiceContainer.get(Db)` | MongoDB database instance |
+| `DatabaseManager` | `ServiceContainer.get(DatabaseManager)` | zumito-db ORM instance |
 | `TranslationManager` | `ServiceContainer.get(TranslationManager)` | Translation service |
 | `CommandManager` | `ServiceContainer.get(CommandManager)` | All loaded commands |
 | `EventManager` | `ServiceContainer.get(EventManager)` | Event handling |
@@ -128,6 +177,7 @@ src/modules/<ModuleName>/
 ├── events/            # Event classes (subfolder = source, e.g., events/discord/)
 │   └── discord/       # Discord.js events
 │   └── framework/     # Framework events (e.g., 'ready')
+├── models/            # Database model classes (auto-loaded, use @Collection/@Field)
 ├── routes/            # Express route handlers
 ├── translations/      # Translation JSON files
 │   ├── en.json
@@ -171,8 +221,9 @@ Translation files are flat JSON objects. The framework merges all module transla
 ## Common pitfalls
 
 1. **Don't** instantiate the Discord `Client` yourself — the framework creates and manages it.
-2. **Don't** create Mongoose models. Use the native MongoDB driver via `ServiceContainer.get(Db)`.
+2. **Don't** create Mongoose models. Use `zumito-db` decorators (`@Collection`, `@Field`) and `DatabaseManager`/`Repository`.
 3. **Don't** import from `discord.js` directly. Use `zumito-framework/discord`.
 4. **Don't** call `client.login()` — the framework handles authentication via `FrameworkSettings.discordClientOptions.token`.
 5. In DM channels, `guild` and `guildSettings` will be undefined. Always guard against this.
 6. The framework uses ESM (`"type": "module"` in package.json). Always use `.js` extensions in relative imports even in TypeScript files.
+7. Always specify `type` in `@Field({ type: 'string' })` options — `emitDecoratorMetadata` inference is not available in vitest/esbuild test environments.
