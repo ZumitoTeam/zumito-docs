@@ -1,37 +1,195 @@
 ---
 title: Update bot status
-description: A quick guide on how to update bot status
+description: Configure and cycle through bot presence statuses using the StatusManager.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Example status options
+The framework provides a **StatusManager** that automatically cycles through your bot's presence statuses. You configure it via your `zumito.config.ts` file, which is loaded by the framework's launcher.
 
-```diff lang="js"
-// src/Bot.ts
-    new ZumitoFramework({
-        ...
-+       statusOptions: {
-+           statuses: [{
-+               status: 'online',
-+               activities: [{
-+                   name: 'z-help',
-+                   type: ActivityType.Playing
-+               }]
-+           }],
-+           RuledStatuses: [],
-+           updateInterval: 15000,
-+           order: "sequential"
-+       },
-    });
+## Setup
+
+<Steps>
+  1. **Create a status options file**
+
+     Create `src/config/StatusOptions.ts`:
+
+     ```ts
+     import { ActivityType } from "zumito-framework/discord";
+     import type { StatusManagerOptions } from "zumito-framework";
+
+     export const statusOptions: StatusManagerOptions = {
+         statuses: [{
+             status: 'online',
+             activities: [{
+                 name: 'z-help',
+                 type: ActivityType.Playing
+             }]
+         }],
+         RuledStatuses: [],
+         updateInterval: 15000,
+         order: "sequential"
+     };
+     ```
+
+  2. **Pass to zumito.config.ts**
+
+     ```ts
+     // zumito.config.ts
+     import type { LauncherConfig } from 'zumito-framework';
+     import { statusOptions } from './src/config/StatusOptions.js';
+
+     export const config: LauncherConfig = {
+         statusOptions: statusOptions,
+         // ... bundles, discordClientOptions, etc.
+     };
+     ```
+</Steps>
+
+## Configuration reference
+
+### `StatusManagerOptions`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `statuses` | `PresenceData[]` | Yes | List of statuses the bot cycles through. |
+| `RuledStatuses` | `RuledPresenceData[]` | No | Time-conditional statuses (e.g., holiday-specific). |
+| `updateInterval` | `number` | No | How often the bot changes status (ms). If omitted, cycles once on ready but does not repeat. |
+| `order` | `"sequential" \| "random"` | No | Cycle order. Defaults to sequential. |
+
+### `PresenceData` (per status entry)
+
+| Field | Type | Description |
+|---|---|---|
+| `status` | `'online' \| 'dnd' \| 'idle' \| 'invisible'` | Discord presence status. |
+| `activities` | `ActivitiesOptions[]` | Array of activities to display. |
+
+An activity has:
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `string` | Text displayed (e.g., `Playing z-help`). |
+| `type` | `ActivityType` | `ActivityType.Playing`, `ActivityType.Watching`, `ActivityType.Listening`, `ActivityType.Streaming`, `ActivityType.Competing`. |
+
+### `RuledPresenceData` (time-based statuses)
+
+Statuses with date rules — only active within a time range:
+
+```ts
+RuledStatuses: [{
+    status: 'online',
+    activities: [{
+        name: 'Halloween event!',
+        type: ActivityType.Playing
+    }],
+    rules: [{
+        startTime: new Date('2026-10-25'),
+        endTime: new Date('2026-11-01')
+    }]
+}]
 ```
 
-### statuses
-An array with a list of statuses the bot will be showing
-Each status has this properties:
-- status: Online, dnd, offline,
-- activities: 
-    - name: Name to show. it will be shown like: Playing z-help
-    - type: Type of activity
-- updateInterval: Each how many miliseconds the bot will change its status
-- order: In wich order the list of status will be changig? sequential or random
+| Rule field | Type | Description |
+|---|---|---|
+| `startTime` | `Date` | Status becomes active after this date. |
+| `endTime` | `Date` | Status becomes inactive after this date. |
+
+<Aside type="tip">
+  You can define multiple rules per status. If **any** rule matches (current time is within its range), the status is included in the cycle.
+</Aside>
+
+## Examples
+
+### Multiple rotating statuses (sequential)
+
+```ts
+statuses: [
+    {
+        status: 'online',
+        activities: [{ name: 'with fire', type: ActivityType.Playing }]
+    },
+    {
+        status: 'dnd',
+        activities: [{ name: 'the docs', type: ActivityType.Watching }]
+    },
+    {
+        status: 'idle',
+        activities: [{ name: 'lofi beats', type: ActivityType.Listening }]
+    }
+],
+updateInterval: 20000,
+order: "sequential"
+```
+
+The bot cycles through each status every 20 seconds, in order.
+
+### Random status cycling
+
+```ts
+order: "random",
+updateInterval: 30000
+```
+
+The bot picks a random status from the list every 30 seconds.
+
+### Streaming status
+
+```ts
+statuses: [{
+    status: 'online',
+    activities: [{
+        name: 'Coding with Zumito',
+        type: ActivityType.Streaming,
+        url: 'https://twitch.tv/yourchannel'
+    }]
+}]
+```
+
+<Aside type="caution">
+  `ActivityType.Streaming` requires a valid Twitch URL in the `url` field.
+</Aside>
+
+## Manual status updates
+
+You can also update the status programmatically from your modules:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { ZumitoFramework } from 'zumito-framework';
+
+const framework = ServiceContainer.get(ZumitoFramework);
+framework.statusManager?.setStatus({
+    status: 'dnd',
+    activities: [{ name: 'maintenance...', type: ActivityType.Playing }]
+});
+```
+
+## Listening to status changes
+
+The `statusChanged` event fires every time the presence changes:
+
+```ts
+framework.eventEmitter.on('statusChanged', (presenceData) => {
+    console.log('Bot status changed to:', presenceData);
+});
+```
+
+## How it works under the hood
+
+1. The launcher (`node_modules/zumito-framework/dist/launcher.js`) loads your `zumito.config.ts`.
+2. It merges your config with framework defaults and passes it to `ZumitoFramework`.
+3. During initialization, if `statusOptions` is defined, a `StatusManager` is created.
+4. On the Discord `ready` event, the first status is set immediately.
+5. If `updateInterval` is set, the status cycles on a timer.
+6. `RuledStatuses` are filtered by their date rules — only active ones are included in the cycle.
+
+## Troubleshooting
+
+<Aside type="note">
+  If no status is displayed, check that:
+  - `statuses` array is not empty
+  - Discord client is connected (check `ready` event or logs)
+  - Your `DISCORD_TOKEN` is valid
+</Aside>

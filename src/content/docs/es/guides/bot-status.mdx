@@ -1,37 +1,195 @@
 ---
 title: Actualizar el estado del bot
-description: Guía rápida sobre cómo actualizar el estado del bot
+description: Configura y rota los estados de presencia del bot usando el StatusManager.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-Opciones de estado de ejemplo
+El framework proporciona un **StatusManager** que rota automáticamente los estados de presencia de tu bot. Se configura a través de `zumito.config.ts`, que es cargado por el launcher del framework.
 
-```diff lang="js"
-// src/Bot.ts
-    new ZumitoFramework({
-        ...
-+       statusOptions: {
-+           statuses: [{
-+               status: 'online',
-+               activities: [{
-+                   name: 'z-help',
-+                   type: ActivityType.Playing
-+               }]
-+           }],
-+           RuledStatuses: [],
-+           updateInterval: 15000,
-+           order: "sequential"
-+       },
-    });
+## Configuración
+
+<Steps>
+  1. **Crea un archivo de opciones de estado**
+
+     Crea `src/config/StatusOptions.ts`:
+
+     ```ts
+     import { ActivityType } from "zumito-framework/discord";
+     import type { StatusManagerOptions } from "zumito-framework";
+
+     export const statusOptions: StatusManagerOptions = {
+         statuses: [{
+             status: 'online',
+             activities: [{
+                 name: 'z-help',
+                 type: ActivityType.Playing
+             }]
+         }],
+         RuledStatuses: [],
+         updateInterval: 15000,
+         order: "sequential"
+     };
+     ```
+
+  2. **Pásalo a zumito.config.ts**
+
+     ```ts
+     // zumito.config.ts
+     import type { LauncherConfig } from 'zumito-framework';
+     import { statusOptions } from './src/config/StatusOptions.js';
+
+     export const config: LauncherConfig = {
+         statusOptions: statusOptions,
+         // ... bundles, discordClientOptions, etc.
+     };
+     ```
+</Steps>
+
+## Referencia de configuración
+
+### `StatusManagerOptions`
+
+| Campo | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `statuses` | `PresenceData[]` | Sí | Lista de estados que el bot irá rotando. |
+| `RuledStatuses` | `RuledPresenceData[]` | No | Estados condicionales por fecha (ej. festivos). |
+| `updateInterval` | `number` | No | Cada cuántos ms el bot cambia de estado. Si se omite, rota una vez al iniciar pero no se repite. |
+| `order` | `"sequential" \| "random"` | No | Orden de rotación. Por defecto secuencial. |
+
+### `PresenceData` (por cada estado)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `status` | `'online' \| 'dnd' \| 'idle' \| 'invisible'` | Estado de presencia en Discord. |
+| `activities` | `ActivitiesOptions[]` | Array de actividades a mostrar. |
+
+Una actividad tiene:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `name` | `string` | Texto mostrado (ej. `Jugando a z-help`). |
+| `type` | `ActivityType` | `ActivityType.Playing`, `ActivityType.Watching`, `ActivityType.Listening`, `ActivityType.Streaming`, `ActivityType.Competing`. |
+
+### `RuledPresenceData` (estados por fecha)
+
+Estados con reglas de fecha — solo se activan dentro de un rango temporal:
+
+```ts
+RuledStatuses: [{
+    status: 'online',
+    activities: [{
+        name: 'Evento de Halloween!',
+        type: ActivityType.Playing
+    }],
+    rules: [{
+        startTime: new Date('2026-10-25'),
+        endTime: new Date('2026-11-01')
+    }]
+}]
 ```
 
-### statuses
-Un array con la lista de estados que mostrará el bot
-Cada estado tiene estas propiedades:
-- status: online, dnd, offline,
-- activities:
-    - name: Nombre a mostrar. Se mostrará como: Playing z-help
-    - type: Tipo de actividad
-- updateInterval: Cada cuántos milisegundos cambiará el estado el bot
-- order: ¿En qué orden irá cambiando la lista de estados? secuencial o aleatorio
+| Campo de regla | Tipo | Descripción |
+|---|---|---|
+| `startTime` | `Date` | El estado se activa después de esta fecha. |
+| `endTime` | `Date` | El estado se desactiva después de esta fecha. |
+
+<Aside type="tip">
+  Puedes definir múltiples reglas por estado. Si **alguna** regla coincide (la hora actual está dentro de su rango), el estado se incluye en la rotación.
+</Aside>
+
+## Ejemplos
+
+### Múltiples estados rotativos (secuencial)
+
+```ts
+statuses: [
+    {
+        status: 'online',
+        activities: [{ name: 'con fuego', type: ActivityType.Playing }]
+    },
+    {
+        status: 'dnd',
+        activities: [{ name: 'la documentación', type: ActivityType.Watching }]
+    },
+    {
+        status: 'idle',
+        activities: [{ name: 'lofi beats', type: ActivityType.Listening }]
+    }
+],
+updateInterval: 20000,
+order: "sequential"
+```
+
+El bot rota por cada estado cada 20 segundos, en orden.
+
+### Rotación aleatoria
+
+```ts
+order: "random",
+updateInterval: 30000
+```
+
+El bot elige un estado aleatorio de la lista cada 30 segundos.
+
+### Estado de streaming
+
+```ts
+statuses: [{
+    status: 'online',
+    activities: [{
+        name: 'Programando con Zumito',
+        type: ActivityType.Streaming,
+        url: 'https://twitch.tv/tucanal'
+    }]
+}]
+```
+
+<Aside type="caution">
+  `ActivityType.Streaming` requiere una URL válida de Twitch en el campo `url`.
+</Aside>
+
+## Actualización manual del estado
+
+También puedes actualizar el estado programáticamente desde tus módulos:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { ZumitoFramework } from 'zumito-framework';
+
+const framework = ServiceContainer.get(ZumitoFramework);
+framework.statusManager?.setStatus({
+    status: 'dnd',
+    activities: [{ name: 'en mantenimiento...', type: ActivityType.Playing }]
+});
+```
+
+## Escuchar cambios de estado
+
+El evento `statusChanged` se dispara cada vez que la presencia cambia:
+
+```ts
+framework.eventEmitter.on('statusChanged', (presenceData) => {
+    console.log('El estado del bot cambió a:', presenceData);
+});
+```
+
+## Cómo funciona internamente
+
+1. El launcher (`node_modules/zumito-framework/dist/launcher.js`) carga tu `zumito.config.ts`.
+2. Fusiona tu configuración con los defaults del framework y la pasa a `ZumitoFramework`.
+3. Durante la inicialización, si `statusOptions` está definido, se crea un `StatusManager`.
+4. En el evento `ready` de Discord, el primer estado se establece inmediatamente.
+5. Si `updateInterval` está configurado, el estado rota en un temporizador.
+6. Los `RuledStatuses` se filtran por sus reglas de fecha — solo los activos se incluyen en la rotación.
+
+## Solución de problemas
+
+<Aside type="note">
+  Si no se muestra ningún estado, verifica que:
+  - El array `statuses` no esté vacío
+  - El cliente Discord esté conectado (revisa el evento `ready` o los logs)
+  - Tu `DISCORD_TOKEN` sea válido
+</Aside>
