@@ -153,11 +153,10 @@ import { Command, CommandParameters, ServiceContainer, GuildDataGetter } from 'z
 import { Client } from 'zumito-framework/discord';
 
 export class MyCommand extends Command {
-    private guildDataGetter: GuildDataGetter;
-
-    constructor() {
+    constructor(
+        private guildDataGetter: GuildDataGetter = ServiceContainer.get(GuildDataGetter),
+    ) {
         super();
-        this.guildDataGetter = ServiceContainer.get(GuildDataGetter);
     }
 
     async execute({ message, interaction, client, framework }: CommandParameters): Promise<void> {
