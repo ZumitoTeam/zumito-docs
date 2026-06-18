@@ -1,5 +1,5 @@
 ---
-name: ai-agents-reference
+name: zumito-reference
 description: "Critical information for AI agents working with Zumito Framework. Hidden from sidebar."
 ---
 
@@ -216,6 +216,43 @@ Translation files are flat JSON objects. The framework merges all module transla
 - If `executeSlashCommand()` is defined: used for slash commands instead of `execute()`.
 - If `executePrefixCommand()` is defined: used for prefix commands instead of `execute()`.
 - Check which mode by seeing if `message` or `interaction` is defined in params.
+
+## TypeScript constructor conventions
+
+Use **parameter properties** (`private readonly` inline) when constructor parameters are assigned directly to instance properties:
+
+```ts
+// CORRECTO — parameter properties
+export class MyService {
+    constructor(
+        private readonly framework: ZumitoFramework,
+        private readonly someOption: string,
+    ) {}
+}
+
+// INCORRECTO — declaración + asignación en cuerpo (redundante)
+export class MyService {
+    private framework: ZumitoFramework;
+    private someOption: string;
+
+    constructor(framework: ZumitoFramework, someOption: string) {
+        this.framework = framework;
+        this.someOption = someOption;
+    }
+}
+```
+
+When a dependency comes from `ServiceContainer.get()`, use a default parameter value:
+
+```ts
+export class MyService {
+    constructor(
+        private readonly errorHandler: ErrorHandler = ServiceContainer.get(ErrorHandler),
+    ) {}
+}
+```
+
+Only fall back to the declaration + body pattern when initialization requires logic beyond simple assignment (e.g., calling methods, conditional logic, `super()` requirements).
 
 ## Common pitfalls
 
