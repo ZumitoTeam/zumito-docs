@@ -254,6 +254,101 @@ export class MyService {
 
 Only fall back to the declaration + body pattern when initialization requires logic beyond simple assignment (e.g., calling methods, conditional logic, `super()` requirements).
 
+## File access (FileManager)
+
+The framework provides two file storage modules that implement the same `FileManager` abstract contract (`get`, `put`, `delete`, `list`, `getUrl`, `exists`). Use the one that matches the deployment environment.
+
+### Local filesystem (`@zumito-team/local-filesystem`)
+
+Stores files on the local disk.
+
+```ts
+import { LocalFileManager, AssetInfo, FileManager } from '@zumito-team/local-filesystem';
+import { ServiceContainer } from 'zumito-framework';
+
+const fm = ServiceContainer.get(LocalFileManager) as LocalFileManager;
+
+// Upload — returns a URL string
+const url = await fm.put('images/banner.png', buffer, 'image/png');
+
+// Read
+const data: Buffer | null = await fm.get('images/banner.png');
+
+// Delete
+await fm.delete('images/banner.png');
+
+// List files under a prefix
+const files: AssetInfo[] = await fm.list('images/');
+
+// Check existence
+const exists: boolean = await fm.exists('images/banner.png');
+
+// Get public URL
+const publicUrl: string = await fm.getUrl('images/banner.png');
+```
+
+Configuration in `zumito.config.ts`:
+```ts
+import { LocalFilesystemModule } from '@zumito-team/local-filesystem';
+
+export const config = {
+    bundles: [
+        {
+            path: 'node_modules/@zumito-team/local-filesystem',
+        }
+    ]
+};
+```
+
+### S3-compatible storage (`@zumito-team/s3-assets`)
+
+Works with AWS S3, DigitalOcean Spaces, MinIO, Cloudflare R2, etc. Same API as local filesystem.
+
+```ts
+import { S3FileManager, AssetInfo, FileManager } from '@zumito-team/s3-assets';
+import { ServiceContainer } from 'zumito-framework';
+
+const fm = ServiceContainer.get(S3FileManager) as S3FileManager;
+
+// Same API as LocalFileManager — get, put, delete, list, getUrl, exists
+const url = await fm.put('uploads/doc.pdf', pdfBuffer, 'application/pdf');
+const data = await fm.get('uploads/doc.pdf');
+```
+
+Configuration in `zumito.config.ts` (DigitalOcean Spaces example):
+```ts
+import { S3AssetsModule } from '@zumito-team/s3-assets';
+
+export const config = {
+    bundles: [
+        {
+            path: 'node_modules/@zumito-team/s3-assets',
+            options: {
+                bucket: 'my-bucket',
+                region: 'nyc3',
+                endpoint: 'https://nyc3.digitaloceanspaces.com',
+                accessKeyId: 'DO00...',
+                secretAccessKey: '...',
+                publicUrlBase: 'https://my-bucket.nyc3.cdn.digitaloceanspaces.com',
+            }
+        }
+    ]
+};
+```
+
+### Writing code against the abstract contract
+
+To write storage-agnostic code, depend on the abstract `FileManager` from `@zumito-team/file-manager`:
+
+```ts
+import { FileManager, type AssetInfo } from '@zumito-team/file-manager';
+import { ServiceContainer } from 'zumito-framework';
+
+// Will return whichever implementation is registered (Local or S3)
+const fm = ServiceContainer.get(FileManager) as FileManager;
+const url = await fm.put('key', buffer, 'text/plain');
+```
+
 ## Common pitfalls
 
 1. **Don't** instantiate the Discord `Client` yourself — the framework creates and manages it.
