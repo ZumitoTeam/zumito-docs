@@ -1,0 +1,104 @@
+---
+title: Local Filesystem
+description: Módulo de almacenamiento en sistema de archivos local que implementa el contrato FileManager para desarrollo y entornos self-hosted.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El módulo **Local Filesystem** (`@zumito-team/local-filesystem`) es una implementación de `FileManager` que almacena archivos en el sistema de archivos local. Ideal para desarrollo, pruebas y bots self-hosted que no necesitan almacenamiento en la nube.
+
+## Instalación
+
+```bash
+npm install @zumito-team/local-filesystem
+```
+
+## Como módulo de Zumito
+
+```ts
+// zumito.config.ts
+import { LocalFilesystemModule } from '@zumito-team/local-filesystem';
+
+export const config = {
+    bundles: [
+        {
+            path: 'node_modules/@zumito-team/local-filesystem',
+            options: {
+                basePath: './data/uploads',
+                publicUrlBase: 'https://ejemplo.com/uploads',
+            },
+        },
+    ],
+};
+```
+
+## Uso directo
+
+```ts
+import { LocalFilesystemModule, ServiceContainer, LocalFileManager } from '@zumito-team/local-filesystem';
+
+new LocalFilesystemModule({
+    basePath: './data/uploads',
+    publicUrlBase: 'https://ejemplo.com/uploads',
+});
+
+const fm = ServiceContainer.getService(LocalFileManager);
+```
+
+## Operaciones CRUD
+
+```ts
+const fm = ServiceContainer.getService(LocalFileManager);
+
+// Subir (crea directorios automáticamente)
+const url = await fm.put('images/banner.png', buffer, 'image/png');
+
+// Descargar
+const data = await fm.get('images/banner.png');
+
+// Verificar existencia
+const exists = await fm.exists('images/banner.png');
+
+// Listar por prefijo
+const files = await fm.list('images/');
+
+// Eliminar
+await fm.delete('images/banner.png');
+```
+
+## Generación de URLs
+
+Si `publicUrlBase` está configurado, las URLs se construyen como `{publicUrlBase}/{key}`:
+
+```ts
+// Con publicUrlBase = 'https://ejemplo.com/uploads'
+const url = await fm.getUrl('images/banner.png');
+// => 'https://ejemplo.com/uploads/images/banner.png'
+```
+
+Sin `publicUrlBase`, las URLs usan el protocolo `file://`:
+
+```ts
+// => 'file:///ruta/absoluta/data/uploads/images/banner.png'
+```
+
+## Configuración
+
+| Opción | Tipo | Requerido | Descripción |
+|---|---|---|---|
+| `basePath` | `string` | sí | Directorio raíz para el almacenamiento. |
+| `publicUrlBase` | `string` | no | Base para construir URLs públicas (ej: CDN o reverse proxy nginx). |
+
+## Seguridad
+
+El `LocalFileManager` normaliza todas las rutas y bloquea el acceso fuera del `basePath` configurado. Cualquier intento de usar `../` se resuelve silenciosamente al directorio raíz.
+
+## Dependencias
+
+- `@zumito-team/file-manager` — Contrato abstracto FileManager.
+- `zumito-framework`
+
+## Módulos relacionados
+
+- [**File Manager**](/es/guides/modules/file-manager) — Contrato abstracto que este módulo implementa.
+- [**S3 Assets**](/es/guides/modules/s3-assets) — Implementación alternativa compatible con S3.

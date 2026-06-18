@@ -1,0 +1,108 @@
+---
+title: File Manager
+description: Abstract FileManager contract for modular file storage backends (S3, local filesystem, etc.).
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **File Manager** module (`@zumito-team/file-manager`) defines an abstract `FileManager` class that establishes the contract any storage implementation must fulfill. It is a **base dependency** consumed by storage modules like `s3-assets` and `local-filesystem`.
+
+<Aside type="note">
+This module does not provide file storage on its own — use one of the implementations listed in [Related modules](#related-modules).
+</Aside>
+
+## Installation
+
+```bash
+npm install @zumito-team/file-manager
+```
+
+## API
+
+### `FileManager` (abstract class)
+
+```ts
+import { FileManager, type AssetInfo } from '@zumito-team/file-manager';
+
+abstract class FileManager {
+    abstract get(key: string): Promise<Buffer | null>;
+    abstract put(key: string, data: Buffer, contentType?: string): Promise<string>;
+    abstract delete(key: string): Promise<void>;
+    abstract list(prefix?: string): Promise<AssetInfo[]>;
+    abstract getUrl(key: string): Promise<string>;
+    abstract exists(key: string): Promise<boolean>;
+}
+```
+
+| Method | Returns | Description |
+|---|---|---|
+| `get(key)` | `Promise<Buffer \| null>` | Retrieves file contents. Returns `null` if not found. |
+| `put(key, data, contentType?)` | `Promise<string>` | Uploads a file and returns its public URL. |
+| `delete(key)` | `Promise<void>` | Deletes a file. No-op if it doesn't exist. |
+| `list(prefix?)` | `Promise<AssetInfo[]>` | Lists files, optionally filtered by prefix. |
+| `getUrl(key)` | `Promise<string>` | Returns the public URL for a file. |
+| `exists(key)` | `Promise<boolean>` | Checks if a file exists. |
+
+### `AssetInfo`
+
+```ts
+interface AssetInfo {
+    key: string;
+    size: number;
+    lastModified: Date;
+    contentType?: string;
+}
+```
+
+## Implementations
+
+| Module | Description |
+|---|---|
+| `@zumito-team/s3-assets` | AWS S3, DigitalOcean Spaces, MinIO, Cloudflare R2 |
+| `@zumito-team/local-filesystem` | Local filesystem |
+
+## Creating a custom implementation
+
+```ts
+import { FileManager, type AssetInfo } from '@zumito-team/file-manager';
+
+export class MyFileManager extends FileManager {
+    async get(key: string): Promise<Buffer | null> { /* ... */ }
+    async put(key: string, data: Buffer, contentType?: string): Promise<string> { /* ... */ }
+    async delete(key: string): Promise<void> { /* ... */ }
+    async list(prefix?: string): Promise<AssetInfo[]> { /* ... */ }
+    async getUrl(key: string): Promise<string> { /* ... */ }
+    async exists(key: string): Promise<boolean> { /* ... */ }
+}
+```
+
+## Consuming a FileManager
+
+From any module, get the active implementation via `ServiceContainer`:
+
+```ts
+import { ServiceContainer } from 'zumito-framework';
+import { S3FileManager } from '@zumito-team/s3-assets';
+
+const fm = ServiceContainer.getService(S3FileManager);
+const url = await fm.put('images/avatar.png', buffer, 'image/png');
+```
+
+Or accept `FileManager` as a dependency in your service:
+
+```ts
+import { FileManager } from '@zumito-team/file-manager';
+
+class MyService {
+    constructor(private fileManager: FileManager) {}
+}
+```
+
+## Dependencies
+
+- `zumito-framework`
+
+## Related modules
+
+- [**S3 Assets**](/guides/modules/s3-assets) — S3-compatible blob storage implementation.
+- [**Local Filesystem**](/guides/modules/local-filesystem) — Local filesystem implementation.

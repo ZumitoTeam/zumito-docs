@@ -1,0 +1,98 @@
+---
+title: Sentry
+description: Integración de monitoreo de errores con Sentry para el framework Zumito — captura automáticamente errores de comandos, API, módulos y rutas.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El módulo **Sentry** (`@zumito-team/sentry`) integra [Sentry](https://sentry.io) para el monitoreo centralizado de errores. Captura automáticamente cada error que pasa por el `ErrorHandler` del framework, enriqueciéndolos con contexto de Discord (servidor, usuario, canal, nombre del comando).
+
+## Instalación
+
+```bash
+npm install @zumito-team/sentry
+```
+
+## Como módulo de Zumito
+
+```ts
+// zumito.config.ts
+import { SentryModule } from '@zumito-team/sentry';
+
+export const config = {
+    bundles: [
+        {
+            path: 'node_modules/@zumito-team/sentry',
+            options: {
+                dsn: 'https://<key>@sentry.io/<project>',
+                environment: 'production',
+                release: '1.0.0',
+            },
+        },
+    ],
+};
+```
+
+## Uso directo
+
+```ts
+import { SentryModule, SentryService, ServiceContainer } from '@zumito-team/sentry';
+
+new SentryModule({
+    dsn: 'https://<key>@sentry.io/<project>',
+    environment: 'production',
+});
+
+const sentry = ServiceContainer.getService(SentryService);
+```
+
+## Reporte manual de errores
+
+Tras la inicialización, puedes usar la API estándar de Sentry en cualquier lugar:
+
+```ts
+import * as Sentry from '@sentry/node';
+
+Sentry.captureException(new Error('Error personalizado'));
+Sentry.captureMessage('Algo ocurrió', 'warning');
+```
+
+## Contexto capturado automáticamente
+
+Cada error reportado a Sentry se enriquece con:
+
+| Contexto | Tags |
+|---|---|
+| **Tipo de error** | `errorType` (CommandRun, Api, ModuleLoad, etc.) |
+| **Comando** | `command`, `name`, `type`, `categories` |
+| **Origen** | `source` (slash-command / prefix-command) |
+| **Servidor y canal** | `guildId`, `channelId` |
+| **Usuario** | ID y nombre de usuario de Discord (establecido como usuario Sentry) |
+| **Errores de API** | `endpoint`, `method` |
+| **Errores de módulo** | `module` nombre |
+| **Errores de ruta** | `routePath` |
+
+## Configuración
+
+| Opción | Tipo | Requerido | Por defecto | Descripción |
+|---|---|---|---|---|
+| `dsn` | `string` | sí | — | DSN del proyecto en Sentry. |
+| `environment` | `string` | no | `NODE_ENV` o `development` | Nombre del entorno en Sentry. |
+| `release` | `string` | no | — | Identificador de versión del release. |
+| `sampleRate` | `number` | no | `1.0` | Tasa de muestreo de errores (0–1). |
+| `tracesSampleRate` | `number` | no | — | Tasa de muestreo de trazas (0–1). |
+| `debug` | `boolean` | no | `false` | Activar modo debug de Sentry. |
+
+## Cómo funciona
+
+El módulo escucha `framework.eventEmitter.on('error', ...)` — un evento que el framework emite cada vez que `ErrorHandler.handleError()` procesa un error. Esto cubre todos los tipos de error:
+
+- Errores de ejecución de comandos slash y prefix
+- Errores de endpoints de API
+- Fallos de carga de módulos / rutas
+- Cualquier error personalizado pasado por `ErrorHandler`
+
+## Dependencias
+
+- `@sentry/node` — Sentry Node.js SDK.
+- `zumito-framework` (peer dependency — provisto por el bot host).

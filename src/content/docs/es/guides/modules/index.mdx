@@ -31,6 +31,16 @@ Zumito proporciona un conjunto de **módulos oficiales** que extienden tu bot co
     href="/es/guides/modules/distube-module"
   />
   <LinkCard
+    title="File Manager"
+    description="Contrato abstracto FileManager para construir backends de almacenamiento modulares."
+    href="/es/guides/modules/file-manager"
+  />
+  <LinkCard
+    title="Local Filesystem"
+    description="Almacenamiento en sistema de archivos local implementando el contrato FileManager para desarrollo."
+    href="/es/guides/modules/local-filesystem"
+  />
+  <LinkCard
     title="Logger"
     description="Servicio de logging con salida a canales de Discord y persistencia en base de datos."
     href="/es/guides/modules/logger"
@@ -39,6 +49,16 @@ Zumito proporciona un conjunto de **módulos oficiales** que extienden tu bot co
     title="Reactions"
     description="Comandos interactivos de reacciones GIF con categorías personalizables y plantillas multi-idioma."
     href="/es/guides/modules/reactions-module"
+  />
+  <LinkCard
+    title="S3 Assets"
+    description="Almacenamiento compatible con S3 (AWS, DigitalOcean, MinIO, Cloudflare R2) implementando FileManager."
+    href="/es/guides/modules/s3-assets"
+  />
+  <LinkCard
+    title="Sentry"
+    description="Integración de monitoreo de errores con Sentry — captura automáticamente errores de comandos, API y módulos."
+    href="/es/guides/modules/sentry"
   />
   <LinkCard
     title="Stickman Fight"
@@ -71,7 +91,11 @@ zumito-framework (core)
 ├── canvas-module
 │   ├── stickmanfight
 │   └── distube-module
+├── file-manager
+│   ├── s3-assets
+│   └── local-filesystem
 ├── logger-module
+├── sentry
 ├── user-panel-module
 │   └── distube-module
 └── stickmanfight

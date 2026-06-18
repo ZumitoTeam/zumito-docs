@@ -31,6 +31,16 @@ Zumito provides a set of **official modules** that extend your bot with ready-to
     href="/guides/modules/distube-module"
   />
   <LinkCard
+    title="File Manager"
+    description="Abstract FileManager contract for building modular storage backends."
+    href="/guides/modules/file-manager"
+  />
+  <LinkCard
+    title="Local Filesystem"
+    description="Local filesystem storage implementing the FileManager contract for development environments."
+    href="/guides/modules/local-filesystem"
+  />
+  <LinkCard
     title="Logger"
     description="Logging service with Discord channel output and database persistence."
     href="/guides/modules/logger"
@@ -39,6 +49,16 @@ Zumito provides a set of **official modules** that extend your bot with ready-to
     title="Reactions"
     description="Interactive GIF reaction commands with customizable categories and multi-language templates."
     href="/guides/modules/reactions-module"
+  />
+  <LinkCard
+    title="S3 Assets"
+    description="S3-compatible blob storage (AWS, DigitalOcean, MinIO, Cloudflare R2) implementing FileManager."
+    href="/guides/modules/s3-assets"
+  />
+  <LinkCard
+    title="Sentry"
+    description="Sentry error monitoring integration — captures all command, API, and module errors automatically."
+    href="/guides/modules/sentry"
   />
   <LinkCard
     title="Stickman Fight"
@@ -71,7 +91,11 @@ zumito-framework (core)
 ├── canvas-module
 │   ├── stickmanfight
 │   └── distube-module
+├── file-manager
+│   ├── s3-assets
+│   └── local-filesystem
 ├── logger-module
+├── sentry
 ├── user-panel-module
 │   └── distube-module
 └── stickmanfight

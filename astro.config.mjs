@@ -50,8 +50,12 @@ const sidebar = [
             { label: 'BuiltByBit License', link: '/guides/modules/builtbybit-license' },
             { label: 'Canvas', link: '/guides/modules/canvas-module' },
             { label: 'DisTube (Music)', link: '/guides/modules/distube-module' },
+            { label: 'File Manager', link: '/guides/modules/file-manager' },
+            { label: 'Local Filesystem', link: '/guides/modules/local-filesystem' },
             { label: 'Logger', link: '/guides/modules/logger' },
             { label: 'Reactions', link: '/guides/modules/reactions-module' },
+            { label: 'S3 Assets', link: '/guides/modules/s3-assets' },
+            { label: 'Sentry', link: '/guides/modules/sentry' },
             { label: 'Stickman Fight', link: '/guides/modules/stickmanfight' },
             { label: 'User Panel', link: '/guides/modules/user-panel' },
         ]
@@ -95,6 +99,7 @@ export default defineConfig({
         },
         sidebar,
         plugins,
+        
         
         customCss: ['./src/tailwind.css'],
     }), tailwind({

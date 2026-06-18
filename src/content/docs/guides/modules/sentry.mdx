@@ -1,0 +1,98 @@
+---
+title: Sentry
+description: Sentry error monitoring integration for the Zumito framework — captures all command, API, module, and route errors automatically.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Sentry** module (`@zumito-team/sentry`) integrates [Sentry](https://sentry.io) for centralized error monitoring. It automatically captures every error that passes through the framework's `ErrorHandler`, enriching them with Discord context (guild, user, channel, command name).
+
+## Installation
+
+```bash
+npm install @zumito-team/sentry
+```
+
+## As a Zumito module
+
+```ts
+// zumito.config.ts
+import { SentryModule } from '@zumito-team/sentry';
+
+export const config = {
+    bundles: [
+        {
+            path: 'node_modules/@zumito-team/sentry',
+            options: {
+                dsn: 'https://<key>@sentry.io/<project>',
+                environment: 'production',
+                release: '1.0.0',
+            },
+        },
+    ],
+};
+```
+
+## Direct usage
+
+```ts
+import { SentryModule, SentryService, ServiceContainer } from '@zumito-team/sentry';
+
+new SentryModule({
+    dsn: 'https://<key>@sentry.io/<project>',
+    environment: 'production',
+});
+
+const sentry = ServiceContainer.getService(SentryService);
+```
+
+## Manual error reporting
+
+After initialization, you can use the standard Sentry API anywhere:
+
+```ts
+import * as Sentry from '@sentry/node';
+
+Sentry.captureException(new Error('Custom error'));
+Sentry.captureMessage('Something happened', 'warning');
+```
+
+## Automatic context captured
+
+Each error reported to Sentry is enriched with:
+
+| Context | Tags |
+|---|---|
+| **Error type** | `errorType` (CommandRun, Api, ModuleLoad, etc.) |
+| **Command** | `command`, `name`, `type`, `categories` |
+| **Source** | `source` (slash-command / prefix-command) |
+| **Guild & channel** | `guildId`, `channelId` |
+| **User** | Discord user ID and username (set as Sentry user) |
+| **API errors** | `endpoint`, `method` |
+| **Module errors** | `module` name |
+| **Route errors** | `routePath` |
+
+## Configuration
+
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `dsn` | `string` | yes | — | Sentry project DSN. |
+| `environment` | `string` | no | `NODE_ENV` or `development` | Environment name in Sentry. |
+| `release` | `string` | no | — | Release version identifier. |
+| `sampleRate` | `number` | no | `1.0` | Error sample rate (0–1). |
+| `tracesSampleRate` | `number` | no | — | Performance trace sample rate (0–1). |
+| `debug` | `boolean` | no | `false` | Enable Sentry debug mode. |
+
+## How it works
+
+The module listens to `framework.eventEmitter.on('error', ...)` — an event the framework emits every time `ErrorHandler.handleError()` processes an error. This means all error types are covered:
+
+- Slash and prefix command execution errors
+- API endpoint errors
+- Module / route load failures
+- Any custom error passed through `ErrorHandler`
+
+## Dependencies
+
+- `@sentry/node` — Sentry Node.js SDK.
+- `zumito-framework` (peer dependency — provided by the bot host).

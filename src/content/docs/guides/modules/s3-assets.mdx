@@ -1,0 +1,185 @@
+---
+title: S3 Assets
+description: S3-compatible blob storage module (AWS S3, DigitalOcean Spaces, MinIO, Cloudflare R2) implementing the FileManager contract.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+The **S3 Assets** module (`@zumito-team/s3-assets`) is a `FileManager` implementation for any S3-compatible object storage. Works with **AWS S3**, **DigitalOcean Spaces**, **MinIO**, **Cloudflare R2**, and any service that speaks the S3 protocol.
+
+## Installation
+
+```bash
+npm install @zumito-team/s3-assets
+```
+
+## As a Zumito module
+
+```ts
+// zumito.config.ts
+import { S3AssetsModule } from '@zumito-team/s3-assets';
+
+export const config = {
+    bundles: [
+        {
+            path: 'node_modules/@zumito-team/s3-assets',
+            options: {
+                bucket: 'my-bucket',
+                region: 'nyc3',
+                endpoint: 'https://nyc3.digitaloceanspaces.com',
+                accessKeyId: 'DO00...',
+                secretAccessKey: '...',
+                publicUrlBase: 'https://my-bucket.cdn.example.com',
+            },
+        },
+    ],
+};
+```
+
+## Direct usage
+
+```ts
+import { S3AssetsModule, ServiceContainer, S3FileManager } from '@zumito-team/s3-assets';
+
+new S3AssetsModule({
+    bucket: 'my-bucket',
+    region: 'nyc3',
+    endpoint: 'https://nyc3.digitaloceanspaces.com',
+    accessKeyId: 'DO00...',
+    secretAccessKey: '...',
+    publicUrlBase: 'https://my-bucket.cdn.example.com',
+});
+
+const fm = ServiceContainer.getService(S3FileManager);
+```
+
+## Provider examples
+
+<Tabs>
+  <TabItem label="DigitalOcean Spaces">
+
+```ts
+new S3AssetsModule({
+    bucket: 'my-space',
+    region: 'nyc3',
+    endpoint: 'https://nyc3.digitaloceanspaces.com',
+    accessKeyId: 'DO00...',
+    secretAccessKey: '...',
+    publicUrlBase: 'https://my-space.nyc3.cdn.digitaloceanspaces.com',
+});
+```
+
+  </TabItem>
+  <TabItem label="MinIO">
+
+```ts
+new S3AssetsModule({
+    bucket: 'assets',
+    endpoint: 'http://localhost:9000',
+    accessKeyId: 'minioadmin',
+    secretAccessKey: 'minioadmin',
+    forcePathStyle: true,
+    publicUrlBase: 'http://localhost:9000/assets',
+});
+```
+
+  </TabItem>
+  <TabItem label="Cloudflare R2">
+
+```ts
+import { S3Client } from '@aws-sdk/client-s3';
+
+const client = new S3Client({
+    region: 'auto',
+    endpoint: 'https://<account-id>.r2.cloudflarestorage.com',
+    credentials: {
+        accessKeyId: '...',
+        secretAccessKey: '...',
+    },
+});
+
+new S3AssetsModule(client);
+
+const fm = ServiceContainer.getService(S3FileManager);
+fm.setBucket('my-bucket');
+fm.setPublicUrlBase('https://cdn.example.com');
+```
+
+  </TabItem>
+  <TabItem label="AWS S3">
+
+```ts
+new S3AssetsModule({
+    bucket: 'my-bucket',
+    region: 'us-east-1',
+    accessKeyId: 'AKIA...',
+    secretAccessKey: '...',
+});
+```
+
+  </TabItem>
+</Tabs>
+
+## CRUD operations
+
+```ts
+const fm = ServiceContainer.getService(S3FileManager);
+
+// Upload
+const url = await fm.put('uploads/doc.pdf', pdfBuffer, 'application/pdf');
+
+// Download
+const data = await fm.get('uploads/doc.pdf');
+
+// Check existence
+const ok = await fm.exists('uploads/doc.pdf');
+
+// List by prefix
+const files = await fm.list('uploads/');
+
+// Delete
+await fm.delete('uploads/doc.pdf');
+```
+
+## Custom S3 client
+
+Pass a pre-configured `S3Client` for maximum control:
+
+```ts
+import { S3Client } from '@aws-sdk/client-s3';
+
+const client = new S3Client({ /* custom config */ });
+
+new S3AssetsModule(client);
+
+const fm = ServiceContainer.getService(S3FileManager);
+fm.setBucket('my-bucket');
+fm.setPublicUrlBase('https://cdn.example.com');
+```
+
+## Configuration
+
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `bucket` | `string` | yes* | — | Bucket/space name. |
+| `region` | `string` | no | `us-east-1` | S3 region. |
+| `endpoint` | `string` | no | — | S3 endpoint URL (required for MinIO/Spaces/R2). |
+| `accessKeyId` | `string` | no** | — | Access key. |
+| `secretAccessKey` | `string` | no** | — | Secret key. |
+| `publicUrlBase` | `string` | no | — | Base URL for building public URLs (e.g., CDN). |
+| `forcePathStyle` | `boolean` | no | `true` if endpoint set | Force path-style addressing. |
+
+*Not required when passing a custom `S3Client` (use `setBucket()` instead).
+**Not required when passing a custom `S3Client`.
+
+## Dependencies
+
+- `@aws-sdk/client-s3` — AWS S3 SDK v3 (compatible with all S3-compatible providers).
+- `@zumito-team/file-manager` — FileManager abstract contract.
+- `zumito-framework`
+
+## Related modules
+
+- [**File Manager**](/guides/modules/file-manager) — Abstract contract this module implements.
+- [**Local Filesystem**](/guides/modules/local-filesystem) — Alternative local storage implementation.
