@@ -1,0 +1,217 @@
+diff --git a/node_modules/@astrojs/starlight/components/SidebarSublist.astro b/node_modules/@astrojs/starlight/components/SidebarSublist.astro
+index 457ab20..5a5e737 100644
+--- a/node_modules/@astrojs/starlight/components/SidebarSublist.astro
++++ b/node_modules/@astrojs/starlight/components/SidebarSublist.astro
+@@ -20,10 +20,11 @@ const { sublist, nested } = Astro.props;
+ 				{entry.type === 'link' ? (
+ 					<a
+ 						href={entry.href}
+-						aria-current={entry.isCurrent ? 'page' : undefined}
++						aria-current={entry.isCurrent && 'page'}
+ 						class:list={[{ large: !nested }, entry.attrs.class]}
+ 						{...entry.attrs}
+ 					>
++						{entry.icon && <span class="icon" set:html={entry.icon} />}
+ 						<span>{entry.label}</span>
+ 						{entry.badge && (
+ 							<Badge
+@@ -38,7 +39,8 @@ const { sublist, nested } = Astro.props;
+ 						open={flattenSidebar(entry.entries).some((i) => i.isCurrent) || !entry.collapsed}
+ 					>
+ 						<summary>
+-							<span class="group-label">
++							<div class="group-label">
++								{entry.icon && <span class="icon" set:html={entry.icon} />}
+ 								<span class="large">{entry.label}</span>
+ 								{entry.badge && (
+ 									<Badge
+@@ -83,6 +85,17 @@ const { sublist, nested } = Astro.props;
+ 			color: var(--sl-color-white);
+ 		}
+ 
++		.icon {
++			display: inline-flex;
++			align-items: center;
++			flex-shrink: 0;
++		}
++		.icon :global(svg) {
++			display: block;
++			width: 1em;
++			height: 1em;
++		}
++
+ 		.top-level > li + li {
+ 			margin-top: 0.75rem;
+ 		}
+diff --git a/node_modules/@astrojs/starlight/schema.ts b/node_modules/@astrojs/starlight/schema.ts
+index 905258e..3ead5b9 100644
+--- a/node_modules/@astrojs/starlight/schema.ts
++++ b/node_modules/@astrojs/starlight/schema.ts
+@@ -44,6 +44,9 @@ const StarlightFrontmatterSchema = (context: SchemaContext) =>
+ 		/** Display a hero section on this page. */
+ 		hero: HeroSchema(context).optional(),
+ 
++		/** Optional SVG icon for this page in the sidebar. */
++		icon: z.string().optional(),
++
+ 		/**
+ 		 * The last update date of the current page.
+ 		 * Overrides the `lastUpdated` global config or the date generated from the Git history.
+@@ -88,9 +91,11 @@ const StarlightFrontmatterSchema = (context: SchemaContext) =>
+ 				 * Passing only a string defaults to the 'default' variant which uses the site accent color.
+ 				 */
+ 				badge: BadgeConfigSchema(),
+-				/** HTML attributes to add to the sidebar link. */
+-				attrs: SidebarLinkItemHTMLAttributesSchema(),
+-			})
++			/** HTML attributes to add to the sidebar link. */
++			attrs: SidebarLinkItemHTMLAttributesSchema(),
++			/** Optional SVG icon for this sidebar item. */
++			icon: z.string().optional(),
++		})
+ 			.default({}),
+ 
+ 		/** Display an announcement banner at the top of this page. */
+diff --git a/node_modules/@astrojs/starlight/schemas/sidebar.ts b/node_modules/@astrojs/starlight/schemas/sidebar.ts
+index b76bc80..550822d 100644
+--- a/node_modules/@astrojs/starlight/schemas/sidebar.ts
++++ b/node_modules/@astrojs/starlight/schemas/sidebar.ts
+@@ -11,6 +11,8 @@ const SidebarBaseSchema = z.object({
+ 	translations: z.record(z.string()).default({}),
+ 	/** Adds a badge to the item */
+ 	badge: I18nBadgeConfigSchema(),
++	/** Optional SVG icon for this sidebar item. */
++	icon: z.string().optional(),
+ });
+ 
+ const SidebarGroupSchema = SidebarBaseSchema.extend({
+diff --git a/node_modules/@astrojs/starlight/utils/navigation.ts b/node_modules/@astrojs/starlight/utils/navigation.ts
+index 079663c..ba3ef39 100644
+--- a/node_modules/@astrojs/starlight/utils/navigation.ts
++++ b/node_modules/@astrojs/starlight/utils/navigation.ts
+@@ -73,7 +73,7 @@ function configItemToEntry(
+ 	routes: Route[]
+ ): SidebarEntry {
+ 	if ('link' in item) {
+-		return linkFromSidebarLinkItem(item, locale);
++		return linkFromSidebarLinkItem(item, locale, routes);
+ 	} else if ('autogenerate' in item) {
+ 		return groupFromAutogenerateConfig(item, locale, routes, currentPathname);
+ 	} else if ('slug' in item) {
+@@ -83,6 +83,7 @@ function configItemToEntry(
+ 		return {
+ 			type: 'group',
+ 			label,
++			icon: (item as any).icon,
+ 			entries: item.items.map((i) => configItemToEntry(i, currentPathname, locale, routes)),
+ 			collapsed: item.collapsed,
+ 			badge: getSidebarBadge(item.badge, locale, label),
+@@ -126,7 +127,7 @@ function groupFromAutogenerateConfig(
+ }
+ 
+ /** Create a link entry from a manual link item in user config. */
+-function linkFromSidebarLinkItem(item: SidebarLinkItem, locale: string | undefined) {
++function linkFromSidebarLinkItem(item: SidebarLinkItem, locale: string | undefined, routes: Route[]) {
+ 	let href = item.link;
+ 	if (!isAbsoluteUrl(href)) {
+ 		href = ensureLeadingSlash(href);
+@@ -134,7 +135,20 @@ function linkFromSidebarLinkItem(item: SidebarLinkItem, locale: string | undefin
+ 		if (locale) href = '/' + locale + href;
+ 	}
+ 	const label = pickLang(item.translations, localeToLang(locale)) || item.label;
+-	return makeSidebarLink(href, label, getSidebarBadge(item.badge, locale, label), item.attrs);
++	let icon = (item as any).icon;
++	if (!icon) {
++		const route = routes.find((entry) => {
++			const routeHref = (locale
++				? slugToPathname(ensureLeadingSlash(locale + '/' + entry.slug))
++				: slugToPathname(ensureLeadingSlash(entry.slug))
++			).replace(/\/$/, '');
++			return routeHref === href;
++		});
++		if (route) {
++			icon = route.entry.data.sidebar?.icon || route.entry.data.icon;
++		}
++	}
++	return makeSidebarLink(href, label, getSidebarBadge(item.badge, locale, label), item.attrs, icon);
+ }
+ 
+ /** Create a link entry from an automatic internal link item in user config. */
+@@ -169,11 +183,13 @@ function linkFromInternalSidebarLinkItem(
+ 		frontmatter.title;
+ 	const badge = item.badge ?? frontmatter.sidebar?.badge;
+ 	const attrs = { ...frontmatter.sidebar?.attrs, ...item.attrs };
++	const icon = (item as any).icon ?? frontmatter.sidebar?.icon ?? frontmatter.icon;
+ 	return makeSidebarLink(
+ 		slugToPathname(route.slug),
+ 		label,
+ 		getSidebarBadge(badge, locale, label),
+-		attrs
++		attrs,
++		icon
+ 	);
+ }
+ 
+@@ -182,26 +198,29 @@ function makeSidebarLink(
+ 	href: string,
+ 	label: string,
+ 	badge?: Badge,
+-	attrs?: LinkHTMLAttributes
++	attrs?: LinkHTMLAttributes,
++	icon?: string
+ ): SidebarLink {
+ 	if (!isAbsoluteUrl(href)) {
+ 		href = formatPath(href);
+ 	}
+-	return makeLink({ label, href, badge, attrs });
++	return makeLink({ label, href, badge, attrs, icon });
+ }
+ 
+ /** Create a link entry */
+ function makeLink({
+ 	attrs = {},
+ 	badge = undefined,
++	icon,
+ 	...opts
+ }: {
+ 	label: string;
+ 	href: string;
++	icon?: string;
+ 	badge?: Badge | undefined;
+ 	attrs?: LinkHTMLAttributes | undefined;
+ }): SidebarLink {
+-	return { type: 'link', ...opts, badge, isCurrent: false, attrs };
++	return { type: 'link', ...opts, icon, badge, isCurrent: false, attrs };
+ }
+ 
+ /** Test if two paths are equivalent even if formatted differently. */
+@@ -277,7 +296,8 @@ function linkFromRoute(route: Route, attrs?: LinkHTMLAttributes): SidebarLink {
+ 		slugToPathname(route.slug),
+ 		route.entry.data.sidebar.label || route.entry.data.title,
+ 		route.entry.data.sidebar.badge,
+-		{ ...attrs, ...route.entry.data.sidebar.attrs }
++		{ ...attrs, ...route.entry.data.sidebar.attrs },
++		route.entry.data.sidebar.icon || route.entry.data.icon,
+ 	);
+ }
+ 
+diff --git a/node_modules/@astrojs/starlight/utils/routing/types.ts b/node_modules/@astrojs/starlight/utils/routing/types.ts
+index 7a30735..ac7eb6f 100644
+--- a/node_modules/@astrojs/starlight/utils/routing/types.ts
++++ b/node_modules/@astrojs/starlight/utils/routing/types.ts
+@@ -19,6 +19,7 @@ export interface SidebarLink {
+ 	label: string;
+ 	href: string;
+ 	isCurrent: boolean;
++	icon: string | undefined;
+ 	badge: Badge | undefined;
+ 	attrs: LinkHTMLAttributes;
+ }
+@@ -28,6 +29,7 @@ export interface SidebarGroup {
+ 	label: string;
+ 	entries: (SidebarLink | SidebarGroup)[];
+ 	collapsed: boolean;
++	icon: string | undefined;
+ 	badge: Badge | undefined;
+ }
+ 
