@@ -21,7 +21,7 @@ Before `discord-auth`, the Admin and User Panel modules each had their own copy 
 ## Installation
 
 ```bash
-npm install discord-auth
+npm install @zumito-team/discord-auth
 ```
 
 This module is a dependency of both `@zumito-team/admin-module` and `@zumito-team/user-panel-module` — you don't need to add it to your `bundles` directly.
@@ -141,7 +141,7 @@ To add Discord OAuth2 authentication to a new module, create an auth service tha
 
 ```ts
 // services/MyAuthService.ts
-import { DiscordAuthService } from 'discord-auth';
+import { DiscordAuthService } from '@zumito-team/discord-auth';
 
 export class MyAuthService extends DiscordAuthService {
     constructor() {
