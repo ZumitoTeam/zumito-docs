@@ -31,18 +31,19 @@ Una interfaz web completa en `/admin` que muestra:
 
 ### Autenticación
 
-Flujo de login basado en OAuth2 de Discord:
+Flujo de login basado en OAuth2 de Discord mediante el módulo compartido [`discord-auth`](/es/guides/modules/discord-auth):
 1. El usuario hace clic en "Login" → redirigido a autorización de Discord.
 2. Discord redirige de vuelta a `/admin/login/callback`.
-3. Se emite un JWT (`admin_token`) con 2 horas de expiración.
-4. Todas las rutas admin validan este token mediante `AdminAuthService`.
+3. Se emite un JWT (`admin_token`, `purpose: 'admin'`) con 2 horas de expiración.
+4. Todas las rutas admin validan este token mediante `AdminAuthService` (que extiende `DiscordAuthService`).
+5. Los tokens emitidos para otros módulos (ej. User Panel) son rechazados gracias al claim `purpose`.
 
 ### Servicios
 
 | Servicio | Propósito |
-|---|---|
+|---|---|---|
 | `NavigationService` | Registrar elementos en la barra lateral del panel admin. |
-| `AdminAuthService` | Validar tokens JWT admin y verificar estado de superadmin. |
+| `AdminAuthService` | Extiende `DiscordAuthService`. Valida tokens JWT con `purpose: 'admin'` y verifica estado de superadmin. |
 | `AdminViewService` | Renderizar páginas dentro del layout admin (plantillas EJS). |
 | `AdminColorsService` | Gestionar la paleta de colores del dashboard. |
 
@@ -53,6 +54,7 @@ Flujo de login basado en OAuth2 de Discord:
 | `GET` | `/admin` | Dashboard con estadísticas del bot. |
 | `GET` | `/admin/login` | Redirige a OAuth2 de Discord. |
 | `GET` | `/admin/login/callback` | Manejador del callback OAuth2. |
+| `GET` | `/admin/logout` | Limpia la cookie de autenticación y redirige a `/admin`. |
 | `GET` | `/admin/servers` | Lista todas las guilds. |
 | `GET` | `/admin/superadmins` | Lista usuarios superadmin. |
 | `POST` | `/admin/superadmins/add` | Agrega un superadmin por ID de Discord. |
@@ -140,6 +142,7 @@ class MiModulo extends Module {
 
 ## Dependencias
 
+- `discord-auth` — Servicio compartido de autenticación OAuth2 de Discord.
 - `ejs` — Renderizado de plantillas para páginas admin.
 - `jose` — Verificación y firma de JWT.
 - `zumito-framework`

@@ -1,0 +1,239 @@
+---
+title: Discord Auth
+description: Módulo reutilizable de autenticación OAuth2 de Discord compartido por Admin y User Panel.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **módulo Discord Auth** (`discord-auth`) proporciona un `DiscordAuthService` configurable y reutilizable que maneja el flujo completo de autenticación OAuth2 de Discord. Tanto el módulo [Admin](/es/guides/modules/admin) como el [User Panel](/es/guides/modules/user-panel) usan este servicio compartido, eliminando la duplicación de código mientras mantienen sus configuraciones aisladas (diferentes cookies, propósitos de token y granularidad de datos de usuario).
+
+## ¿Por qué un módulo compartido?
+
+Antes de `discord-auth`, los módulos Admin y User Panel tenían cada uno su propia copia de la lógica OAuth2 — creación de JWT, verificación, manejo de cookies y llamadas a la API de Discord — duplicada en `AdminLoginCallback`, `UserPanelLoginCallback`, `AdminAuthService` y `UserPanelAuthService`. Esto significaba:
+
+- Los arreglos de bugs debían aplicarse en dos lugares.
+- El reuso cruzado de tokens era posible porque ambos módulos compartían la misma `SECRET_KEY` y carecían de validación de propósito.
+- No existía ruta de logout en Admin.
+- El manejo de errores era inconsistente (Admin ignoraba silenciosamente fallos de fetch; User Panel validaba variables de entorno).
+
+`discord-auth` resuelve todo esto.
+
+## Instalación
+
+```bash
+npm install discord-auth
+```
+
+Este módulo es una dependencia tanto de `@zumito-team/admin-module` como de `@zumito-team/user-panel-module` — no necesitas agregarlo a tus `bundles` directamente.
+
+## Arquitectura
+
+```
+discord-auth
+├── DiscordAuthService   ← Clase base: login, callback, JWT, cookies
+    ├── AdminAuthService extends DiscordAuthService
+    │       config: cookie=admin_token, purpose='admin', fetchFullUser=false
+    │       + isSuperAdmin()
+    └── UserPanelAuthService extends DiscordAuthService
+            config: cookie=panel_token, purpose='panel', fetchFullUser=true
+```
+
+Cada consumidor extiende `DiscordAuthService` con su propia configuración. La clase base maneja toda la lógica pesada; las subclases solo agregan lógica específica del módulo (como `isSuperAdmin()` en Admin).
+
+## Configuración
+
+### DiscordAuthConfig
+
+Al extender `DiscordAuthService`, pasa un objeto de configuración a `super()`:
+
+| Opción | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `cookieName` | `string` | requerido | Nombre de la cookie (ej. `'admin_token'`, `'panel_token'`). |
+| `routePrefix` | `string` | requerido | Prefijo de ruta para URLs de login/callback (ej. `'/admin'`, `'/panel'`). |
+| `loginRedirectPath` | `string` | requerido | A dónde redirigir después del login exitoso. |
+| `cookieHttpOnly` | `boolean` | requerido | Si la cookie es httpOnly (solo legible por el servidor). |
+| `fetchFullUser` | `boolean` | requerido | Almacenar objeto completo de usuario Discord (`true`) o solo el ID (`false`). |
+| `purpose` | `string` | requerido | Claim incluido en el JWT para prevenir reuso cruzado de tokens entre módulos. |
+| `scope` | `string` | `'identify'` | Scope de OAuth2 de Discord. |
+| `jwtExpirationTime` | `string` | `'2h'` | Tiempo de expiración del JWT. |
+| `cookieMaxAge` | `number` | 30 días | Duración máxima de la cookie en milisegundos. |
+| `cookiePath` | `string` | `'/'` | Ruta de la cookie. |
+| `cookieSecure` | `boolean` | `false` | Flag secure de la cookie. |
+| `cookieSameSite` | `'lax' \| 'strict' \| 'none'` | `'lax'` | Atributo SameSite de la cookie. |
+
+### Configuración de Admin
+
+```ts
+super({
+    cookieName: 'admin_token',
+    routePrefix: '/admin',
+    loginRedirectPath: '/admin',
+    cookieHttpOnly: false,
+    fetchFullUser: false,
+    purpose: 'admin',
+});
+```
+
+### Configuración de User Panel
+
+```ts
+super({
+    cookieName: 'panel_token',
+    routePrefix: '/panel',
+    loginRedirectPath: '/panel',
+    cookieHttpOnly: true,
+    fetchFullUser: true,
+    purpose: 'panel',
+});
+```
+
+## Variables de entorno
+
+| Variable | Requerida | Descripción |
+|---|---|---|
+| `DISCORD_CLIENT_ID` | Sí | Client ID de la aplicación Discord. |
+| `DISCORD_CLIENT_SECRET` | Sí | Client Secret de la aplicación Discord. |
+| `SECRET_KEY` | Sí | Clave secreta para firma JWT (compartida entre módulos). |
+| `HOST` | No | Host alternativo para URIs de redirección (usa `req.get('host')` si no está definido). |
+| `FRONTEND_URL` | No | Sobrescritura para la URI de redirección OAuth2. |
+
+## Referencia de API
+
+### `isLoginValid(req): Promise<{ isValid: boolean, data?: any }>`
+
+Lee la cookie configurada de la petición. Verifica la firma y expiración del JWT usando `jose`. Valida que el claim `purpose` coincida con la configuración del servicio. Retorna el payload JWT decodificado en `data` si es válido.
+
+<Aside type="caution">
+  Un token con `purpose: 'panel'` será rechazado cuando sea verificado por un servicio Admin (que espera `'admin'`), y viceversa. Esto previene el reuso cruzado de tokens entre módulos.
+</Aside>
+
+### `getDiscordAuthUrl(host: string): string`
+
+Construye la URL de autorización OAuth2 de Discord usando el scope y URI de redirección configurados.
+
+### `handleCallback(req, res): Promise<void>`
+
+Maneja el flujo completo del callback OAuth2:
+1. Valida las variables de entorno `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` y `SECRET_KEY`.
+2. Intercambia el `code` de autorización por tokens de Discord.
+3. Obtiene el perfil del usuario desde la API de Discord (`/users/@me`).
+4. Crea un JWT firmado con el claim `purpose` y los datos del usuario.
+5. Establece la cookie de autenticación.
+6. Redirige a `loginRedirectPath`.
+
+Retorna `500` con un mensaje de error claro si algún paso falla.
+
+### `clearAuthCookie(res): void`
+
+Limpia la cookie de autenticación.
+
+### `setAuthCookie(res, jwt): void`
+
+Establece la cookie de autenticación con las opciones configuradas de `httpOnly`, `sameSite`, `maxAge`, `path` y `secure`.
+
+### `createJWT(payload): Promise<string>`
+
+Crea y firma un JWT usando el algoritmo `HS256` con `SECRET_KEY`.
+
+## Crear un nuevo consumidor de autenticación
+
+Para agregar autenticación OAuth2 de Discord a un nuevo módulo, crea un servicio de autenticación que extienda `DiscordAuthService`:
+
+```ts
+// services/MyAuthService.ts
+import { DiscordAuthService } from 'discord-auth';
+
+export class MyAuthService extends DiscordAuthService {
+    constructor() {
+        super({
+            cookieName: 'my_token',
+            routePrefix: '/myapp',
+            loginRedirectPath: '/myapp',
+            cookieHttpOnly: true,
+            fetchFullUser: false,
+            purpose: 'myapp',
+        });
+    }
+}
+```
+
+Luego crea tres archivos de ruta delgados en tu directorio `routes/`:
+
+```ts
+// routes/MyLogin.ts
+import { Route, RouteMethod, ServiceContainer } from 'zumito-framework';
+import { MyAuthService } from '../services/MyAuthService';
+
+export class MyLogin extends Route {
+    method = RouteMethod.get;
+    path = '/myapp/login';
+
+    constructor(private auth = ServiceContainer.getService(MyAuthService)) {
+        super();
+    }
+
+    async execute(req, res) {
+        if (await this.auth.isLoginValid(req).then(r => r.isValid)) return res.redirect('/myapp');
+        const host = process.env.HOST ?? req.get('host');
+        res.redirect(this.auth.getDiscordAuthUrl(host));
+    }
+}
+```
+
+```ts
+// routes/MyLoginCallback.ts
+import { Route, RouteMethod, ServiceContainer } from 'zumito-framework';
+import { MyAuthService } from '../services/MyAuthService';
+
+export class MyLoginCallback extends Route {
+    method = RouteMethod.get;
+    path = '/myapp/login/callback';
+
+    constructor(private auth = ServiceContainer.getService(MyAuthService)) {
+        super();
+    }
+
+    async execute(req, res) {
+        await this.auth.handleCallback(req, res);
+    }
+}
+```
+
+```ts
+// routes/MyLogout.ts
+import { Route, RouteMethod, ServiceContainer } from 'zumito-framework';
+import { MyAuthService } from '../services/MyAuthService';
+
+export class MyLogout extends Route {
+    method = RouteMethod.get;
+    path = '/myapp/logout';
+
+    constructor(private auth = ServiceContainer.getService(MyAuthService)) {
+        super();
+    }
+
+    async execute(req, res) {
+        this.auth.clearAuthCookie(res);
+        res.redirect('/myapp');
+    }
+}
+```
+
+## Modelo de seguridad
+
+| Preocupación | Solución |
+|---|---|
+| Reuso cruzado de tokens | Claim `purpose` en el JWT — verificado en cada llamada a `isLoginValid()`. |
+| Falsificación de tokens | Firma HMAC-SHA256 con `SECRET_KEY`. `jose.jwtVerify` valida la firma. |
+| Expiración de tokens | Claim `exp` establecido a `jwtExpirationTime` (por defecto 2h). Verificado por `jose.jwtVerify` y manualmente. |
+| Robo de cookies | `httpOnly: true` previene acceso desde JS del cliente (usado por User Panel). Admin usa `httpOnly: false` por requisitos del dashboard. |
+| Variables de entorno faltantes | Validadas antes de cualquier llamada externa. Retorna errores 500 claros en lugar de fallos crípticos. |
+
+## Dependencias
+
+- `jose` — Firma y verificación de JWT (`HS256`).
+
+## Módulos relacionados
+
+- [**Módulo Admin**](/es/guides/modules/admin) — Consume `DiscordAuthService` con `purpose: 'admin'`.
+- [**Módulo User Panel**](/es/guides/modules/user-panel) — Consume `DiscordAuthService` con `purpose: 'panel'`.

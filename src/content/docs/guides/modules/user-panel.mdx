@@ -30,19 +30,20 @@ A full web interface at `/panel` showing:
 
 ### Authentication
 
-Discord OAuth2-based login flow:
+Discord OAuth2-based login flow via the shared [`discord-auth`](/guides/modules/discord-auth) module:
 1. User visits `/panel/login` → redirected to Discord authorization (`identify` scope).
 2. Discord redirects back to `/panel/login/callback`.
-3. A JWT (`panel_token`) is issued with the full Discord user profile, stored in an httpOnly cookie with 30-day expiry.
-4. All panel routes validate this token via `UserPanelAuthService`.
+3. A JWT (`panel_token`, `purpose: 'panel'`) is issued with the full Discord user profile, stored in an httpOnly cookie with 30-day expiry.
+4. All panel routes validate this token via `UserPanelAuthService` (which extends `DiscordAuthService`).
+5. Tokens issued for other modules (e.g., Admin) are rejected thanks to the `purpose` claim.
 
 ### Services
 
 | Service | Purpose |
-|---|---|
+|---|---|---|
 | `UserPanelNavigationService` | Register sidebar items in the user panel. |
 | `UserPanelViewService` | Render pages within the panel layout (EJS templates). |
-| `UserPanelAuthService` | Validate JWT tokens and extract Discord user data. |
+| `UserPanelAuthService` | Extends `DiscordAuthService`. Validates JWT tokens with `purpose: 'panel'` and extracts Discord user data. |
 | `UserPanelLanguageManager` | Resolve language from cookies or headers, provide translation functions. |
 | `UserPanelColorsService` | Manage the panel color palette. |
 
@@ -54,6 +55,7 @@ Discord OAuth2-based login flow:
 | `GET` | `/panel/:guildId` | Guild-specific dashboard. |
 | `GET` | `/panel/login` | Redirect to Discord OAuth2. |
 | `GET` | `/panel/login/callback` | OAuth2 callback handler. |
+| `GET` | `/panel/logout` | Clear auth cookie and redirect to `/panel`. |
 
 ### Navigation default items
 
@@ -193,15 +195,16 @@ const availableLanguages = langManager.getAvailableLanguages(); // ['en', 'es', 
 
 ## Architecture comparison with Admin
 
-The User Panel mirrors the Admin module's architecture:
+Both modules share the same auth foundation via [`discord-auth`](/guides/modules/discord-auth), with different configurations:
 
 | Feature | Admin | User Panel |
 |---|---|---|
-| Auth service | `AdminAuthService` | `UserPanelAuthService` |
+| Auth service | `AdminAuthService` → `DiscordAuthService` | `UserPanelAuthService` → `DiscordAuthService` |
 | View service | `AdminViewService` | `UserPanelViewService` |
 | Nav service | `NavigationService` | `UserPanelNavigationService` |
 | Colors service | `AdminColorsService` | `UserPanelColorsService` |
 | Cookie name | `admin_token` | `panel_token` |
+| JWT purpose | `'admin'` | `'panel'` |
 | Sub-item key | `sectionLabel` | `sectionId` |
 
 <Aside type="note">
@@ -210,6 +213,7 @@ The User Panel mirrors the Admin module's architecture:
 
 ## Dependencies
 
+- `discord-auth` — Shared Discord OAuth2 authentication service.
 - `ejs` — Template rendering for panel pages.
 - `jose` — JWT verification and signing.
 - `zumito-framework`

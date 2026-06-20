@@ -31,18 +31,19 @@ A full web interface at `/admin` showing:
 
 ### Authentication
 
-Discord OAuth2-based login flow:
+Discord OAuth2-based login flow via the shared [`discord-auth`](/guides/modules/discord-auth) module:
 1. User clicks "Login" → redirected to Discord authorization.
 2. Discord redirects back to `/admin/login/callback`.
-3. A JWT (`admin_token`) is issued with 2-hour expiry.
-4. All admin routes validate this token via `AdminAuthService`.
+3. A JWT (`admin_token`, `purpose: 'admin'`) is issued with 2-hour expiry.
+4. All admin routes validate this token via `AdminAuthService` (which extends `DiscordAuthService`).
+5. Tokens issued for other modules (e.g., User Panel) are rejected thanks to the `purpose` claim.
 
 ### Services
 
 | Service | Purpose |
-|---|---|
+|---|---|---|
 | `NavigationService` | Register sidebar items in the admin panel. |
-| `AdminAuthService` | Validate JWT admin tokens and check superadmin status. |
+| `AdminAuthService` | Extends `DiscordAuthService`. Validates JWT tokens with `purpose: 'admin'` and checks superadmin status. |
 | `AdminViewService` | Render pages within the admin layout (EJS templates). |
 | `AdminColorsService` | Manage the dashboard color palette. |
 
@@ -53,6 +54,7 @@ Discord OAuth2-based login flow:
 | `GET` | `/admin` | Dashboard with bot stats. |
 | `GET` | `/admin/login` | Redirect to Discord OAuth2. |
 | `GET` | `/admin/login/callback` | OAuth2 callback handler. |
+| `GET` | `/admin/logout` | Clear auth cookie and redirect to `/admin`. |
 | `GET` | `/admin/servers` | List all guilds. |
 | `GET` | `/admin/superadmins` | List superadmin users. |
 | `POST` | `/admin/superadmins/add` | Add a superadmin by Discord user ID. |
@@ -140,6 +142,7 @@ class MyModule extends Module {
 
 ## Dependencies
 
+- `discord-auth` — Shared Discord OAuth2 authentication service.
 - `ejs` — Template rendering for admin pages.
 - `jose` — JWT verification and signing.
 - `zumito-framework`
