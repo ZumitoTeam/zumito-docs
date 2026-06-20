@@ -1,0 +1,260 @@
+---
+title: Analytics Module
+description: Configurable server analytics with message, member, voice, and command tracking. Includes optional admin and user panel dashboards with Chart.js.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The **Analytics Module** (`@zumito-team/analytics-module`) tracks server activity including messages, member joins/leaves, voice channel usage, and command execution. It provides configurable per-guild settings, data retention policies, and optional web dashboard pages with Chart.js visualizations for both the admin panel (global bot stats) and user panel (per-server stats).
+
+## Installation
+
+```bash
+npm install @zumito-team/analytics-module
+```
+
+Add to your `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/analytics-module']
+```
+
+<Aside type="note">
+  Admin and User Panel integration is optional. The module works without them via Discord commands and the public API.
+</Aside>
+
+## What it provides
+
+### AnalyticsCollector service
+
+The core service available via `ServiceContainer.getService(AnalyticsCollector)`. Other modules can query analytics data through its public API.
+
+| Method | Returns | Description |
+|---|---|---|
+| `recordMessage(guildId)` | `Promise<void>` | Track a message |
+| `recordMemberJoin(guildId)` | `Promise<void>` | Track a member join |
+| `recordMemberLeave(guildId)` | `Promise<void>` | Track a member leave |
+| `recordVoiceJoin(guildId, channelId, userId)` | `Promise<void>` | Track voice channel join |
+| `recordVoiceLeave(guildId, channelId, userId)` | `Promise<void>` | Track voice channel leave (auto-calculates duration) |
+| `recordCommand(payload)` | `Promise<void>` | Track a command execution |
+| `recordMemberCount(guildId, count)` | `Promise<void>` | Store current member count |
+| `getGuildStats(guildId, daysBack)` | `Promise<GuildDailyStats[]>` | Daily stats for a guild |
+| `getGlobalStatsSummary(daysBack)` | `Promise<object>` | Aggregated global stats |
+| `getGuildGrowth(daysBack)` | `Promise<object[]>` | Active guilds per day |
+| `getMessagesPerDay(daysBack)` | `Promise<object[]>` | Messages per day (global) |
+| `getCommandsPerDay(guildId, daysBack)` | `Promise<object[]>` | Commands per day |
+| `getTopCommands(guildId, daysBack, limit)` | `Promise<CommandDailyStats[]>` | Most used commands |
+| `getSlowestCommands(guildId, daysBack, limit)` | `Promise<object[]>` | Commands by avg execution time |
+| `getVoiceChannelStats(guildId, daysBack)` | `Promise<VoiceChannelDailyStats[]>` | Per-channel voice stats |
+| `getConfig(guildId)` | `Promise<GuildAnalyticsConfig>` | Get guild configuration |
+| `updateConfig(guildId, partial)` | `Promise<void>` | Update guild configuration |
+| `runCleanup()` | `Promise<void>` | Run data retention cleanup |
+| `startCleanupScheduler()` | `void` | Start automatic cleanup |
+| `stopCleanupScheduler()` | `void` | Stop automatic cleanup |
+| `clearVoiceSessions()` | `void` | Clear in-memory voice sessions |
+
+### Commands
+
+| Command | Type | Permission | Description |
+|---|---|---|---|
+| `/stats` | Slash + Prefix | Everyone | Shows server stats embed (last 7 days) |
+| `/analytics-config` | Slash + Prefix | Admin only | View and toggle analytics settings |
+| `/analytics-config enable/disable` | Subcommand | Admin only | Enable or disable analytics |
+| `/analytics-config messages` | Subcommand | Admin only | Toggle message tracking |
+| `/analytics-config voice` | Subcommand | Admin only | Toggle voice tracking |
+| `/analytics-config members` | Subcommand | Admin only | Toggle member tracking |
+| `/analytics-config commands` | Subcommand | Admin only | Toggle command tracking |
+| `/analytics-config performance` | Subcommand | Admin only | Toggle command performance tracking |
+| `/analytics-config retention <days>` | Subcommand | Admin only | Set data retention days |
+
+### Events tracked
+
+| Event | Source | Description |
+|---|---|---|
+| `messageCreate` | Discord | Message count per guild (excludes bots) |
+| `guildMemberAdd` | Discord | Member join count + member snapshot |
+| `guildMemberRemove` | Discord | Member leave count + member snapshot |
+| `voiceStateUpdate` | Discord | Voice activity minutes per guild/channel |
+| `commandExecuted` | Framework | Command usage + execution time + success/failure |
+
+<Aside type="note" title="Framework requirement">
+  The `commandExecuted` event requires zumito-framework version that emits this event after each command execution. This feature is available from framework v1.23.0 onwards.
+</Aside>
+
+### Admin Panel
+
+*   **`/admin/analytics`** — Global bot statistics dashboard:
+    *   Overview cards: total guilds, total messages, total commands, joins, voice minutes
+    *   Charts: guild growth (line), messages per day (bar), commands per day (bar), top commands (horizontal bar)
+    *   If command performance tracking enabled: slowest commands chart
+    *   Date range selector: 7 / 30 / 90 days
+
+### User Panel
+
+*   **`/panel/:guildId/analytics`** — Per-server statistics dashboard:
+    *   Overview cards: messages, commands, joins, leaves, voice minutes
+    *   Charts: messages per day (bar), joins vs leaves (line), voice activity (bar), commands per day (bar), top commands (horizontal bar)
+    *   If `track_command_performance` enabled: slowest commands chart
+    *   If `track_per_channel_voice` enabled: per-channel voice breakdown
+    *   Date range selector: 7 / 30 / 90 days
+
+## Configuration
+
+### Global defaults
+
+Configure global defaults by importing `AnalyticsModuleConfig` before the module initializes:
+
+```ts
+import { AnalyticsModuleConfig } from '@zumito-team/analytics-module';
+
+AnalyticsModuleConfig.configure({
+    defaultRetentionDays: 90,
+    cleanupIntervalHours: 24,
+    defaultTrackMessages: true,
+    defaultTrackVoice: true,
+    defaultTrackMembers: true,
+    defaultTrackCommands: true,
+    defaultTrackCommandPerformance: false,
+    defaultTrackPerChannelVoice: false,
+});
+```
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `defaultRetentionDays` | `number` | `90` | Days to keep data before cleanup |
+| `cleanupIntervalHours` | `number` | `24` | How often cleanup runs |
+| `defaultTrackMessages` | `boolean` | `true` | Track messages by default |
+| `defaultTrackVoice` | `boolean` | `true` | Track voice activity by default |
+| `defaultTrackMembers` | `boolean` | `true` | Track joins/leaves by default |
+| `defaultTrackCommands` | `boolean` | `true` | Track command usage by default |
+| `defaultTrackCommandPerformance` | `boolean` | `false` | Track execution time per command |
+| `defaultTrackPerChannelVoice` | `boolean` | `false` | Track per-channel voice stats |
+
+### Per-guild configuration
+
+Each guild has a `GuildAnalyticsConfig` record in the database. Use `/analytics-config` command or the public API:
+
+```ts
+const collector = ServiceContainer.getService(AnalyticsCollector);
+await collector.updateConfig(guildId, {
+    enabled: true,
+    track_command_performance: true,
+    retention_days: 180, // premium guilds get 6 months
+});
+```
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `guild_id` | `string` | — | Primary key |
+| `enabled` | `boolean` | `true` | Master enable/disable |
+| `track_messages` | `boolean` | `true` | Track message counts |
+| `track_voice` | `boolean` | `true` | Track voice activity |
+| `track_members` | `boolean` | `true` | Track joins/leaves |
+| `track_commands` | `boolean` | `true` | Track command usage |
+| `track_command_performance` | `boolean` | `false` | Track execution time |
+| `track_per_channel_voice` | `boolean` | `false` | Track per-channel breakdown |
+| `retention_days` | `number` | global default | Data retention period |
+| `public_stats_page` | `boolean` | `false` | Make stats page publicly accessible |
+
+## Extending
+
+### Consuming AnalyticsCollector from other modules
+
+```ts
+import { AnalyticsCollector } from '@zumito-team/analytics-module';
+import { ServiceContainer } from 'zumito-framework';
+
+const collector = ServiceContainer.getService(AnalyticsCollector) as AnalyticsCollector;
+
+// Get top commands across all servers (last 7 days)
+const top = await collector.getTopCommands(null, 7, 10);
+
+// Get global stats summary
+const summary = await collector.getGlobalStatsSummary(30);
+
+// Get per-guild stats for charts
+const stats = await collector.getGuildStats(guildId, 7);
+```
+
+### Premium guild integration
+
+To grant premium guilds extended data retention:
+
+```ts
+// In your premium/license module
+const collector = ServiceContainer.getService(AnalyticsCollector);
+await collector.updateConfig(guildId, { retention_days: 180 });
+```
+
+### Adding analytics to custom commands
+
+```ts
+import { AnalyticsCollector } from '@zumito-team/analytics-module';
+
+class MyCommand extends Command {
+    async execute(params: CommandParameters) {
+        const collector = ServiceContainer.getService(AnalyticsCollector);
+        // Track custom event
+        await collector.recordMessage(params.message.guildId);
+        // ... your command logic
+    }
+}
+```
+
+## Data models
+
+### GuildDailyStats
+
+Per-guild daily aggregate. Composite key: `{guild_id}_{date}`
+
+| Field | Type |
+|---|---|
+| `id` | `string` (PK) |
+| `guild_id` | `string` |
+| `date` | `string` (YYYY-MM-DD) |
+| `message_count` | `number` |
+| `join_count` | `number` |
+| `leave_count` | `number` |
+| `voice_minutes` | `number` |
+| `command_count` | `number` |
+| `member_count` | `number` |
+
+### CommandDailyStats
+
+Per-command daily stats. Composite key: `{guild_id}_{command_name}_{date}`
+
+| Field | Type |
+|---|---|
+| `id` | `string` (PK) |
+| `guild_id` | `string` |
+| `command_name` | `string` |
+| `date` | `string` (YYYY-MM-DD) |
+| `usage_count` | `number` |
+| `total_execution_time_ms` | `number` |
+| `error_count` | `number` |
+
+### VoiceChannelDailyStats
+
+Per-channel voice stats. Composite key: `{guild_id}_{channel_id}_{date}`
+
+| Field | Type |
+|---|---|
+| `id` | `string` (PK) |
+| `guild_id` | `string` |
+| `channel_id` | `string` |
+| `date` | `string` (YYYY-MM-DD) |
+| `total_minutes` | `number` |
+| `unique_users` | `number` |
+
+## Dependencies
+
+*   `zumito-framework`
+*   `ejs` — Template rendering for panel pages
+*   `@zumito-team/admin-module` — Optional admin panel integration
+*   `@zumito-team/user-panel-module` — Optional user panel integration
+
+## Related modules
+
+*   [**Admin**](/guides/modules/admin) — Panel where global bot stats appear
+*   [**User Panel**](/guides/modules/user-panel) — Panel where per-server stats appear
+*   [**Logger**](/guides/modules/logger) — Complementary event logging

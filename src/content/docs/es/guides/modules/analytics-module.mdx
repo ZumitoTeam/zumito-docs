@@ -1,0 +1,200 @@
+---
+title: Modulo de Analiticas
+description: Analiticas de servidor configurables con seguimiento de mensajes, miembros, voz y comandos. Incluye paneles de administracion y usuario con Chart.js.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+El **Modulo de Analiticas** (`@zumito-team/analytics-module`) realiza un seguimiento de la actividad del servidor incluyendo mensajes, entradas/salidas de miembros, uso de canales de voz y ejecucion de comandos. Proporciona configuracion por servidor, politicas de retencion de datos y paneles web opcionales con graficos Chart.js para el panel de administracion (estadisticas globales del bot) y el panel de usuario (estadisticas por servidor).
+
+## Instalacion
+
+```bash
+npm install @zumito-team/analytics-module
+```
+
+Agregar a `zumito.config.ts`:
+
+```ts
+bundles: ['@zumito-team/analytics-module']
+```
+
+<Aside type="note">
+  La integracion con los paneles de Admin y Usuario es opcional. El modulo funciona sin ellos mediante comandos de Discord y la API publica.
+</Aside>
+
+## Que proporciona
+
+### Servicio AnalyticsCollector
+
+Servicio principal disponible via `ServiceContainer.getService(AnalyticsCollector)`. Otros modulos pueden consultar datos analiticos a traves de su API publica.
+
+| Metodo | Retorna | Descripcion |
+|---|---|---|
+| `recordMessage(guildId)` | `Promise<void>` | Registrar un mensaje |
+| `recordMemberJoin(guildId)` | `Promise<void>` | Registrar una entrada |
+| `recordMemberLeave(guildId)` | `Promise<void>` | Registrar una salida |
+| `recordVoiceJoin(guildId, channelId, userId)` | `Promise<void>` | Registrar entrada a canal de voz |
+| `recordVoiceLeave(guildId, channelId, userId)` | `Promise<void>` | Registrar salida de canal de voz (calcula duracion) |
+| `recordCommand(payload)` | `Promise<void>` | Registrar ejecucion de comando |
+| `recordMemberCount(guildId, count)` | `Promise<void>` | Almacenar conteo actual de miembros |
+| `getGuildStats(guildId, daysBack)` | `Promise<GuildDailyStats[]>` | Estadisticas diarias de un servidor |
+| `getGlobalStatsSummary(daysBack)` | `Promise<object>` | Estadisticas globales agregadas |
+| `getGuildGrowth(daysBack)` | `Promise<object[]>` | Servidores activos por dia |
+| `getMessagesPerDay(daysBack)` | `Promise<object[]>` | Mensajes por dia (global) |
+| `getCommandsPerDay(guildId, daysBack)` | `Promise<object[]>` | Comandos por dia |
+| `getTopCommands(guildId, daysBack, limit)` | `Promise<CommandDailyStats[]>` | Comandos mas usados |
+| `getSlowestCommands(guildId, daysBack, limit)` | `Promise<object[]>` | Comandos por tiempo medio de ejecucion |
+| `getVoiceChannelStats(guildId, daysBack)` | `Promise<VoiceChannelDailyStats[]>` | Estadisticas de voz por canal |
+| `getConfig(guildId)` | `Promise<GuildAnalyticsConfig>` | Obtener configuracion del servidor |
+| `updateConfig(guildId, partial)` | `Promise<void>` | Actualizar configuracion |
+| `runCleanup()` | `Promise<void>` | Ejecutar limpieza de retencion |
+| `startCleanupScheduler()` | `void` | Iniciar limpieza automatica |
+| `stopCleanupScheduler()` | `void` | Detener limpieza automatica |
+| `clearVoiceSessions()` | `void` | Limpiar sesiones de voz en memoria |
+
+### Comandos
+
+| Comando | Tipo | Permiso | Descripcion |
+|---|---|---|---|
+| `/stats` | Slash + Prefix | Todos | Muestra embed con estadisticas (7 dias) |
+| `/analytics-config` | Slash + Prefix | Admin | Ver y modificar configuracion |
+| `/analytics-config enable/disable` | Subcomando | Admin | Activar o desactivar analiticas |
+| `/analytics-config messages` | Subcomando | Admin | Alternar seguimiento de mensajes |
+| `/analytics-config voice` | Subcomando | Admin | Alternar seguimiento de voz |
+| `/analytics-config members` | Subcomando | Admin | Alternar seguimiento de miembros |
+| `/analytics-config commands` | Subcomando | Admin | Alternar seguimiento de comandos |
+| `/analytics-config performance` | Subcomando | Admin | Alternar seguimiento de rendimiento |
+| `/analytics-config retention <dias>` | Subcomando | Admin | Establecer dias de retencion |
+
+### Eventos registrados
+
+| Evento | Fuente | Descripcion |
+|---|---|---|
+| `messageCreate` | Discord | Conteo de mensajes (excluye bots) |
+| `guildMemberAdd` | Discord | Entradas + instantanea de miembros |
+| `guildMemberRemove` | Discord | Salidas + instantanea de miembros |
+| `voiceStateUpdate` | Discord | Minutos de actividad de voz |
+| `commandExecuted` | Framework | Uso de comandos + tiempo + exito/fallo |
+
+<Aside type="note" title="Requisito del framework">
+  El evento `commandExecuted` requiere una version de zumito-framework que emita este evento tras cada ejecucion de comando. Disponible desde la version v1.23.0.
+</Aside>
+
+### Panel de Administracion
+
+*   **`/admin/analytics`** — Dashboard de estadisticas globales del bot:
+    *   Tarjetas: servidores, mensajes, comandos, entradas, minutos de voz
+    *   Graficos: crecimiento de servidores (linea), mensajes/dia (barras), comandos/dia (barras), top comandos (barras horizontales)
+    *   Si seguimiento de rendimiento activado: grafico de comandos mas lentos
+    *   Selector de rango: 7 / 30 / 90 dias
+
+### Panel de Usuario
+
+*   **`/panel/:guildId/analytics`** — Dashboard de estadisticas por servidor:
+    *   Tarjetas: mensajes, comandos, entradas, salidas, minutos de voz
+    *   Graficos: mensajes/dia (barras), entradas vs salidas (lineas), voz (barras), comandos/dia (barras), top comandos (barras horizontales)
+    *   Si `track_command_performance` activado: comandos mas lentos
+    *   Si `track_per_channel_voice` activado: desglose de voz por canal
+    *   Selector de rango: 7 / 30 / 90 dias
+
+## Configuracion
+
+### Valores globales
+
+Configurar valores globales importando `AnalyticsModuleConfig` antes de que el modulo se inicialice:
+
+```ts
+import { AnalyticsModuleConfig } from '@zumito-team/analytics-module';
+
+AnalyticsModuleConfig.configure({
+    defaultRetentionDays: 90,
+    cleanupIntervalHours: 24,
+    defaultTrackMessages: true,
+    defaultTrackVoice: true,
+    defaultTrackMembers: true,
+    defaultTrackCommands: true,
+    defaultTrackCommandPerformance: false,
+    defaultTrackPerChannelVoice: false,
+});
+```
+
+| Configuracion | Tipo | Valor | Descripcion |
+|---|---|---|---|
+| `defaultRetentionDays` | `number` | `90` | Dias de retencion de datos |
+| `cleanupIntervalHours` | `number` | `24` | Frecuencia de limpieza |
+| `defaultTrackMessages` | `boolean` | `true` | Seguimiento de mensajes |
+| `defaultTrackVoice` | `boolean` | `true` | Seguimiento de voz |
+| `defaultTrackMembers` | `boolean` | `true` | Seguimiento de miembros |
+| `defaultTrackCommands` | `boolean` | `true` | Seguimiento de comandos |
+| `defaultTrackCommandPerformance` | `boolean` | `false` | Tiempo de ejecucion por comando |
+| `defaultTrackPerChannelVoice` | `boolean` | `false` | Voz por canal individual |
+
+### Configuracion por servidor
+
+Cada servidor tiene un registro `GuildAnalyticsConfig` en la base de datos. Usa el comando `/analytics-config` o la API publica:
+
+```ts
+const collector = ServiceContainer.getService(AnalyticsCollector);
+await collector.updateConfig(guildId, {
+    enabled: true,
+    track_command_performance: true,
+    retention_days: 180, // servidores premium: 6 meses
+});
+```
+
+| Campo | Tipo | Valor | Descripcion |
+|---|---|---|---|
+| `guild_id` | `string` | — | Clave primaria |
+| `enabled` | `boolean` | `true` | Activacion general |
+| `track_messages` | `boolean` | `true` | Contar mensajes |
+| `track_voice` | `boolean` | `true` | Actividad de voz |
+| `track_members` | `boolean` | `true` | Entradas/salidas |
+| `track_commands` | `boolean` | `true` | Uso de comandos |
+| `track_command_performance` | `boolean` | `false` | Tiempo de ejecucion |
+| `track_per_channel_voice` | `boolean` | `false` | Desglose por canal |
+| `retention_days` | `number` | global | Periodo de retencion |
+| `public_stats_page` | `boolean` | `false` | Pagina de estadisticas publica |
+
+## Extension
+
+### Consumir AnalyticsCollector desde otros modulos
+
+```ts
+import { AnalyticsCollector } from '@zumito-team/analytics-module';
+import { ServiceContainer } from 'zumito-framework';
+
+const collector = ServiceContainer.getService(AnalyticsCollector) as AnalyticsCollector;
+
+// Top comandos globales (ultimos 7 dias)
+const top = await collector.getTopCommands(null, 7, 10);
+
+// Resumen global
+const summary = await collector.getGlobalStatsSummary(30);
+
+// Estadisticas de un servidor
+const stats = await collector.getGuildStats(guildId, 7);
+```
+
+### Integracion con premium
+
+Para otorgar retencion extendida a servidores premium:
+
+```ts
+// En tu modulo de premium/licencias
+const collector = ServiceContainer.getService(AnalyticsCollector);
+await collector.updateConfig(guildId, { retention_days: 180 });
+```
+
+## Dependencias
+
+*   `zumito-framework`
+*   `ejs` — Renderizado de plantillas para los paneles
+*   `@zumito-team/admin-module` — Integracion opcional con panel de administracion
+*   `@zumito-team/user-panel-module` — Integracion opcional con panel de usuario
+
+## Modulos relacionados
+
+*   [**Admin**](/guides/modules/admin) — Panel donde aparecen las estadisticas globales
+*   [**User Panel**](/guides/modules/user-panel) — Panel donde aparecen las estadisticas por servidor
+*   [**Logger**](/guides/modules/logger) — Registro de eventos complementario
