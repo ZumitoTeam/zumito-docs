@@ -7,6 +7,76 @@ import { Aside } from '@astrojs/starlight/components';
 
 Los módulos en Zumito Framework exponen hooks del ciclo de vida que permiten ejecutar código en momentos específicos durante la inicialización del bot.
 
+## Declaración de dependencias
+
+Los módulos pueden declarar dependencias de otros módulos mediante propiedades estáticas. El framework resuelve estas dependencias y carga los módulos en el orden correcto usando **ordenamiento topológico** (dependencias primero).
+
+### `moduleName`
+
+Cada módulo puede declarar su propio nombre, usado para la resolución de dependencias:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    static moduleName = 'my-module';
+}
+```
+
+Si no se declara `moduleName`, se usa el nombre de la carpeta como nombre del módulo.
+
+### `dependencies`
+
+Declara dependencias **requeridas** — módulos que deben cargarse antes que este:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    static dependencies = ['logger-module', 'admin-module'] as const;
+}
+```
+
+Si una dependencia requerida no se encuentra, el módulo no se cargará y se registrará un error.
+
+### `optionalDependencies`
+
+Declara dependencias **opcionales** — módulos que deben cargarse primero si están presentes, pero no impiden la carga si están ausentes:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    static optionalDependencies = ['sentry'] as const;
+}
+```
+
+### API legada `requeriments.modules`
+
+La propiedad legada `requeriments.modules` sigue siendo soportada y se combina con el array `dependencies`:
+
+```ts
+export class MyModule extends Module {
+    static requeriments = {
+        modules: ['admin-module'],
+        services: [],
+        custom: [],
+    };
+}
+```
+
+<Aside type="tip">
+    Se recomienda usar las nuevas propiedades `dependencies` y `optionalDependencies` para mayor claridad. La API legada `requeriments` se mantiene por compatibilidad con versiones anteriores.
+</Aside>
+
+### Dependencias circulares
+
+Las dependencias circulares se detectan y se reportan como errores. Los módulos afectados se omiten durante la carga:
+
+```
+[📦❌] Circular dependency detected involving: ModuleA, ModuleB
+```
+
 ## `initialize()`
 
 Este método se llama automáticamente cuando el módulo se carga. Se encarga de:
@@ -78,9 +148,12 @@ export class OnFrameworkReady extends FrameworkEvent {
 ## Orden de ejecución
 
 1. El cliente de Discord se conecta y emite `ready`
-2. Se llama a `initialize()` de cada módulo
-3. Se refrescan los slash commands
-4. Se inicia el servidor API
-5. Se emite el evento `ready` del framework
-6. Se llama a `onAllReady()` de cada módulo
-7. Se ejecuta el callback del usuario (configurado en `zumito.config.ts`)
+2. Todas las clases de módulos se cargan y sus dependencias se resuelven
+3. Los módulos se ordenan **topológicamente** (dependencias primero)
+4. Cada módulo se instancia en orden ordenado
+5. Se llama a `initialize()` de cada módulo en orden ordenado
+6. Se refrescan los slash commands
+7. Se inicia el servidor API
+8. Se emite el evento `ready` del framework
+9. Se llama a `onAllReady()` de cada módulo
+10. Se ejecuta el callback del usuario (configurado en `zumito.config.ts`)

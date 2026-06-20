@@ -81,7 +81,11 @@ All modules extend `Module` from `zumito-framework` and register themselves in t
 - **Routes** — HTTP endpoints (admin pages, API, etc.).
 - **Navigation items** — Sidebar entries in Admin or User Panel.
 
+Modules can declare dependencies on other modules using static `dependencies` and `optionalDependencies` properties. The framework automatically resolves these dependencies and loads modules in the correct order using **topological sorting**. See [Module lifecycle](/guides/module-lifecycle#dependency-declaration) for details.
+
 ## Dependency graph
+
+The following graph shows the dependency relationships between official modules. These are resolved automatically by the framework at boot time.
 
 ```
 zumito-framework (core)

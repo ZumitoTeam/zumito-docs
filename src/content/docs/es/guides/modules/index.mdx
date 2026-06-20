@@ -81,7 +81,11 @@ Todos los módulos extienden `Module` de `zumito-framework` y se registran en el
 - **Rutas** — Endpoints HTTP (páginas admin, API, etc.).
 - **Elementos de navegación** — Entradas en la barra lateral del Admin o User Panel.
 
+Los módulos pueden declarar dependencias de otros módulos mediante las propiedades estáticas `dependencies` y `optionalDependencies`. El framework resuelve automáticamente estas dependencias y carga los módulos en el orden correcto usando **ordenamiento topológico**. Consulta [Ciclo de vida del módulo](/es/guides/module-lifecycle#declaración-de-dependencias) para más detalles.
+
 ## Grafo de dependencias
+
+El siguiente grafo muestra las relaciones de dependencia entre los módulos oficiales. Estas se resuelven automáticamente por el framework durante el arranque.
 
 ```
 zumito-framework (core)

@@ -7,6 +7,76 @@ import { Aside } from '@astrojs/starlight/components';
 
 Modules in Zumito Framework expose lifecycle hooks that allow you to execute code at specific moments during the bot's initialization.
 
+## Dependency declaration
+
+Modules can declare dependencies on other modules using static properties. The framework resolves these dependencies and loads modules in the correct order using **topological sorting** (dependencies first).
+
+### `moduleName`
+
+Each module can declare its own name, which is used for dependency resolution:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    static moduleName = 'my-module';
+}
+```
+
+If `moduleName` is not declared, the folder name is used as the module name.
+
+### `dependencies`
+
+Declare **required** dependencies — modules that must be loaded before this one:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    static dependencies = ['logger-module', 'admin-module'] as const;
+}
+```
+
+If a required dependency is not found, the module will not be loaded and an error is logged.
+
+### `optionalDependencies`
+
+Declare **optional** dependencies — modules that should be loaded first if present, but will not prevent loading if absent:
+
+```ts
+import { Module } from 'zumito-framework';
+
+export class MyModule extends Module {
+    static optionalDependencies = ['sentry'] as const;
+}
+```
+
+### Legacy `requeriments.modules`
+
+The legacy `requeriments.modules` property is still supported and is merged with the `dependencies` array:
+
+```ts
+export class MyModule extends Module {
+    static requeriments = {
+        modules: ['admin-module'],
+        services: [],
+        custom: [],
+    };
+}
+```
+
+<Aside type="tip">
+    Prefer the new `dependencies` and `optionalDependencies` properties for clarity. The legacy `requeriments` API is maintained for backward compatibility.
+</Aside>
+
+### Circular dependencies
+
+Circular dependencies are detected and reported as errors. The affected modules are skipped during loading:
+
+```
+[📦❌] Circular dependency detected involving: ModuleA, ModuleB
+```
+
 ## `initialize()`
 
 This method is called automatically when the module is loaded. It handles:
@@ -78,9 +148,12 @@ export class OnFrameworkReady extends FrameworkEvent {
 ## Execution order
 
 1. Discord client connects and emits `ready`
-2. Each module's `initialize()` is called
-3. Slash commands are refreshed
-4. API server starts
-5. Framework `ready` event is emitted
-6. Each module's `onAllReady()` is called
-7. User callback (configured in `zumito.config.ts`) is executed
+2. All module classes are loaded and their dependencies are resolved
+3. Modules are **topologically sorted** (dependencies first)
+4. Each module is instantiated in sorted order
+5. Each module's `initialize()` is called in sorted order
+6. Slash commands are refreshed
+7. API server starts
+8. Framework `ready` event is emitted
+9. Each module's `onAllReady()` is called
+10. User callback (configured in `zumito.config.ts`) is executed
