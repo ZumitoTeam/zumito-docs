@@ -3,9 +3,9 @@ title: Modules
 description: Official Zumito modules — pre-built functionality for your Discord bot.
 ---
 
-import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Zumito provides a set of **official modules** that extend your bot with ready-to-use features. Each module is an npm package under the `@zumito-team` scope and integrates directly with the Zumito framework via the `bundles` configuration.
+Zumito provides a set of **official modules** that extend your bot with ready-to-use features. Each module is an npm package under the `@zumito-team` scope and integrates directly with the Zumito framework via the `modules` or `bundles` configuration.
 
 ## Available modules
 
@@ -14,6 +14,11 @@ Zumito provides a set of **official modules** that extend your bot with ready-to
     title="Admin"
     description="Centralized web dashboard for bot management with Discord OAuth2 authentication."
     href="/guides/modules/admin"
+  />
+  <LinkCard
+    title="Analytics"
+    description="Configurable server analytics with Chart.js dashboards for admin and user panels."
+    href="/guides/modules/analytics-module"
   />
   <LinkCard
     title="BuiltByBit License"
@@ -110,12 +115,34 @@ zumito-framework (core)
 ├── sentry
 ├── user-panel-module
 │   └── distube-module
+├── analytics-module
+│   ├── admin-module
+│   └── user-panel-module
 └── stickmanfight
 ```
 
 ## Installation
 
-Install any module via npm and add it to your `zumito.config.ts` bundles:
+Install any module via npm and add it to your `zumito.config.ts`:
+
+<Tabs>
+<TabItem label="Modules (recommended)">
+
+```ts
+// zumito.config.ts
+import { defineConfig } from 'zumito-framework';
+
+export default defineConfig({
+    modules: [
+        '@zumito-team/admin-module',
+        '@zumito-team/logger-module',
+        // ...
+    ]
+})
+```
+
+</TabItem>
+<TabItem label="Legacy bundles">
 
 ```ts
 // zumito.config.ts
@@ -127,3 +154,6 @@ export default {
     ]
 }
 ```
+
+</TabItem>
+</Tabs>

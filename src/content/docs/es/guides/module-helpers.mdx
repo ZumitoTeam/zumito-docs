@@ -1,0 +1,124 @@
+---
+title: Helpers de módulos
+description: createModuleEntry y getModuleConfig — funciones fábrica y helpers de configuración para módulos de Zumito.
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Zumito Framework proporciona dos funciones utilitarias para construir módulos tipados y configurables: `createModuleEntry` y `getModuleConfig`. Ambas se exportan desde `zumito-framework` y son usadas por todos los módulos oficiales.
+
+## `createModuleEntry(metaUrl)`
+
+Crea una función fábrica tipada que produce objetos `ModuleEntry` para el arreglo `modules` en `zumito.config.ts`. Auto-descubre el nombre del módulo recorriendo directorios hacia arriba desde el archivo que llama hasta encontrar el `package.json` más cercano.
+
+### Firma
+
+```ts
+function createModuleEntry<T extends Record<string, any> = Record<string, any>>(
+  metaUrl: string
+): ModuleEntryFactory<T>
+
+// La función fábrica retornada:
+type ModuleEntryFactory<T> = (config?: T) => ModuleEntry
+```
+
+### Uso en un módulo
+
+Cada módulo oficial llama a `createModuleEntry(import.meta.url)` al final de su archivo de entrada principal y exporta el resultado:
+
+```ts
+// index.ts (punto de entrada del módulo)
+import { Module, createModuleEntry } from 'zumito-framework';
+
+export class MyModule extends Module { /* ... */ }
+
+export interface MyModuleEntryConfig {
+    option1?: boolean;
+    option2?: number;
+}
+
+export const myModule = createModuleEntry<MyModuleEntryConfig>(import.meta.url);
+```
+
+### Uso en un bot
+
+Los usuarios importan la función fábrica y pasan la configuración directamente:
+
+```ts
+import { myModule } from '@scope/my-module';
+
+export default defineConfig({
+    modules: [
+        myModule({
+            option1: true,
+            option2: 42,
+        })
+    ]
+});
+```
+
+### Cómo funciona
+
+1. `createModuleEntry` lee `import.meta.url` para ubicar el archivo que llama.
+2. Recorre directorios hacia arriba (hasta 10 niveles) buscando el `package.json` más cercano.
+3. Lee el campo `name` del `package.json` como identificador del módulo.
+4. Retorna una función que, al ser llamada con configuración opcional, produce un objeto `{ name, path, config }`.
+
+## `getModuleConfig(framework, metaUrl)`
+
+Obtiene la configuración en tiempo de ejecución para un módulo. Es útil dentro de servicios de módulo que necesitan acceder a la configuración del módulo desde `zumito.config.ts`.
+
+### Firma
+
+```ts
+function getModuleConfig<T extends Record<string, any>>(
+  framework: ZumitoFramework,
+  metaUrl: string
+): T
+```
+
+### Uso en un servicio
+
+```ts
+// services/MyService.ts
+import { ServiceContainer, getModuleConfig } from 'zumito-framework';
+
+const framework = ServiceContainer.getService(ZumitoFramework) as ZumitoFramework;
+const config = getModuleConfig<{ option1?: boolean }>(framework, import.meta.url);
+
+if (config.option1) {
+    // hacer algo
+}
+```
+
+### Cómo funciona
+
+1. Misma lógica de recorrido de directorios que `createModuleEntry` para descubrir el nombre del módulo desde `import.meta.url`.
+2. Busca en `framework.settings.modules` una entrada que coincida con el nombre del módulo descubierto.
+3. Retorna el objeto `config` de esa entrada, o `{}` si no se encuentra ninguna.
+
+## Lógica de auto-descubrimiento
+
+Ambas funciones comparten el mismo algoritmo `findPackageJson()`:
+
+1. Comienza desde el directorio que contiene el archivo que llama (derivado de `import.meta.url`).
+2. Recorre directorios hacia arriba buscando `package.json`.
+3. Retorna el primero encontrado, o lanza un error (`createModuleEntry`) o retorna `{}` (`getModuleConfig`).
+
+Esto significa que los helpers funcionan desde cualquier subdirectorio — puedes llamar a `createModuleEntry` o `getModuleConfig` desde `services/`, `routes/`, o cualquier ruta anidada, y siempre encontrarán el nombre correcto del módulo.
+
+<Aside type="tip">
+  Siempre pasa `import.meta.url` como primer argumento. Esto asegura que los helpers descubran el nombre del módulo correcto — nunca hardcodees nombres de módulos o rutas.
+</Aside>
+
+## Por qué funciones fábrica?
+
+- **Type safety** — Los objetos de configuración están tipados por módulo, con autocompletado en el editor.
+- **Sin efectos secundarios globales** — La configuración está limitada a la entrada específica del módulo, evitando problemas de orden con llamadas estáticas `.configure()`.
+- **Descubribilidad** — Los usuarios pueden importar la función fábrica y ver inmediatamente qué opciones están disponibles.
+- **Compatibilidad hacia atrás** — Los módulos aún pueden cargarse mediante el arreglo legacy `bundles` o como strings simples en el arreglo `modules`.
+
+## Relacionados
+
+- [Ciclo de vida del módulo](/es/guides/module-lifecycle) — Hooks de ciclo de vida y declaración de dependencias.
+- [Creación de módulos](/es/guides/modules/) — Visión general de la arquitectura de módulos oficiales.

@@ -3,7 +3,7 @@ title: Analytics Module
 description: Configurable server analytics with message, member, voice, and command tracking. Includes optional admin and user panel dashboards with Chart.js.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 The **Analytics Module** (`@zumito-team/analytics-module`) tracks server activity including messages, member joins/leaves, voice channel usage, and command execution. It provides configurable per-guild settings, data retention policies, and optional web dashboard pages with Chart.js visualizations for both the admin panel (global bot stats) and user panel (per-server stats).
 
@@ -15,9 +15,42 @@ npm install @zumito-team/analytics-module
 
 Add to your `zumito.config.ts`:
 
+<Tabs>
+<TabItem label="Factory function (recommended)">
+
+```ts
+import { defineConfig } from 'zumito-framework';
+
+export default defineConfig({
+    modules: ['@zumito-team/analytics-module']
+});
+```
+
+Or with per-module configuration:
+
+```ts
+import { defineConfig } from 'zumito-framework';
+import { analyticsModule } from '@zumito-team/analytics-module';
+
+export default defineConfig({
+    modules: [
+        analyticsModule({
+            defaultTrackCommandPerformance: true,
+            defaultRetentionDays: 30,
+        })
+    ]
+});
+```
+
+</TabItem>
+<TabItem label="Legacy bundles">
+
 ```ts
 bundles: ['@zumito-team/analytics-module/dist']
 ```
+
+</TabItem>
+</Tabs>
 
 <Aside type="note">
   Admin and User Panel integration is optional. The module works without them via Discord commands and the public API.
@@ -102,7 +135,27 @@ The core service available via `ServiceContainer.getService(AnalyticsCollector)`
 
 ### Global defaults
 
-Configure global defaults by importing `AnalyticsModuleConfig` before the module initializes:
+Global defaults can be set either via the factory function or by importing `AnalyticsModuleConfig` directly:
+
+<Tabs>
+<TabItem label="Factory function (recommended)">
+
+```ts
+import { analyticsModule } from '@zumito-team/analytics-module';
+
+export default defineConfig({
+    modules: [
+        analyticsModule({
+            defaultTrackCommandPerformance: true,
+            defaultTrackPerChannelVoice: true,
+            defaultRetentionDays: 30,
+        })
+    ]
+});
+```
+
+</TabItem>
+<TabItem label="AnalyticsModuleConfig.configure()">
 
 ```ts
 import { AnalyticsModuleConfig } from '@zumito-team/analytics-module';
@@ -118,6 +171,9 @@ AnalyticsModuleConfig.configure({
     defaultTrackPerChannelVoice: false,
 });
 ```
+
+</TabItem>
+</Tabs>
 
 | Setting | Type | Default | Description |
 |---|---|---|---|

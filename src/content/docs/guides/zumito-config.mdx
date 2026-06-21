@@ -31,11 +31,59 @@ The `LauncherConfig` extends `Partial<FrameworkSettings>`, so all settings are d
 - `database`: zumito-db multi-driver configuration.
 - `bundles`: An array of `Bundle` objects to load external modules.
 
-## Bundles
+## Modules
 
-Bundles are a way to organize your bot's code. Each bundle is a directory that contains commands, events, and other modules.
+The `modules` array is the recommended way to load Zumito modules. It accepts either a module npm package name string or a `ModuleEntry` created by a module's factory function, giving you full type safety and autocomplete.
 
-To add a bundle, you need to add a `Bundle` object to the `bundles` array in your `zumito.config.ts` file.
+### Using factory functions (recommended)
+
+Each module exports a factory function that returns a typed `ModuleEntry`. This gives you autocomplete on the config object and ensures types are correct at compile time:
+
+```ts
+import { defineConfig } from 'zumito-framework';
+import { adminModule } from '@zumito-team/admin-module';
+import { userPanelModule } from '@zumito-team/user-panel-module';
+
+export default defineConfig({
+    modules: [
+        adminModule(),
+        userPanelModule(),
+    ]
+});
+```
+
+Modules that support configuration can receive it directly in the factory call:
+
+```ts
+import { analyticsModule } from '@zumito-team/analytics-module';
+
+export default defineConfig({
+    modules: [
+        analyticsModule({
+            defaultTrackCommandPerformance: true,
+            defaultRetentionDays: 30,
+        })
+    ]
+});
+```
+
+### Using strings
+
+You can also pass module names as plain strings:
+
+```ts
+export default defineConfig({
+    modules: [
+        '@zumito-team/admin-module',
+        '@zumito-team/user-panel-module',
+        '@zumito-team/analytics-module',
+    ]
+});
+```
+
+## Bundles (legacy)
+
+Bundles are the legacy way to organize your bot's code. Each bundle is a directory that contains commands, events, and other modules.
 
 ```ts
 import path from 'path';
@@ -51,6 +99,10 @@ export const config: LauncherConfig = {
     }],
 };
 ```
+
+<Aside type="caution">
+  The `bundles` array is deprecated and will be removed in a future major version. Use the `modules` array instead.
+</Aside>
 
 ## Framework Settings
 

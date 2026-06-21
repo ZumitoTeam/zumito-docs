@@ -1,0 +1,124 @@
+---
+title: Module helpers
+description: createModuleEntry and getModuleConfig — factory functions and config helpers for Zumito modules.
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Zumito Framework provides two utility functions to help build typed, configurable modules: `createModuleEntry` and `getModuleConfig`. These are exported from `zumito-framework` and used by all official modules.
+
+## `createModuleEntry(metaUrl)`
+
+Creates a typed factory function that produces `ModuleEntry` objects for the `modules` array in `zumito.config.ts`. It auto-discovers the module name by walking up from the caller's directory to find the nearest `package.json`.
+
+### Signature
+
+```ts
+function createModuleEntry<T extends Record<string, any> = Record<string, any>>(
+  metaUrl: string
+): ModuleEntryFactory<T>
+
+// The returned factory function:
+type ModuleEntryFactory<T> = (config?: T) => ModuleEntry
+```
+
+### Usage in a module
+
+Every official module calls `createModuleEntry(import.meta.url)` at the bottom of its main entry file and exports the result:
+
+```ts
+// index.ts (module entry point)
+import { Module, createModuleEntry } from 'zumito-framework';
+
+export class MyModule extends Module { /* ... */ }
+
+export interface MyModuleEntryConfig {
+    option1?: boolean;
+    option2?: number;
+}
+
+export const myModule = createModuleEntry<MyModuleEntryConfig>(import.meta.url);
+```
+
+### Usage in a bot
+
+Users import the factory function and pass config inline:
+
+```ts
+import { myModule } from '@scope/my-module';
+
+export default defineConfig({
+    modules: [
+        myModule({
+            option1: true,
+            option2: 42,
+        })
+    ]
+});
+```
+
+### How it works
+
+1. `createModuleEntry` reads `import.meta.url` to find the caller's file path.
+2. It walks up directories (up to 10 levels) looking for the nearest `package.json`.
+3. It reads the `name` field from `package.json` as the module identifier.
+4. Returns a function that, when called with optional config, produces a `{ name, path, config }` object.
+
+## `getModuleConfig(framework, metaUrl)`
+
+Retrieves the runtime configuration for a module. This is useful inside module services that need access to the module's config from `zumito.config.ts`.
+
+### Signature
+
+```ts
+function getModuleConfig<T extends Record<string, any>>(
+  framework: ZumitoFramework,
+  metaUrl: string
+): T
+```
+
+### Usage in a service
+
+```ts
+// services/MyService.ts
+import { ServiceContainer, getModuleConfig } from 'zumito-framework';
+
+const framework = ServiceContainer.getService(ZumitoFramework) as ZumitoFramework;
+const config = getModuleConfig<{ option1?: boolean }>(framework, import.meta.url);
+
+if (config.option1) {
+    // do something
+}
+```
+
+### How it works
+
+1. Same directory walk-up logic as `createModuleEntry` to discover the module name from `import.meta.url`.
+2. Looks up `framework.settings.modules` for an entry matching the discovered module name.
+3. Returns the `config` object from that entry, or `{}` if none found.
+
+## Auto-discovery logic
+
+Both functions share the same `findPackageJson()` algorithm:
+
+1. Start from the directory containing the caller's file (derived from `import.meta.url`).
+2. Walk up directories looking for `package.json`.
+3. Return the first one found, or throw an error (for `createModuleEntry`) or return `{}` (for `getModuleConfig`).
+
+This means module helpers work from any subdirectory — you can call `createModuleEntry` or `getModuleConfig` from `services/`, `routes/`, or any nested path, and they will still find the correct module name.
+
+<Aside type="tip">
+  Always pass `import.meta.url` as the first argument. This ensures the helpers discover the correct module name — never hardcode module names or paths.
+</Aside>
+
+## Why factory functions?
+
+- **Type safety** — Config objects are typed per-module, with autocomplete in editors.
+- **No global side effects** — Config is scoped to the specific module entry, avoiding ordering issues with static `.configure()` calls.
+- **Discoverability** — Users can `import` the factory function and immediately see what options are available.
+- **Backwards compatible** — Modules can still be loaded via the legacy `bundles` array or as plain strings in the `modules` array.
+
+## Related
+
+- [Module lifecycle](/guides/module-lifecycle) — Lifecycle hooks and dependency declaration.
+- [Creating a module](/guides/modules/) — Official module architecture overview.

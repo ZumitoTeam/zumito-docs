@@ -3,9 +3,9 @@ title: Módulos
 description: Módulos oficiales de Zumito — funcionalidades pre-construidas para tu bot de Discord.
 ---
 
-import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-Zumito proporciona un conjunto de **módulos oficiales** que extienden tu bot con funcionalidades listas para usar. Cada módulo es un paquete npm bajo el scope `@zumito-team` y se integra directamente con el framework de Zumito mediante la configuración `bundles`.
+Zumito proporciona un conjunto de **módulos oficiales** que extienden tu bot con funcionalidades listas para usar. Cada módulo es un paquete npm bajo el scope `@zumito-team` y se integra directamente con el framework de Zumito mediante la configuración `modules` o `bundles`.
 
 ## Módulos disponibles
 
@@ -14,6 +14,11 @@ Zumito proporciona un conjunto de **módulos oficiales** que extienden tu bot co
     title="Admin"
     description="Panel de administración web centralizado con autenticación OAuth2 de Discord."
     href="/es/guides/modules/admin"
+  />
+  <LinkCard
+    title="Analíticas"
+    description="Analíticas de servidor configurables con paneles Chart.js para admin y usuario."
+    href="/es/guides/modules/analytics-module"
   />
   <LinkCard
     title="BuiltByBit License"
@@ -110,12 +115,34 @@ zumito-framework (core)
 ├── sentry
 ├── user-panel-module
 │   └── distube-module
+├── analytics-module
+│   ├── admin-module
+│   └── user-panel-module
 └── stickmanfight
 ```
 
 ## Instalación
 
-Instala cualquier módulo vía npm y agrégalo a los bundles de tu `zumito.config.ts`:
+Instala cualquier módulo vía npm y agrégalo a tu `zumito.config.ts`:
+
+<Tabs>
+<TabItem label="Modules (recomendado)">
+
+```ts
+// zumito.config.ts
+import { defineConfig } from 'zumito-framework';
+
+export default defineConfig({
+    modules: [
+        '@zumito-team/admin-module',
+        '@zumito-team/logger-module',
+        // ...
+    ]
+})
+```
+
+</TabItem>
+<TabItem label="Legacy bundles">
 
 ```ts
 // zumito.config.ts
@@ -127,3 +154,6 @@ export default {
     ]
 }
 ```
+
+</TabItem>
+</Tabs>

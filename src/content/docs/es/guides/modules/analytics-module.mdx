@@ -3,7 +3,7 @@ title: Modulo de Analiticas
 description: Analiticas de servidor configurables con seguimiento de mensajes, miembros, voz y comandos. Incluye paneles de administracion y usuario con Chart.js.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 El **Modulo de Analiticas** (`@zumito-team/analytics-module`) realiza un seguimiento de la actividad del servidor incluyendo mensajes, entradas/salidas de miembros, uso de canales de voz y ejecucion de comandos. Proporciona configuracion por servidor, politicas de retencion de datos y paneles web opcionales con graficos Chart.js para el panel de administracion (estadisticas globales del bot) y el panel de usuario (estadisticas por servidor).
 
@@ -15,9 +15,42 @@ npm install @zumito-team/analytics-module
 
 Agregar a `zumito.config.ts`:
 
+<Tabs>
+<TabItem label="Factory function (recomendado)">
+
+```ts
+import { defineConfig } from 'zumito-framework';
+
+export default defineConfig({
+    modules: ['@zumito-team/analytics-module']
+});
+```
+
+O con configuración por módulo:
+
+```ts
+import { defineConfig } from 'zumito-framework';
+import { analyticsModule } from '@zumito-team/analytics-module';
+
+export default defineConfig({
+    modules: [
+        analyticsModule({
+            defaultTrackCommandPerformance: true,
+            defaultRetentionDays: 30,
+        })
+    ]
+});
+```
+
+</TabItem>
+<TabItem label="Legacy bundles">
+
 ```ts
 bundles: ['@zumito-team/analytics-module/dist']
 ```
+
+</TabItem>
+</Tabs>
 
 <Aside type="note">
   La integracion con los paneles de Admin y Usuario es opcional. El modulo funciona sin ellos mediante comandos de Discord y la API publica.
@@ -104,6 +137,26 @@ Servicio principal disponible via `ServiceContainer.getService(AnalyticsCollecto
 
 Configurar valores globales importando `AnalyticsModuleConfig` antes de que el modulo se inicialice:
 
+<Tabs>
+<TabItem label="Factory function (recomendado)">
+
+```ts
+import { analyticsModule } from '@zumito-team/analytics-module';
+
+export default defineConfig({
+    modules: [
+        analyticsModule({
+            defaultTrackCommandPerformance: true,
+            defaultTrackPerChannelVoice: true,
+            defaultRetentionDays: 30,
+        })
+    ]
+});
+```
+
+</TabItem>
+<TabItem label="AnalyticsModuleConfig.configure()">
+
 ```ts
 import { AnalyticsModuleConfig } from '@zumito-team/analytics-module';
 
@@ -118,6 +171,9 @@ AnalyticsModuleConfig.configure({
     defaultTrackPerChannelVoice: false,
 });
 ```
+
+</TabItem>
+</Tabs>
 
 | Configuracion | Tipo | Valor | Descripcion |
 |---|---|---|---|
